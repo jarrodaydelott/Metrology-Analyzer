@@ -58,11 +58,6 @@ export function updateDashboard() {
         return activeRunFilter.has(runName);
     });
 
-    // Populate activeSeriesFilter if it's empty (e.g. initial load)
-    if (activeSeriesFilter.size === 0) {
-        seriesList.forEach(s => activeSeriesFilter.add(s));
-    }
-
     const stats = [];
     const plotTraces = [];
 

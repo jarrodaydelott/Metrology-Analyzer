@@ -272,9 +272,12 @@ function initRunFilter(view, dim, preserveState = false) {
     if (preserveState) {
         const validActive = new Set();
         activeRunFilter.forEach(r => { if (runList.includes(r)) validActive.add(r); });
-        if (validActive.size > 0) activeRunFilter = validActive;
-        else activeRunFilter = new Set(runList); 
-    } else { activeRunFilter = new Set(runList); }
+        activeRunFilter.clear();
+        (validActive.size > 0 ? validActive : new Set(runList)).forEach(r => activeRunFilter.add(r));
+    } else {
+        activeRunFilter.clear();
+        runList.forEach(r => activeRunFilter.add(r));
+    }
 
     let containerId = '';
     if (view === 'std') containerId = 'runFilterContent';
@@ -314,9 +317,12 @@ function initSeriesFilter(dim, preserveState = false) {
             if (preserveState) {
                 const validActive = new Set();
                 activeSeriesFilter.forEach(s => { if (seriesList.includes(s)) validActive.add(s); });
-                if (validActive.size > 0) activeSeriesFilter = validActive;
-                else activeSeriesFilter = new Set(seriesList);
-            } else { activeSeriesFilter = new Set(seriesList); }
+                activeSeriesFilter.clear();
+                (validActive.size > 0 ? validActive : new Set(seriesList)).forEach(s => activeSeriesFilter.add(s));
+            } else {
+                activeSeriesFilter.clear();
+                seriesList.forEach(s => activeSeriesFilter.add(s));
+            }
             
             const container = document.getElementById('seriesFilterContent');
             if(!container) return;
@@ -324,7 +330,8 @@ function initSeriesFilter(dim, preserveState = false) {
             
             const allDiv = document.createElement('div');
             allDiv.className = 'flex items-center p-2 hover:bg-slate-700 rounded cursor-pointer';
-            allDiv.innerHTML = `<input type="checkbox" id="chk-all" checked class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-500 rounded focus:ring-blue-600 ring-offset-slate-800"><label for="chk-all" class="ml-2 text-sm text-slate-200 cursor-pointer w-full font-bold">Select All</label>`;
+            const isAllChecked = seriesList.length > 0 && seriesList.every(s => activeSeriesFilter.has(s));
+            allDiv.innerHTML = `<input type="checkbox" id="chk-all" ${isAllChecked ? 'checked' : ''} class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-500 rounded focus:ring-blue-600 ring-offset-slate-800"><label for="chk-all" class="ml-2 text-sm text-slate-200 cursor-pointer w-full font-bold">Select All</label>`;
             allDiv.onclick = (e) => { if(e.target.tagName !== 'INPUT') { const cb = allDiv.querySelector('input'); cb.checked = !cb.checked; handleSeriesFilterChange('ALL', cb.checked, seriesList); } };
             allDiv.querySelector('input').onchange = (e) => handleSeriesFilterChange('ALL', e.target.checked, seriesList);
             container.appendChild(allDiv);
@@ -334,6 +341,7 @@ function initSeriesFilter(dim, preserveState = false) {
                 div.className = 'flex items-center p-2 hover:bg-slate-700 rounded cursor-pointer';
                 const isChecked = activeSeriesFilter.has(s);
                 div.innerHTML = `<input type="checkbox" id="chk-${s}" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-500 rounded focus:ring-blue-600 ring-offset-slate-800"><label for="chk-${s}" class="ml-2 text-sm text-slate-200 cursor-pointer w-full">${s}</label>`;
+                div.querySelector('input').dataset.series = s;
                 div.onclick = (e) => { if(e.target.tagName !== 'INPUT') { const cb = div.querySelector('input'); cb.checked = !cb.checked; handleSeriesFilterChange(s, cb.checked); } };
                 div.querySelector('input').onchange = (e) => handleSeriesFilterChange(s, e.target.checked);
                 container.appendChild(div);
@@ -353,10 +361,21 @@ function initSeriesFilter(dim, preserveState = false) {
 
 function handleSeriesFilterChange(series, isChecked, allSeriesList) {
     if (series === 'ALL') {
-        if (isChecked) allSeriesList.forEach(s => activeSeriesFilter.add(s)); else activeSeriesFilter.clear();
+        const seriesNames = allSeriesList || Array.from(document.querySelectorAll('#seriesFilterContent input[type="checkbox"]:not(#chk-all)')).map(cb => cb.dataset.series || cb.nextElementSibling?.textContent).filter(Boolean);
+        activeSeriesFilter.clear();
+        if (isChecked) seriesNames.forEach(s => activeSeriesFilter.add(s));
+        document.querySelectorAll('#seriesFilterContent input[type="checkbox"]:not(#chk-all)').forEach(cb => {
+            cb.checked = isChecked;
+        });
     } else {
         if (isChecked) activeSeriesFilter.add(series); else activeSeriesFilter.delete(series);
+        const allCb = document.getElementById('chk-all');
+        if (allCb) {
+            const checkboxes = document.querySelectorAll('#seriesFilterContent input[type="checkbox"]:not(#chk-all)');
+            allCb.checked = checkboxes.length > 0 && Array.from(checkboxes).every(c => c.checked);
+        }
     }
+    updateFilterLabel();
     updateDashboard();
 }
 
@@ -397,6 +416,8 @@ function handleDimensionChange() {
     // RE-ADDED: Build the dropdown lists based on the newly selected dimension
     initRunFilter('std', dim, true);
     initSeriesFilter(dim, true);
+    const steelAdjStd = document.getElementById('steelAdjStd');
+    if (steelAdjStd) steelAdjStd.value = ((dim && adjustments[dim]) || 0).toFixed(4);
     
     updateDrawingPopupImage('std');  // Ensure standard popup image is updated if it was open
     updateDashboard();               // Redraws charts AND the legend

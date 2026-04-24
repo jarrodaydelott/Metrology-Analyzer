@@ -30,3 +30,6 @@ venv/
 # Build output
 dist/
 build/
+
+# Local backups (old builds / copies — not part of the repo)
+Backups/

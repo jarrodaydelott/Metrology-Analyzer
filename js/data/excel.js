@@ -16,20 +16,30 @@ export function compressForExcel(base64Str) {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            // Shrink to a small thumbnail size for storage
-            const MAX_WIDTH = 400;
-            const scale = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH;
-            canvas.height = img.height * scale;
-            
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Export as low-quality JPEG to keep character count very low (~10-15k)
-            resolve(canvas.toDataURL('image/jpeg', 0.6));
+            const widths = [400, 320, 240, 180, 140];
+            const qualities = [0.65, 0.55, 0.45, 0.35];
+
+            for (const width of widths) {
+                const scale = Math.min(1, width / img.width);
+                canvas.width = Math.max(1, Math.round(img.width * scale));
+                canvas.height = Math.max(1, Math.round(img.height * scale));
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                for (const quality of qualities) {
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    if (dataUrl.length < 32000) {
+                        resolve(dataUrl);
+                        return;
+                    }
+                }
+            }
+
+            resolve(canvas.toDataURL('image/jpeg', 0.3));
         };
+        img.onerror = () => resolve(base64Str);
         img.src = base64Str;
     });
 }
@@ -291,15 +301,43 @@ export async function injectDrawingsToExcel() {
     await workbook.xlsx.load(rawWorkbookBuffer);
     const worksheet = workbook.worksheets[0];
 
-    // Find Header Indices
-    let headerRow = worksheet.getRow(1);
-    let itemColIdx = -1, tolMinusColIdx = -1, drawingDataColIdx = -1;
+    const getCellText = (cell) => {
+        const value = cell?.value;
+        if (value === null || value === undefined) return "";
+        if (typeof value === "object") {
+            if (Array.isArray(value.richText)) return value.richText.map(part => part.text || "").join("");
+            if (value.text) return String(value.text);
+            if (value.result !== undefined) return String(value.result);
+        }
+        return String(value);
+    };
+
+    const measurementHeaderRegex = /Cav(?:ity)?\s*[_.]?\s*\d+.*?Sam(?:ple)?\s*[_.]?\s*\d+(?:.*Run\s*[_.]?\s*.*)?/i;
+    let headerRow = null;
+    let headerRowNumber = 1;
+    let itemColIdx = -1, tolMinusColIdx = -1, drawingDataColIdx = -1, drawingPreviewColIdx = -1;
+
+    for (let rowNumber = 1; rowNumber <= worksheet.rowCount; rowNumber++) {
+        const row = worksheet.getRow(rowNumber);
+        const values = [];
+        row.eachCell({ includeEmpty: false }, (cell) => values.push(getCellText(cell)));
+        const hasNominal = values.some(val => /Nominal/i.test(val));
+        const hasMeasurement = values.some(val => measurementHeaderRegex.test(val));
+        if (hasNominal && hasMeasurement) {
+            headerRow = row;
+            headerRowNumber = rowNumber;
+            break;
+        }
+    }
+
+    if (!headerRow) headerRow = worksheet.getRow(1);
 
     headerRow.eachCell((cell, colNumber) => {
-        const val = String(cell.value);
+        const val = getCellText(cell);
         if (/Item/i.test(val) || /Element/i.test(val)) itemColIdx = colNumber;
         if (/Tol\s*[-]/i.test(val)) tolMinusColIdx = colNumber;
         if (/Drawing Data/i.test(val)) drawingDataColIdx = colNumber;
+        if (/Drawing Preview/i.test(val)) drawingPreviewColIdx = colNumber;
     });
 
     if (itemColIdx === -1 || tolMinusColIdx === -1) {
@@ -311,22 +349,46 @@ export async function injectDrawingsToExcel() {
     if (drawingDataColIdx === -1) {
         drawingDataColIdx = tolMinusColIdx + 1;
         worksheet.spliceColumns(drawingDataColIdx, 0, []);
-        const headerCell = worksheet.getRow(1).getCell(drawingDataColIdx);
+        const headerCell = worksheet.getRow(headerRowNumber).getCell(drawingDataColIdx);
         headerCell.value = "Drawing Data";
+        headerCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+        headerCell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+        if (drawingPreviewColIdx >= drawingDataColIdx) drawingPreviewColIdx++;
+    }
+
+    if (drawingPreviewColIdx === -1) {
+        drawingPreviewColIdx = drawingDataColIdx + 1;
+        worksheet.spliceColumns(drawingPreviewColIdx, 0, []);
+        const headerCell = worksheet.getRow(headerRowNumber).getCell(drawingPreviewColIdx);
+        headerCell.value = "Drawing Preview";
         headerCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
         headerCell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
     }
 
-    // Inject COMPRESSED Strings
+    worksheet.getColumn(drawingDataColIdx).hidden = true;
+    worksheet.getColumn(drawingPreviewColIdx).width = 24;
+
+    // Inject compressed strings for app reload plus visible thumbnails for Excel users.
     const rowCount = worksheet.rowCount;
-    for (let i = 2; i <= rowCount; i++) {
+    for (let i = headerRowNumber + 1; i <= rowCount; i++) {
         const row = worksheet.getRow(i);
-        const itemVal = String(row.getCell(itemColIdx).value).trim();
+        const itemVal = getCellText(row.getCell(itemColIdx)).trim();
         
         if (dimensionImages[itemVal]) {
             // Compress on the fly so it stays under the 32,767 char limit
             const tinyStr = await compressForExcel(dimensionImages[itemVal]);
             row.getCell(drawingDataColIdx).value = tinyStr;
+            row.height = Math.max(row.height || 15, 78);
+
+            const imageId = workbook.addImage({
+                base64: tinyStr,
+                extension: 'jpeg',
+            });
+            worksheet.addImage(imageId, {
+                tl: { col: drawingPreviewColIdx - 1, row: i - 1 },
+                ext: { width: 150, height: 90 },
+                editAs: 'oneCell',
+            });
         }
     }
 
@@ -334,7 +396,7 @@ export async function injectDrawingsToExcel() {
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = projectFileName.replace(".xlsx", "_Master_Project.xlsx");
+    link.download = projectFileName.replace(/\.[^.]+$/, "") + "_Master_Project.xlsx";
     link.click();
     rawWorkbookBuffer = buffer;
 }

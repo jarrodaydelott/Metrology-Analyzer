@@ -225,7 +225,7 @@
         <div class="max-w-3xl w-full bg-slate-800 rounded-xl shadow-lg border border-slate-700 p-8">
             <div class="text-center mb-8">
                 <i class="fa-solid fa-ruler-combined text-5xl text-blue-500 mb-4"></i>
-                <h1 class="text-3xl font-bold text-white mb-2">Metrology Data Analyzer <span class="text-blue-500 text-xl ml-2">Ver 1.6</span></h1>
+                <h1 class="text-3xl font-bold text-slate-100 mb-2">Metrology Data Analyzer <span class="text-blue-500 text-xl ml-2">Ver 1.5</span></h1>
                 <p class="text-slate-400">Project Setup & Template Generation</p>
             </div>
 
@@ -282,7 +282,7 @@
                 </div>
 
                 <div class="text-center">
-                    <button onclick="showMainApp()" class="text-slate-300 hover:text-white font-medium py-2 px-4 rounded border border-slate-600 hover:bg-slate-700 transition-colors w-full">
+                    <button onclick="showMainApp()" class="text-slate-300 hover:text-slate-100 font-medium py-2 px-4 rounded border border-slate-600 hover:bg-slate-700 transition-colors w-full">
                         I already have a file, continue to analysis <i class="fa-solid fa-arrow-right ml-2"></i>
                     </button>
                 </div>
@@ -1136,11 +1136,6 @@ function updateDashboard() {
         return activeRunFilter.has(runName);
     });
 
-    // Populate activeSeriesFilter if it's empty (e.g. initial load)
-    if (activeSeriesFilter.size === 0) {
-        seriesList.forEach(s => activeSeriesFilter.add(s));
-    }
-
     const stats = [];
     const plotTraces = [];
 
@@ -1576,20 +1571,30 @@ function compressForExcel(base64Str) {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            // Shrink to a small thumbnail size for storage
-            const MAX_WIDTH = 400;
-            const scale = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH;
-            canvas.height = img.height * scale;
-            
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Export as low-quality JPEG to keep character count very low (~10-15k)
-            resolve(canvas.toDataURL('image/jpeg', 0.6));
+            const widths = [400, 320, 240, 180, 140];
+            const qualities = [0.65, 0.55, 0.45, 0.35];
+
+            for (const width of widths) {
+                const scale = Math.min(1, width / img.width);
+                canvas.width = Math.max(1, Math.round(img.width * scale));
+                canvas.height = Math.max(1, Math.round(img.height * scale));
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                for (const quality of qualities) {
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    if (dataUrl.length < 32000) {
+                        resolve(dataUrl);
+                        return;
+                    }
+                }
+            }
+
+            resolve(canvas.toDataURL('image/jpeg', 0.3));
         };
+        img.onerror = () => resolve(base64Str);
         img.src = base64Str;
     });
 }
@@ -1851,15 +1856,43 @@ async function injectDrawingsToExcel() {
     await workbook.xlsx.load(rawWorkbookBuffer);
     const worksheet = workbook.worksheets[0];
 
-    // Find Header Indices
-    let headerRow = worksheet.getRow(1);
-    let itemColIdx = -1, tolMinusColIdx = -1, drawingDataColIdx = -1;
+    const getCellText = (cell) => {
+        const value = cell?.value;
+        if (value === null || value === undefined) return "";
+        if (typeof value === "object") {
+            if (Array.isArray(value.richText)) return value.richText.map(part => part.text || "").join("");
+            if (value.text) return String(value.text);
+            if (value.result !== undefined) return String(value.result);
+        }
+        return String(value);
+    };
+
+    const measurementHeaderRegex = /Cav(?:ity)?\s*[_.]?\s*\d+.*?Sam(?:ple)?\s*[_.]?\s*\d+(?:.*Run\s*[_.]?\s*.*)?/i;
+    let headerRow = null;
+    let headerRowNumber = 1;
+    let itemColIdx = -1, tolMinusColIdx = -1, drawingDataColIdx = -1, drawingPreviewColIdx = -1;
+
+    for (let rowNumber = 1; rowNumber <= worksheet.rowCount; rowNumber++) {
+        const row = worksheet.getRow(rowNumber);
+        const values = [];
+        row.eachCell({ includeEmpty: false }, (cell) => values.push(getCellText(cell)));
+        const hasNominal = values.some(val => /Nominal/i.test(val));
+        const hasMeasurement = values.some(val => measurementHeaderRegex.test(val));
+        if (hasNominal && hasMeasurement) {
+            headerRow = row;
+            headerRowNumber = rowNumber;
+            break;
+        }
+    }
+
+    if (!headerRow) headerRow = worksheet.getRow(1);
 
     headerRow.eachCell((cell, colNumber) => {
-        const val = String(cell.value);
+        const val = getCellText(cell);
         if (/Item/i.test(val) || /Element/i.test(val)) itemColIdx = colNumber;
         if (/Tol\s*[-]/i.test(val)) tolMinusColIdx = colNumber;
         if (/Drawing Data/i.test(val)) drawingDataColIdx = colNumber;
+        if (/Drawing Preview/i.test(val)) drawingPreviewColIdx = colNumber;
     });
 
     if (itemColIdx === -1 || tolMinusColIdx === -1) {
@@ -1871,22 +1904,46 @@ async function injectDrawingsToExcel() {
     if (drawingDataColIdx === -1) {
         drawingDataColIdx = tolMinusColIdx + 1;
         worksheet.spliceColumns(drawingDataColIdx, 0, []);
-        const headerCell = worksheet.getRow(1).getCell(drawingDataColIdx);
+        const headerCell = worksheet.getRow(headerRowNumber).getCell(drawingDataColIdx);
         headerCell.value = "Drawing Data";
+        headerCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
+        headerCell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+        if (drawingPreviewColIdx >= drawingDataColIdx) drawingPreviewColIdx++;
+    }
+
+    if (drawingPreviewColIdx === -1) {
+        drawingPreviewColIdx = drawingDataColIdx + 1;
+        worksheet.spliceColumns(drawingPreviewColIdx, 0, []);
+        const headerCell = worksheet.getRow(headerRowNumber).getCell(drawingPreviewColIdx);
+        headerCell.value = "Drawing Preview";
         headerCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
         headerCell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
     }
 
-    // Inject COMPRESSED Strings
+    worksheet.getColumn(drawingDataColIdx).hidden = true;
+    worksheet.getColumn(drawingPreviewColIdx).width = 24;
+
+    // Inject compressed strings for app reload plus visible thumbnails for Excel users.
     const rowCount = worksheet.rowCount;
-    for (let i = 2; i <= rowCount; i++) {
+    for (let i = headerRowNumber + 1; i <= rowCount; i++) {
         const row = worksheet.getRow(i);
-        const itemVal = String(row.getCell(itemColIdx).value).trim();
+        const itemVal = getCellText(row.getCell(itemColIdx)).trim();
         
         if (dimensionImages[itemVal]) {
             // Compress on the fly so it stays under the 32,767 char limit
             const tinyStr = await compressForExcel(dimensionImages[itemVal]);
             row.getCell(drawingDataColIdx).value = tinyStr;
+            row.height = Math.max(row.height || 15, 78);
+
+            const imageId = workbook.addImage({
+                base64: tinyStr,
+                extension: 'jpeg',
+            });
+            worksheet.addImage(imageId, {
+                tl: { col: drawingPreviewColIdx - 1, row: i - 1 },
+                ext: { width: 150, height: 90 },
+                editAs: 'oneCell',
+            });
         }
     }
 
@@ -1894,7 +1951,7 @@ async function injectDrawingsToExcel() {
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = projectFileName.replace(".xlsx", "_Master_Project.xlsx");
+    link.download = projectFileName.replace(/\.[^.]+$/, "") + "_Master_Project.xlsx";
     link.click();
     rawWorkbookBuffer = buffer;
 }
@@ -2972,9 +3029,12 @@ function initRunFilter(view, dim, preserveState = false) {
     if (preserveState) {
         const validActive = new Set();
         activeRunFilter.forEach(r => { if (runList.includes(r)) validActive.add(r); });
-        if (validActive.size > 0) activeRunFilter = validActive;
-        else activeRunFilter = new Set(runList); 
-    } else { activeRunFilter = new Set(runList); }
+        activeRunFilter.clear();
+        (validActive.size > 0 ? validActive : new Set(runList)).forEach(r => activeRunFilter.add(r));
+    } else {
+        activeRunFilter.clear();
+        runList.forEach(r => activeRunFilter.add(r));
+    }
 
     let containerId = '';
     if (view === 'std') containerId = 'runFilterContent';
@@ -3014,9 +3074,12 @@ function initSeriesFilter(dim, preserveState = false) {
             if (preserveState) {
                 const validActive = new Set();
                 activeSeriesFilter.forEach(s => { if (seriesList.includes(s)) validActive.add(s); });
-                if (validActive.size > 0) activeSeriesFilter = validActive;
-                else activeSeriesFilter = new Set(seriesList);
-            } else { activeSeriesFilter = new Set(seriesList); }
+                activeSeriesFilter.clear();
+                (validActive.size > 0 ? validActive : new Set(seriesList)).forEach(s => activeSeriesFilter.add(s));
+            } else {
+                activeSeriesFilter.clear();
+                seriesList.forEach(s => activeSeriesFilter.add(s));
+            }
             
             const container = document.getElementById('seriesFilterContent');
             if(!container) return;
@@ -3024,7 +3087,8 @@ function initSeriesFilter(dim, preserveState = false) {
             
             const allDiv = document.createElement('div');
             allDiv.className = 'flex items-center p-2 hover:bg-slate-700 rounded cursor-pointer';
-            allDiv.innerHTML = `<input type="checkbox" id="chk-all" checked class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-500 rounded focus:ring-blue-600 ring-offset-slate-800"><label for="chk-all" class="ml-2 text-sm text-slate-200 cursor-pointer w-full font-bold">Select All</label>`;
+            const isAllChecked = seriesList.length > 0 && seriesList.every(s => activeSeriesFilter.has(s));
+            allDiv.innerHTML = `<input type="checkbox" id="chk-all" ${isAllChecked ? 'checked' : ''} class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-500 rounded focus:ring-blue-600 ring-offset-slate-800"><label for="chk-all" class="ml-2 text-sm text-slate-200 cursor-pointer w-full font-bold">Select All</label>`;
             allDiv.onclick = (e) => { if(e.target.tagName !== 'INPUT') { const cb = allDiv.querySelector('input'); cb.checked = !cb.checked; handleSeriesFilterChange('ALL', cb.checked, seriesList); } };
             allDiv.querySelector('input').onchange = (e) => handleSeriesFilterChange('ALL', e.target.checked, seriesList);
             container.appendChild(allDiv);
@@ -3034,6 +3098,7 @@ function initSeriesFilter(dim, preserveState = false) {
                 div.className = 'flex items-center p-2 hover:bg-slate-700 rounded cursor-pointer';
                 const isChecked = activeSeriesFilter.has(s);
                 div.innerHTML = `<input type="checkbox" id="chk-${s}" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-500 rounded focus:ring-blue-600 ring-offset-slate-800"><label for="chk-${s}" class="ml-2 text-sm text-slate-200 cursor-pointer w-full">${s}</label>`;
+                div.querySelector('input').dataset.series = s;
                 div.onclick = (e) => { if(e.target.tagName !== 'INPUT') { const cb = div.querySelector('input'); cb.checked = !cb.checked; handleSeriesFilterChange(s, cb.checked); } };
                 div.querySelector('input').onchange = (e) => handleSeriesFilterChange(s, e.target.checked);
                 container.appendChild(div);
@@ -3053,10 +3118,21 @@ function initSeriesFilter(dim, preserveState = false) {
 
 function handleSeriesFilterChange(series, isChecked, allSeriesList) {
     if (series === 'ALL') {
-        if (isChecked) allSeriesList.forEach(s => activeSeriesFilter.add(s)); else activeSeriesFilter.clear();
+        const seriesNames = allSeriesList || Array.from(document.querySelectorAll('#seriesFilterContent input[type="checkbox"]:not(#chk-all)')).map(cb => cb.dataset.series || cb.nextElementSibling?.textContent).filter(Boolean);
+        activeSeriesFilter.clear();
+        if (isChecked) seriesNames.forEach(s => activeSeriesFilter.add(s));
+        document.querySelectorAll('#seriesFilterContent input[type="checkbox"]:not(#chk-all)').forEach(cb => {
+            cb.checked = isChecked;
+        });
     } else {
         if (isChecked) activeSeriesFilter.add(series); else activeSeriesFilter.delete(series);
+        const allCb = document.getElementById('chk-all');
+        if (allCb) {
+            const checkboxes = document.querySelectorAll('#seriesFilterContent input[type="checkbox"]:not(#chk-all)');
+            allCb.checked = checkboxes.length > 0 && Array.from(checkboxes).every(c => c.checked);
+        }
     }
+    updateFilterLabel();
     updateDashboard();
 }
 
@@ -3097,6 +3173,8 @@ function handleDimensionChange() {
     // RE-ADDED: Build the dropdown lists based on the newly selected dimension
     initRunFilter('std', dim, true);
     initSeriesFilter(dim, true);
+    const steelAdjStd = document.getElementById('steelAdjStd');
+    if (steelAdjStd) steelAdjStd.value = ((dim && adjustments[dim]) || 0).toFixed(4);
     
     updateDrawingPopupImage('std');  // Ensure standard popup image is updated if it was open
     updateDashboard();               // Redraws charts AND the legend

@@ -6,6 +6,7 @@
 
 1. **Shippable single-file build** — `npm run bundle` runs `scripts/bundle-html.mjs` to emit **Metrology Data Analyzer Ver 1.6.html** (inlined CSS + concatenated JS; CDNs unchanged).
 2. **Modular app** — Dev workflow remains `index.html` + `css/app.css` + `js/**` ES modules (`npm run dev` uses `serve`).
+3. **Standard analysis fixes** — Series filter now allows true empty selections, standard steel adjustment reloads per selected dimension, and Excel drawing export stores reload data plus visible thumbnails.
 
 ## Recent decisions
 
