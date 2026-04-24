@@ -1,0 +1,16 @@
+# Molding Genie Project Rules
+
+## 1. Memory Management (The Smol Rule)
+- Monitor the token counter (bottom right).
+- If Tokens > 200,000 or Thinking > 20s, STOP and tell the user: "Context is high. Please run /smol."
+- After an image is processed, prompt the user: "Should I /smol now to clear the image data?"
+
+## 2. Memory Bank Protocol
+- Always read the `memory-bank/` folder at the start of a task.
+- Update `activeContext.md` and `progress.md` before finishing any task.
+- If a `replace_in_file` search pattern fails twice, fallback to `write_to_file` to overwrite the entire file instead of trying to find a specific block.
+
+## Diff Edit Reliability
+- When using `replace_in_file`, ensure the SEARCH block matches the file's indentation exactly.
+- If a `replace_in_file` attempt fails twice in a row, do not retry a third time. Instead, immediately use `write_to_file` to overwrite the target file with the complete updated content.
+- Always normalize line endings to LF before attempting a search.

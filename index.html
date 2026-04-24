@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrology Data Analyzer</title>
+    
+    <link rel="icon" href="data:image/x-icon;base64,AAABAAIAEBAAAAEAIABoBAAAJgAAACAgAAABACAAqBAAAI4EAAANAQAAMQAAACaaaaa=">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // 1. WE HIJACK TAILWIND TO USE OUR CUSTOM FLIPPING VARIABLES
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            100: 'var(--sl-100)', 200: 'var(--sl-200)', 300: 'var(--sl-300)',
+                            400: 'var(--sl-400)', 500: 'var(--sl-500)', 600: 'var(--sl-600)',
+                            700: 'var(--sl-700)', 750: 'var(--sl-750)', 800: 'var(--sl-800)',
+                            850: 'var(--sl-850)', 900: 'var(--sl-900)', 950: 'var(--sl-950)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@1.9.6/dist/jstat.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="light-mode bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <div id="startPage" class="flex-grow flex flex-col items-center justify-center p-6 bg-slate-900">
+        <div class="max-w-3xl w-full bg-slate-800 rounded-xl shadow-lg border border-slate-700 p-8">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-ruler-combined text-5xl text-blue-500 mb-4"></i>
+                <h1 class="text-3xl font-bold text-white mb-2">Metrology Data Analyzer <span class="text-blue-500 text-xl ml-2">Ver 1.6</span></h1>
+                <p class="text-slate-400">Project Setup & Template Generation</p>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700">
+                    <h2 class="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv"></i> Generate New Template
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Dimensions</label>
+                            <input type="number" id="inputDims" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:border-blue-500 outline-none" placeholder="5" min="1" value="5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Total Cavities</label>
+                            <input type="number" id="inputCavs" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:border-blue-500 outline-none" placeholder="4" min="1" value="4">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Starting Cav #</label>
+                            <input type="number" id="inputStartCav" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:border-blue-500 outline-none" placeholder="1" min="1" value="1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Samples / Cavity</label>
+                            <input type="number" id="inputSamples" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:border-blue-500 outline-none" placeholder="30" min="1" value="30">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Run Configuration</label>
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="w-1/4">
+                                <label class="text-xs text-slate-500 block mb-1">Number of Runs</label>
+                                <input type="number" id="inputNumRuns" onchange="updateRunNameInputs()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:border-blue-500 outline-none" min="1" max="10" value="1">
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-xs text-slate-500 mt-6">Enter names for each run below (e.g., "DOE1", "HighPress")</p>
+                            </div>
+                        </div>
+                        
+                        <div id="runNamesContainer" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <input type="text" class="run-name-input w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="Run 1 Name" value="Run1">
+                        </div>
+                    </div>
+
+                    <button onclick="generateTemplate()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i> Generate Excel Template
+                    </button>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-700"></div></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-2 bg-slate-800 text-slate-500">OR</span></div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showMainApp()" class="text-slate-300 hover:text-white font-medium py-2 px-4 rounded border border-slate-600 hover:bg-slate-700 transition-colors w-full">
+                        I already have a file, continue to analysis <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden flex flex-col flex-grow">
+        <nav class="bg-slate-950 border-b border-slate-800 shadow-lg shrink-0 z-50">
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-14">
+            <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="location.reload()">
+                <i class="fa-solid fa-ruler-combined text-xl text-blue-500"></i>
+                <span class="font-bold text-lg tracking-tight text-slate-100">Metrology<span class="text-blue-500">Analyzer</span></span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-6 mx-8 flex-grow justify-center">
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Data</label>
+                    <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded w-48 focus:outline-none" />
+                </div>
+                <div class="flex items-center gap-2 border-l border-slate-800 pl-4">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Units</label>
+                    <select id="unitSelect" class="bg-slate-900 border-0 ring-1 ring-slate-800 rounded px-2 py-1 text-[11px] text-slate-200 outline-none">
+                        <option value="mm">mm</option>
+                        <option value="in" selected>in</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 border-l border-slate-800 pl-4">
+    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target Cpk</label>
+    <input type="number" id="targetCpkInput" value="1.33" step="0.01" class="w-20 bg-slate-900 border-0 ring-1 ring-slate-800 rounded px-2 py-1 text-[11px] text-slate-200 font-mono outline-none text-center focus:ring-blue-500 transition-all" />
+</div>
+            </div>
+
+            <div class="flex items-center gap-1 shrink-0">
+                <button id="btn-return-pdf" onclick="openPdfWizardFromHeader()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="PDF Setup"><i class="fa-solid fa-file-pdf"></i></button>
+                <input type="file" id="projectUpload" accept=".json" class="hidden" />
+                <button onclick="document.getElementById('projectUpload').click()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Open Project"><i class="fa-solid fa-folder-open"></i></button>
+                <button onclick="saveProject(false)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project"><i class="fa-solid fa-floppy-disk"></i></button>
+                <button onclick="exportStandardAnalysisSlideDeck()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Export PPTX"><i class="fa-solid fa-file-powerpoint"></i></button>
+                <div class="w-px h-5 bg-slate-800 mx-1"></div>
+                <button onclick="toggleLightMode()" class="text-slate-400 hover:text-amber-400 p-2 rounded transition-colors" title="Toggle Theme" id="themeToggleBtn"><i class="fa-solid fa-moon"></i></button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+        <main class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
+            
+            <div id="tabContainer" class="hidden border-b border-slate-700 mb-6">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="tabStandard" onclick="switchTab('standard')" class="tab-btn active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Standard Analysis</button>
+                    <button id="tabSixPack" onclick="switchTab('sixpack')" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm">Critical Six-Pack</button>
+                    <button id="tabSPC" onclick="switchTab('spc')" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm"><i class="fa-solid fa-chart-area mr-2"></i>SPC Analysis</button>
+                    <button id="tabSummary" onclick="switchTab('summary')" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm"><i class="fa-solid fa-clipboard-check mr-2"></i>Action Summary</button>
+                </nav>
+            </div>
+
+            <div id="viewStandard" class="hidden space-y-6">
+                <div id="stdStatsBanner" class="hidden flex items-center justify-between p-4 bg-slate-800 rounded-lg shadow-sm border border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-chart-pie text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase">Filtered Data</h3>
+                            <p id="statCount" class="text-sm font-medium text-slate-300">-</p>
+                        </div>
+                    </div>
+                    <div class="h-10 w-px bg-slate-700 mx-4"></div>
+                    <div class="flex-grow flex justify-around">
+    <div>
+        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Est. Cpk</p>
+        <p id="statCpk" class="text-xl font-mono font-bold text-slate-100">-</p>
+    </div>
+    <div>
+        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Mean</p>
+        <p id="statMean" class="text-xl font-mono font-bold text-slate-100">-</p>
+    </div>
+    <div>
+        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Variance</p>
+        <p id="statVar" class="text-xl font-mono font-bold text-slate-100">-</p>
+    </div>
+</div>
+                </div>
+
+                <div class="bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Filter Type</label>
+                            <div class="relative">
+                                <select id="typeFilter" onchange="handleTypeFilterChange()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium">
+                                    <option value="ALL">All Types</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-filter text-xs"></i></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Select Dimension</label>
+                            <div class="relative">
+                                <select id="dimSelect" onchange="handleDimensionChange()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-sm"></select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                            </div>
+                        </div>
+
+                       <div class="relative group">
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Filter Run</label>
+                            <button id="runFilterBtn" onclick="toggleRunDropdown('std')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-medium flex justify-between items-center">
+                                <span id="runFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                            </button>
+                            <div id="runFilterContent" class="hidden absolute z-30 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                        </div>
+                        
+                        <div class="relative group">
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Filter Series</label>
+                            <button id="seriesFilterBtn" onclick="document.getElementById('seriesFilterContent').classList.toggle('hidden')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-medium flex justify-between items-center">
+                                <span id="seriesFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                            </button>
+                            <div id="seriesFilterContent" class="hidden absolute z-30 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2"><i class="fa-solid fa-screwdriver-wrench mr-2 text-orange-400"></i>Steel Adj</label>
+                            <div class="relative">
+                                <input type="number" id="steelAdjStd" step="0.0001" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-orange-500 outline-none font-mono font-medium" placeholder="0.0000"/>
+                                <div id="unitLabelStd" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500 text-xs">adj</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden">
+    <div class="p-4 border-b border-slate-700 bg-slate-800 flex justify-between items-center flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+            <h2 class="font-bold text-slate-200"><i class="fa-solid fa-chart-line mr-2 text-blue-500"></i>Dimensional Run Chart</h2>
+            <span id="descBadge" class="hidden px-2 py-0.5 rounded text-xs font-bold bg-blue-900 text-blue-200 border border-blue-700"></span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="chartMeta" class="text-sm font-bold font-mono text-slate-200"></span>
+        </div>
+    </div>
+    
+    <div class="p-4 flex flex-col gap-6 w-full">
+        
+        <div class="flex flex-col xl:flex-row gap-6 w-full items-center">
+            
+            <div class="flex-grow w-full bg-slate-900/30 rounded border border-slate-700/50 pt-2 min-w-0 self-stretch relative">
+                <div id="chart" class="w-full min-h-[500px] h-full"></div>
+            </div>
+            
+            <div id="inline-drawing-container-std" class="hidden w-full xl:w-[600px] h-[500px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-stretch">
+                <h3 class="font-bold text-sm text-slate-300 mb-4 border-b border-slate-700 pb-2">
+                    <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
+                </h3>
+                
+                <div class="flex-grow flex items-center justify-center bg-slate-900/50 rounded border border-slate-700 overflow-hidden relative">
+                    <img id="inline-drawing-image-std" class="w-full h-full object-contain p-2" src="">
+                    
+                    <div id="std-static-placeholder" class="hidden text-center text-slate-500 p-8">
+                        <i class="fa-regular fa-image text-5xl mb-4 opacity-40"></i>
+                        <p class="text-lg font-bold">No Drawing Available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="custom-legend" class="w-full bg-slate-900/60 rounded border border-slate-700 p-4 hidden flex-col shadow-inner">
+            <div class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
+                <h4 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-list-check mr-2 text-blue-500"></i>Legend Filters</h4>
+                <button onclick="toggleAllLegendTraces()" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors bg-blue-900/30 px-2 py-1 rounded border border-blue-800">Toggle All</button>
+            </div>
+            <div id="custom-legend-items" class="flex flex-row flex-wrap gap-x-6 gap-y-3 overflow-y-auto max-h-[200px]"></div>
+        </div>
+
+    </div>
+</div>
+
+                <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden">
+                    <div class="p-4 border-b border-slate-700 bg-slate-800 flex justify-between items-center">
+                        <h2 class="font-bold text-slate-200"><i class="fa-solid fa-table mr-2 text-blue-500"></i>Cavity Statistics <span id="adjIndicator" class="ml-2 text-xs font-normal text-orange-400 hidden">(Adjusted)</span></h2>
+                    </div>
+                    <div class="table-container overflow-x-auto">
+                        <table class="w-full text-base text-left text-slate-300">
+                            <thead class="text-[10px] text-slate-500 uppercase tracking-widest bg-slate-900/50 border-b border-slate-700/50">
+                                <tr>
+                                    <th class="px-6 py-3 font-bold text-left">Cavity</th>
+                                    <th class="px-6 py-3 font-bold text-right">Samples (N)</th>
+                                    <th class="px-6 py-3 font-bold text-right">Mean</th>
+                                    <th class="px-6 py-3 font-bold text-right">Range</th>
+                                    <th class="px-6 py-3 font-bold text-right">Std Dev</th>
+                                    <th class="px-6 py-3 font-bold text-right">Variance</th>
+                                    <th class="px-6 py-3 font-bold text-right">CpK</th>
+                                    <th class="px-6 py-3 font-bold text-left flex items-center gap-2">Normality <button class="text-slate-400 hover:text-white" onclick="showChartHelp('normality_flags')"><i class="fa-regular fa-circle-question"></i></button></th>
+                                </tr>
+                            </thead>
+                            <tbody id="statsTableBody" class="divide-y divide-slate-700 font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewSixPack" class="hidden space-y-6">
+                
+                <div id="spWarning" class="hidden bg-slate-800 border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm ring-1 ring-slate-700/50">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-red-500/10 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i></div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-bold text-slate-200">Process Insight</h3>
+                                <div id="spWarningText" class="mt-0.5 text-xs text-slate-400"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button id="btn-reset-outliers" onclick="resetOutliers()" class="hidden text-xs bg-slate-700 text-slate-300 px-3 py-1.5 rounded hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> Reset</button>
+                            <button id="btn-remove-outliers" onclick="removeOutliers()" class="hidden text-xs bg-red-900/40 text-red-200 px-3 py-1.5 rounded hover:bg-red-900/60 transition-colors shadow-sm"><i class="fa-solid fa-filter mr-1"></i> Review Outliers</button>
+                            <button id="btn-ai-help" onclick="openAiHelper()" class="hidden text-xs bg-blue-900/20 text-blue-400 px-3 py-1.5 rounded border border-blue-500/30 hover:bg-blue-900/40 transition-colors shadow-sm"><i class="fa-solid fa-robot mr-1"></i> Diagnose</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Critical Dimension</label>
+                        <div class="relative"><select id="spDimSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-sm"></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
+                    </div>
+                    <div class="relative group">
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Filter Run</label>
+                        <button id="spRunFilterBtn" onclick="toggleRunDropdown('sixpack')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 font-medium flex justify-between items-center"><span id="spRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
+                        <div id="spRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Cavity Grouping</label>
+                        <div class="relative"><select id="spCavSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium"><option value="all">All Cavities (Combined)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2"><i class="fa-solid fa-screwdriver-wrench mr-2 text-orange-400"></i>Steel Adj</label>
+                        <div class="relative"><input type="number" id="steelAdjSp" value="0.0000" step="0.0001" oninput="handleAdjustmentChange(event)" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-orange-500 outline-none font-mono font-medium" placeholder="0.0000"/><div id="unitLabelSp" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500 text-xs">mm</div></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col xl:flex-row gap-6 w-full">
+                    
+                    <div class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
+                        <div id="cont-spChart1" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart1" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart1')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart1" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart2" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart2')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart2" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart2')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart2" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart3" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart3" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart3')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart3" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart4" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart4" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart4')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart4" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart5" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart5" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart5')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart5" class="w-full h-[300px]"></div></div>
+                        <div class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col"><h3 class="font-bold text-sm text-slate-300 mb-2 border-b border-slate-700 pb-1">Capability Statistics</h3><div id="spStats" class="flex-grow font-mono text-xs overflow-auto"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
+                    </div>
+
+                    <div class="w-full xl:w-[600px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-stretch">
+    <h3 class="font-bold text-sm text-slate-300 mb-4 border-b border-slate-700 pb-2">
+        <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
+    </h3>
+    
+    <div class="flex-grow flex items-center justify-center bg-slate-900/50 rounded border border-slate-700 overflow-hidden relative">
+        
+        <img id="sp-static-drawing-img" class="hidden w-full h-full object-contain p-2" src="">
+        
+        <div id="sp-static-placeholder" class="text-center text-slate-500 p-8">
+            <i class="fa-regular fa-image text-6xl mb-4 opacity-40"></i>
+            <p class="text-xl font-bold">No Drawing Found</p>
+            <p class="text-sm opacity-50">Please capture a snippet in PDF Setup</p>
+        </div>
+    </div>
+</div>
+
+                </div>
+            </div>
+			<div id="viewPdfSetup" class="hidden space-y-4 p-4">
+    <div class="flex justify-between items-center bg-slate-800 p-4 rounded-lg border border-slate-700">
+        <div class="flex gap-4 items-center">
+            <h2 class="text-xl font-bold text-white">PDF Drawing Setup</h2>
+            <div id="capture-status-badge" class="px-3 py-1 bg-blue-900/50 text-blue-400 border border-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">
+                Select a Dimension to Capture
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="btn-snap-capture" class="hidden bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2">
+                <i class="fa-solid fa-camera"></i> Save Capture
+            </button>
+            <button onclick="switchTab('standard')" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-bold">Done</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="lg:col-span-1 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex flex-col h-[750px]">
+            <div class="p-4 bg-slate-900/50 border-b border-slate-700">
+                <h3 class="font-bold text-slate-300 text-sm uppercase">Dimensions</h3>
+            </div>
+            <div id="pdf-dim-list" class="flex-grow overflow-y-auto p-2 space-y-2"></div>
+        </div>
+
+        <div class="lg:col-span-3 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden relative flex flex-col h-[750px]">
+            <div class="p-3 bg-slate-800 border-b border-slate-700 flex justify-center items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <button onclick="changePdfPage(-1)" class="p-2 text-slate-400 hover:text-white"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="page-num-display" class="text-slate-200 font-mono text-sm bg-slate-950 px-3 py-1 rounded border border-slate-700">Page 1 / 1</span>
+                    <button onclick="changePdfPage(1)" class="p-2 text-slate-400 hover:text-white"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <div class="flex items-center gap-2">
+                    <button onclick="zoomPdf(-0.1)" class="p-2 text-slate-400 hover:text-white"><i class="fa-solid fa-minus"></i></button>
+                    <span id="zoom-display" class="text-slate-200 font-mono text-sm bg-slate-950 px-3 py-1 rounded border border-slate-700 w-16 text-center">100%</span>
+                    <button onclick="zoomPdf(0.1)" class="p-2 text-slate-400 hover:text-white"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <label class="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold uppercase transition-colors">
+                    <i class="fa-solid fa-file-pdf mr-1"></i> Open PDF
+                    <input type="file" id="pdf-upload" accept="application/pdf" class="hidden" onchange="handleFileSelect(event)">
+                </label>
+            </div>
+            
+            <div id="pdf-scroll-container" class="flex-grow overflow-auto p-12 flex justify-center bg-slate-950/50">
+                <div id="pdf-wrapper" class="relative">
+                    <canvas id="pdf-canvas-setup" class="shadow-2xl"></canvas>
+                    <div id="pdf-viewfinder-setup"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <div id="viewSPC" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                    <h2 class="text-lg font-bold text-slate-200">Process Stability Review</h2>
+                    <div class="flex gap-4">
+                        <div class="relative group w-48">
+                            <button id="spcRiskRunFilterBtn" onclick="toggleRunDropdown('spc')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-1.5 text-sm text-slate-200 font-medium flex justify-between items-center"><span id="spcRiskRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
+                            <div id="spcRiskRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
+                        </div>
+                        <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Ask AI Expert</button>
+                    </div>
+                </div>
+                <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-6"><h2 class="font-bold text-slate-200 text-lg mb-4"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2><div id="spcVerdict" class="text-lg text-slate-300 font-medium bg-slate-900/50 p-4 rounded border border-slate-600 font-mono mb-4"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div><h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4><div id="spcCommonCause" class="text-sm text-slate-300"></div></div><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4><div id="spcSpecialCause" class="text-sm text-slate-300"></div></div></div></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700"><div class="p-4 bg-slate-900/50 border-b border-slate-700"><h3 class="font-bold text-slate-200">Cavity Stability</h3></div><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-300"><thead class="bg-slate-900 text-slate-400 uppercase text-xs"><tr><th class="px-4 py-3">Run</th><th class="px-4 py-3">Cavity</th><th class="px-4 py-3">Usage</th><th class="px-4 py-3">Status</th></tr></thead><tbody id="spcCavityBody" class="divide-y divide-slate-700"></tbody></table></div></div>
+                    <div id="spcPhysicsBody" class="bg-slate-800 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-6 text-sm"></div>
+                </div>
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 mt-6"><div class="p-4 bg-slate-900/50 border-b border-slate-700"><h3 class="font-bold text-slate-200">Risk Ranking</h3></div><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-300"><thead class="bg-slate-900 text-slate-400 uppercase text-xs"><tr><th class="px-6 py-3">Dimension</th><th class="px-6 py-3">Type</th><th class="px-6 py-3">Worse Run</th><th class="px-6 py-3">Max Usage</th><th class="px-6 py-3">Primary Risk</th><th class="px-6 py-3">Explanation</th></tr></thead><tbody id="spcRiskBody" class="divide-y divide-slate-700"></tbody></table></div></div>
+            </div>
+
+            <div id="viewSummary" class="hidden space-y-6">
+                <div class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700 bg-slate-800 flex justify-between items-start">
+                        <div><h2 class="font-bold text-slate-200 text-lg"><i class="fa-solid fa-flag text-red-500 mr-2"></i>Automated Issues List</h2><p class="text-sm text-slate-400 mt-1">Scanning for critical capability and centering issues.</p></div>
+                        <div class="relative group w-48">
+                            <button id="sumRunFilterBtn" onclick="toggleRunDropdown('sum')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-1.5 text-sm text-slate-200 font-medium flex justify-between items-center"><span id="sumRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
+                            <div id="sumRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
+                        </div>
+                    </div>
+                    <div class="table-container overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-300">
+                            <thead class="text-xs text-slate-400 uppercase bg-slate-900 border-b border-slate-700">
+                                <tr><th class="px-6 py-3">Cavity</th><th class="px-6 py-3">Category</th><th class="px-6 py-3">Issue</th><th class="px-6 py-3">Metrics</th><th class="px-6 py-3">Next Step</th><th class="px-6 py-3">Action</th></tr>
+                            </thead>
+                            <tbody id="summaryTableBody" class="divide-y divide-slate-700"></tbody>
+                        </table>
+                    </div>
+                    <div id="noIssuesMessage" class="hidden p-12 text-center text-slate-500"><i class="fa-solid fa-check-circle text-4xl text-green-500 mb-3"></i><p class="text-lg font-medium">No major issues detected.</p></div>
+                </div>
+            </div>
+
+            <div id="emptyState" class="text-center py-20 text-slate-500">
+                <i class="fa-solid fa-cloud-arrow-up text-6xl mb-4 text-slate-700"></i>
+                <p class="text-lg">Upload an Excel file to begin analysis.</p>
+            </div>
+
+        </main>
+		<div id="ai-helper-sidebar">
+            <div class="ai-header">
+                <h3 class="text-blue-400 font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-robot"></i> AI Analysis</h3>
+                <button onclick="closeAiHelper()" class="text-2xl hover:text-white">&times;</button>
+            </div>
+            <div id="ai-content-area" class="ai-body"></div>
+        </div>
+
+        <div id="graph-help-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+            <div class="bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-w-lg w-full p-6 m-4 relative">
+                <button onclick="document.getElementById('graph-help-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h3 id="modal-title" class="text-lg font-bold text-slate-200 mb-2"></h3>
+                <div id="modal-content" class="text-slate-300 text-sm space-y-3 leading-relaxed"></div>
+            </div>
+        </div>
+    </div>
+    <div id="pdf-prompt-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-w-md w-full p-8 text-center">
+            <i class="fa-regular fa-file-pdf text-6xl text-red-500 mb-4"></i>
+            <h3 class="text-xl font-bold text-white mb-2">Add Drawing Images?</h3>
+            <p class="text-slate-400 text-sm mb-6">Import engineering drawings to include snippets in your report.</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="skipPdfImport()" class="px-5 py-2.5 text-sm font-bold text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-lg">Skip</button>
+                <button onclick="document.getElementById('pdfUpload').click()" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-lg flex items-center gap-2"><i class="fa-solid fa-upload"></i> Upload PDF</button>
+                <input type="file" id="pdfUpload" accept=".pdf" class="hidden" onchange="startPdfWizard(event)" />
+            </div>
+        </div>
+    </div>
+
+    <div id="pdf-wizard-modal" class="hidden fixed inset-0 z-[100] bg-slate-900 flex flex-col">
+        <div class="bg-slate-950 p-4 border-b border-slate-800 flex justify-between items-center shrink-0 shadow-md">
+            <div>
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-crop-simple text-blue-500 mr-2"></i>Dimension Capture Wizard</h2>
+                <p id="wizard-instruction" class="text-slate-400 text-sm mt-1">Position the target over the dimension and click to capture.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="bg-slate-800 rounded flex text-sm border border-slate-700">
+                    <button onclick="zoomPdf(-0.2)" class="px-3 py-1.5 text-slate-300 hover:text-white border-r border-slate-700" title="Zoom Out">
+                        <i class="fa-solid fa-magnifying-glass-minus"></i>
+                    </button>
+                    <span id="zoom-percent" class="px-3 py-1.5 text-slate-400 font-mono">150%</span>
+                    <button onclick="zoomPdf(0.2)" class="px-3 py-1.5 text-slate-300 hover:text-white border-l border-slate-700" title="Zoom In">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="bg-slate-800 rounded flex text-sm">
+                    <button onclick="changePdfPage(-1)" class="px-3 py-1.5 text-slate-300 hover:text-white border-r border-slate-700"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span class="px-4 py-1.5 text-slate-400 font-mono">Page <span id="pdf-page-num">1</span> / <span id="pdf-page-count">?</span></span>
+                    <button onclick="changePdfPage(1)" class="px-3 py-1.5 text-slate-300 hover:text-white border-l border-slate-700"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <button onclick="finishWizard()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-sm transition-colors">
+    <i class="fa-solid fa-file-export mr-2"></i>Finish & Close
+</button>
+            </div>
+        </div>
+        
+        <div class="flex-grow flex overflow-hidden">
+            <div class="flex-grow relative overflow-auto bg-slate-800 flex justify-center items-start p-8" id="pdf-container">
+                <canvas id="pdf-canvas" class="shadow-2xl cursor-crosshair"></canvas>
+                <div id="pdf-reticle" class="absolute w-[250px] h-[200px] border-2 border-red-500 border-dashed pointer-events-none hidden bg-blue-500/10 shadow-[0_0_0_9999px_rgba(15,23,42,0.6)] z-10"></div>
+            </div>
+            
+            <div class="w-80 bg-slate-900 border-l border-slate-800 flex flex-col shrink-0">
+                <div class="p-4 border-b border-slate-800 bg-slate-950">
+                    <h3 class="font-bold text-slate-200">Dimensions Checklist</h3>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+                        <div id="wizard-progress" class="bg-green-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div id="wizard-dim-list" class="flex-grow overflow-y-auto p-2 space-y-2"></div>
+            </div>
+        </div>
+    </div>	
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "metrology-analyzer",
+  "private": true,
+  "description": "Metrology Data Analyzer — static ES modules; use a local HTTP server (not file://).",
+  "scripts": {
+    "dev": "npx --yes serve .",
+    "bundle": "node scripts/bundle-html.mjs"
+  },
+  "devDependencies": {
+    "acorn": "^8.14.0"
+  }
+}
