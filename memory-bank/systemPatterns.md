@@ -27,7 +27,10 @@
 
 ## Theming
 
-- `html` / `body` class `dark` vs `body.light-mode` toggles CSS variables (`--sl-*`) consumed by Tailwind overrides and custom CSS
+- `body.light-mode` toggles CSS variables (`--sl-*`, `--accent-*`, `--chart-*`) aligned with DOE SUITE [`theme-tokens.css`](../../DOE Program/current code/theme-tokens.css) and chart refs from `00-uiTheme.js`
+- Theme persists via `localStorage` key **`doe-theme`** (`light` | `dark`) — shared with DOE SUITE
+- [`js/theme.js`](../js/theme.js) — `readStoredThemeIsLight`, `persistThemeIsLight`, `getChartRefColors`
+- Init on load: `initThemeFromStorage()` in `plotly-dashboard.js`
 
 ## Known code smell (document for refactors)
 

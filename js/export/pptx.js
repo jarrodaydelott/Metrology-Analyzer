@@ -10,6 +10,7 @@ import {
   BRAND_ORANGE,
 } from "../constants.js";
 import { getSeriesLabel, getFullDimensionName } from "../utils/labels.js";
+import { CHART_SERIES_PALETTE_LIGHT, getChartRefColors } from "../theme.js";
 
 // --- NEW HELPER: Compresses massive PNG snippets to prevent PPTX memory crashes ---
 export function prepareSnippetForPPTX(base64Str) {
@@ -198,7 +199,7 @@ export function renderStandardChartToImage(selectedDim) {
         const plotTraces = [];
         let allY = [];
         
-        const lightPalette = ["#4A78B0", "#B25A5A", "#5E8D6B", "#C09241", "#8D70A3", "#5C9494", "#B85C74", "#60699F", "#A9704C", "#7A8D55"];
+        const chartRef = getChartRefColors(true);
 
         seriesList.forEach((series, idx) => {
             const seriesData = dimData.filter(d => getSeriesLabel(d) === series).sort((a,b) => a.sample - b.sample);
@@ -210,8 +211,8 @@ export function renderStandardChartToImage(selectedDim) {
                 y: values, 
                 mode: 'lines+markers', 
                 name: series, 
-                line: { color: lightPalette[idx % lightPalette.length], width: 2 }, 
-                marker: { color: lightPalette[idx % lightPalette.length], size: 6 } 
+                line: { color: CHART_SERIES_PALETTE_LIGHT[idx % CHART_SERIES_PALETTE_LIGHT.length], width: 2 }, 
+                marker: { color: CHART_SERIES_PALETTE_LIGHT[idx % CHART_SERIES_PALETTE_LIGHT.length], size: 6 } 
             });
         });
 
@@ -237,10 +238,10 @@ export function renderStandardChartToImage(selectedDim) {
             font: { family: 'Segoe UI, sans-serif', color: '#1e293b' },
             showlegend: true, 
             legend: { orientation: "v", x: 1.02, y: 1, xanchor: "left", yanchor: "top", bgcolor: '#f8fafc', bordercolor: '#e5e7eb', borderwidth: 1, font: { size: 11, color: '#1e293b' } },
-            shapes: [ 
-                { type: 'line', y0: rec.usl, y1: rec.usl, x0: 0, x1: 1, xref: 'paper', line: {color: '#ef4444', width: 2, dash: 'dash'} }, 
-                { type: 'line', y0: rec.lsl, y1: rec.lsl, x0: 0, x1: 1, xref: 'paper', line: {color: '#ef4444', width: 2, dash: 'dash'} }, 
-                { type: 'line', y0: rec.nominal, y1: rec.nominal, x0: 0, x1: 1, xref: 'paper', line: {color: '#22c55e', width: 2} } 
+            shapes: [
+                { type: 'line', y0: rec.usl, y1: rec.usl, x0: 0, x1: 1, xref: 'paper', line: { color: chartRef.limit, width: 2, dash: 'dash' } },
+                { type: 'line', y0: rec.lsl, y1: rec.lsl, x0: 0, x1: 1, xref: 'paper', line: { color: chartRef.limit, width: 2, dash: 'dash' } },
+                { type: 'line', y0: rec.nominal, y1: rec.nominal, x0: 0, x1: 1, xref: 'paper', line: { color: chartRef.nominal, width: 2 } }
             ]
         };
 

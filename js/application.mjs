@@ -49,6 +49,7 @@ import {
   renderTable,
   toggleLightMode,
   applyThemeToCharts,
+  initThemeFromStorage,
 } from "./charts/plotly-dashboard.js";
 import { addBulb, runExpertAnalysis } from "./analysis/expert.js";
 import {
@@ -100,6 +101,7 @@ import {
 // 4. NAVIGATION & INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+    initThemeFromStorage();
     document.getElementById('fileUpload').addEventListener('change', handleFile, false);
     document.getElementById('projectUpload').addEventListener('change', handleLoadProject, false);
     document.getElementById('dimSelect').addEventListener('change', handleDimensionChange, false);
@@ -637,10 +639,10 @@ function updateSPC() {
     let allRunNames = new Set();
 
     const riskDefinitions = {
-        "Process Variation": "The bell curve is too wide (Cp < 1.0). You cannot center this process yet because the spread exceeds the tolerance.",
-        "Tooling Centering": "The process is stable (consistent), but the average is off-target. This is the ideal condition for cutting steel.",
-        "Instability": "The process is generally good, but 'flyers' (outliers) are consuming >75% of the tolerance.",
-        "Marginal": "The dimension is passing, but uses a large % of the tolerance window."
+        "Process Variation": "PROCESS VARIATION (Cp < 1.0): The within-shot spread is too wide — the bell curve exceeds the tolerance even if perfectly centered. You cannot fix this by adjusting the mean or cutting steel. Priority actions: (1) Stabilize the Range/MR chart, (2) Inspect check ring and cushion, (3) Run a gate freeze study, (4) Verify clamp tonnage. Re-measure only after Cp improves.",
+        "Tooling Centering": "TOOLING CENTERING: The process is repeatable (good Cp) but the average is shifted toward one spec limit. This is the correct condition for a tooling or process mean adjustment. Use steel-safe rules: cut steel on cores to open holes, plate/weld cavities to grow external features. Confirm Range chart stability before any steel work.",
+        "Instability": "INSTABILITY (Special Cause): Individual shots or cavities are consuming more than 75% of the tolerance — often due to flyers (short shots, flash, contamination). Do not adjust the process mean. Instead: (1) Find the specific outlier shots on the Run Chart, (2) Physically inspect those parts, (3) Determine root cause, (4) Remove confirmed defects from the dataset, (5) Implement a countermeasure.",
+        "Marginal": "MARGINAL (Passing but Tight): The dimension is currently in spec but using a large share of the tolerance window. Any drift in mean or increase in variation will likely produce defects. Proactively monitor this dimension each run and prioritize it before it becomes a failure."
     };
 
     uniqueDims.forEach(dim => {
@@ -716,12 +718,24 @@ function updateSPC() {
     const avgCp = variationSummary.cpCount > 0 ? variationSummary.totalCp / variationSummary.cpCount : 0;
     const commonEl = document.getElementById('spcCommonCause');
     const specialEl = document.getElementById('spcSpecialCause');
-    if (avgCp >= 1.33) commonEl.innerHTML = `<p class="text-green-400 font-bold">Low Noise (Cp: ${avgCp.toFixed(2)})</p><p>Process capability is high.</p>`;
-    else if (avgCp >= 1.0) commonEl.innerHTML = `<p class="text-yellow-400 font-bold">Marginal (Cp: ${avgCp.toFixed(2)})</p><p>Using most of the tolerance.</p>`;
-    else commonEl.innerHTML = `<p class="text-red-400 font-bold">High Noise (Cp: ${avgCp.toFixed(2)})</p><p>Process too variable.</p>`;
-    
-    if (variationSummary.totalSignals === 0) specialEl.innerHTML = `<p class="text-green-400 font-bold">Stable</p><p>No significant outliers.</p>`;
-    else specialEl.innerHTML = `<p class="text-red-400 font-bold">Instability</p><p>Found <strong>${variationSummary.totalSignals}</strong> violations (>75% usage).</p>`;
+    if (avgCp >= 1.33) {
+        commonEl.innerHTML = `<p class="text-green-400 font-bold">Low System Noise (Avg Cp: ${avgCp.toFixed(2)})</p>
+            <p class="text-xs text-slate-300 mt-1">Across the selected runs, within-subgroup variation is small relative to tolerances. The machine and mold are repeating shots consistently. Focus improvement efforts on centering (off-target means) rather than variation reduction.</p>`;
+    } else if (avgCp >= 1.0) {
+        commonEl.innerHTML = `<p class="text-yellow-400 font-bold">Marginal System Noise (Avg Cp: ${avgCp.toFixed(2)})</p>
+            <p class="text-xs text-slate-300 mt-1">The process is using most of the available tolerance band for spread. It may be capable today but has limited margin for drift or tool wear. Monitor closely and prioritize dimensions with the highest tolerance consumption in the Risk Ranking table.</p>`;
+    } else {
+        commonEl.innerHTML = `<p class="text-red-400 font-bold">High System Noise (Avg Cp: ${avgCp.toFixed(2)})</p>
+            <p class="text-xs text-slate-300 mt-1">Common-cause variation is too high — the bell curve is wider than the tolerance allows. Process parameter tweaks to center the mean will not fix this. Investigate check ring wear, cushion stability, gate freeze timing, and clamp tonnage before making any tooling changes.</p>`;
+    }
+
+    if (variationSummary.totalSignals === 0) {
+        specialEl.innerHTML = `<p class="text-green-400 font-bold">No Special Cause Signals</p>
+            <p class="text-xs text-slate-300 mt-1">No individual shots or cavities exceeded 75% tolerance consumption. The process is free of the large outlier events that typically indicate short shots, flash, or contamination. Continue routine monitoring.</p>`;
+    } else {
+        specialEl.innerHTML = `<p class="text-red-400 font-bold">Special Cause Detected</p>
+            <p class="text-xs text-slate-300 mt-1">Found <strong>${variationSummary.totalSignals}</strong> measurement(s) consuming &gt;75% of tolerance — assignable special-cause events, not random noise. Identify the specific shots on the Run Chart, inspect those parts, determine root cause, and remove confirmed defects before recalculating capability.</p>`;
+    }
 
     const tbodyCav = document.getElementById('spcCavityBody');
     tbodyCav.innerHTML = "";
@@ -775,8 +789,15 @@ function updateSPC() {
     const varDrivers = dimensionRisks.filter(d => d.driver.includes("Variation")).length;
     const centerDrivers = dimensionRisks.filter(d => d.driver.includes("Centering")).length;
     let interp = "";
-    if (varDrivers > centerDrivers) interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1"></i><div><h4 class="font-bold text-red-400">Pressure Instability</h4><p>Variation dominates. Check check-ring and cushion.</p></div></div>`;
-    else interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1"></i><div><h4 class="font-bold text-orange-400">Tooling Setup</h4><p>Centering dominates. Adjust steel or hold pressure.</p></div></div>`;
+    if (varDrivers > centerDrivers) {
+        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1"></i><div><h4 class="font-bold text-red-400">Pressure / Repeatability Problem</h4>
+            <p class="text-xs text-slate-300 mt-1">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
+            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p></div></div>`;
+    } else {
+        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1"></i><div><h4 class="font-bold text-orange-400">Tooling / Centering Problem</h4>
+            <p class="text-xs text-slate-300 mt-1">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
+            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p></div></div>`;
+    }
     physicsDiv.innerHTML = interp;
 }
 
@@ -842,10 +863,12 @@ function updateSummary() {
                 
                 if (cp < targetCpk) {
                     issueType = "Variation Too High (Cp < Target)";
-                    nextStep = "Focus on reducing process variation. Check machine stability, thermal consistency, or gauge R&R.";
+                    nextStep = "<strong>Step 1:</strong> Stabilize the Range/MR chart — inspect check ring, log cushion, verify hold pressure repeatability. <strong>Step 2:</strong> Run a gate freeze study if pack-related. <strong>Step 3:</strong> Confirm gauge resolution meets the 10:1 rule. Do not center the mean until Cp meets target.";
                 } else {
                     issueType = mean > target ? "Mean Shifted High (Oversize)" : "Mean Shifted Low (Undersize)";
-                    nextStep = "Process is stable but off-target. Adjust steel dimensions or shift process parameters.";
+                    nextStep = mean > target
+                        ? "<strong>Step 1:</strong> Confirm Range chart is in control (process is stable). <strong>Step 2:</strong> Try reducing hold/pack pressure or increasing cooling time to reduce shrinkage. <strong>Step 3:</strong> If shift is large, plan steel-safe tooling — cut cavity steel or plate core pin per direction rules."
+                        : "<strong>Step 1:</strong> Confirm Range chart is in control (process is stable). <strong>Step 2:</strong> Try increasing hold/pack pressure or reducing cooling time. <strong>Step 3:</strong> If shift is large, plan steel-safe tooling — plate cavity or cut core pin per direction rules.";
                 }
                 
                 dimIssues.push({

@@ -1,41 +1,72 @@
    :root {
-        /* PRO DARK MODE: #121212 strategy with desaturated semantic colors */
-        --sl-100: #e0e0e0; /* High emphasis text */
-        --sl-200: #cccccc; 
-        --sl-300: #a0a0a0; /* Medium emphasis */
-        --sl-400: #888888; /* Muted icons/labels */
-        --sl-500: #666666; 
-        --sl-600: #444444; 
-        --sl-700: #333333; 
-        --sl-750: #2a2a2a; /* Elevated Hover states */
-        --sl-800: #1e1e1e; /* Card Level 1 */
-        --sl-850: #181818; 
-        --sl-900: #121212; /* Base App Background */
-        --sl-950: #0a0a0a; 
-        
-        --alert-bg: rgba(248, 113, 113, 0.1); 
-        --alert-text: #fca5a5; /* Desaturated Red to prevent eye strain */
+        /* DOE SUITE dark (theme-tokens.css html.dark) */
+        --sl-100: #e2e8f0;
+        --sl-200: #e2e8f0;
+        --sl-300: #cbd5e1;
+        --sl-400: #94a3b8;
+        --sl-500: #64748b;
+        --sl-600: #475569;
+        --sl-700: #1e293b;
+        --sl-750: #334155;
+        --sl-800: #0f172a;
+        --sl-850: #1e293b;
+        --sl-900: #020617;
+        --sl-950: #020617;
+
+        --accent-primary: #3b82f6;
+        --accent-success: #86efac;
+        --accent-danger: #fca5a5;
+        --accent-warning: #fcd34d;
+        --accent-metric-blue: #93c5fd;
+        --accent-metric-orange: #fb923c;
+        --accent-purple: #c084fc;
+        --focus-ring: var(--accent-primary);
+
+        --chart-grid: #334155;
+        --chart-nominal: #4ade80;
+        --chart-limit: #f87171;
+
+        --alert-bg: rgba(248, 113, 113, 0.1);
+        --alert-text: #fca5a5;
     }
 
     body.light-mode {
-        /* PRO LIGHT MODE: Paper-on-Desk Elevation */
-        --sl-100: #0f172a; 
-        --sl-200: #1e293b; 
-        --sl-300: #334155; 
-        --sl-400: #475569; 
-        --sl-500: #64748b; 
-        --sl-600: #cbd5e1; 
-        --sl-700: #e2e8f0; 
-        --sl-750: #f1f5f9; 
-        --sl-800: #ffffff; 
-        --sl-850: #f8fafc; 
-        --sl-900: #f4f5f7; /* Slightly warmer, softer base gray */
-        --sl-950: #ffffff; 
-        
-        --alert-bg: #fef2f2; 
-        --alert-text: #dc2626;
+        /* DOE SUITE light (theme-tokens.css html) */
+        --sl-100: #0f172a;
+        --sl-200: #1e293b;
+        --sl-300: #334155;
+        --sl-400: #475569;
+        --sl-500: #64748b;
+        --sl-600: #cbd5e1;
+        --sl-700: #cbd5e1;
+        --sl-750: #e8eef4;
+        --sl-800: #ffffff;
+        --sl-850: #f1f5f9;
+        --sl-900: #e2e8f0;
+        --sl-950: #ffffff;
+
+        --accent-primary: #2563eb;
+        --accent-success: #15803d;
+        --accent-danger: #b91c1c;
+        --accent-warning: #b45309;
+        --accent-metric-blue: #1e40af;
+        --accent-metric-orange: #c2410c;
+        --accent-purple: #6b21a8;
+        --focus-ring: var(--accent-primary);
+
+        --chart-grid: #e2e8f0;
+        --chart-nominal: #16a34a;
+        --chart-limit: #dc2626;
+
+        --alert-bg: #fef2f2;
+        --alert-text: #b91c1c;
     }
-	
+
+    .text-accent-success { color: var(--accent-success) !important; }
+    .text-accent-danger { color: var(--accent-danger) !important; }
+    .text-accent-warning { color: var(--accent-warning) !important; }
+    .text-accent-primary { color: var(--accent-primary) !important; }
+
 	/* DARK MODE DRAWING INVERSION: Inverts White/Black while keeping Red Bubbles Red */
     body:not(.light-mode) #inline-drawing-image-std,
     body:not(.light-mode) #sp-static-drawing-img,
@@ -49,80 +80,85 @@
     body { background-color: var(--sl-900); color: var(--sl-200); transition: background-color 0.2s, color 0.2s; }
 
     /* =========================================
-       PRO DARK MODE POLISH (REMOVES BORDERS)
+       DARK MODE POLISH (DOE slate surfaces)
        ========================================= */
-    body:not(.light-mode) .bg-slate-800, 
-    body:not(.light-mode) .action-card, 
+    body:not(.light-mode) .bg-slate-800,
+    body:not(.light-mode) .action-card,
     body:not(.light-mode) #stdStatsBanner {
         background-color: var(--sl-800) !important;
-        border: none !important; /* Removes Wireframe Fatigue */
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important; 
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
     }
 
-    body:not(.light-mode) input, 
+    body:not(.light-mode) input,
     body:not(.light-mode) select,
     body:not(.light-mode) button[id$="FilterBtn"] {
-        background-color: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background-color: var(--sl-850) !important;
+        border: 1px solid var(--sl-700) !important;
         color: var(--sl-100) !important;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         transition: all 0.2s ease;
     }
 
     body:not(.light-mode) select option {
-        background-color: var(--sl-800) !important; 
+        background-color: var(--sl-800) !important;
         color: var(--sl-100) !important;
     }
 
-    body:not(.light-mode) input:focus, 
+    body:not(.light-mode) input:focus,
     body:not(.light-mode) select:focus,
     body:not(.light-mode) button[id$="FilterBtn"]:focus {
-        border-color: #5e6ad2 !important; 
-        box-shadow: 0 0 0 1px #5e6ad2, 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+        border-color: var(--focus-ring) !important;
+        box-shadow: 0 0 0 1px var(--focus-ring), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
         outline: none;
     }
-    
+
     body:not(.light-mode) nav.bg-slate-950,
     body:not(.light-mode) thead.bg-slate-900,
     body:not(.light-mode) .border-b.border-slate-700 {
-        border-color: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(255, 255, 255, 0.06) !important;
     }
 
     /* =========================================
-       CLEAN LIGHT MODE POLISH
+       LIGHT MODE POLISH
        ========================================= */
-    body.light-mode input, 
+    body.light-mode input,
     body.light-mode select,
     body.light-mode button[id$="FilterBtn"] {
-        background-color: #f9fafb !important;
-        border: 1px solid #e5e7eb !important;
-        color: #111827 !important;
+        background-color: #ffffff !important;
+        border: 1px solid var(--sl-700) !important;
+        color: var(--sl-100) !important;
         box-shadow: inset 0 1px 2px rgba(0,0,0,0.02) !important;
     }
-    
+
     body.light-mode .bg-slate-800, body.light-mode #stdStatsBanner {
         border: 1px solid rgba(0,0,0,0.04) !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
     }
 
-    body.light-mode nav.bg-slate-950 { 
-        border-bottom: 1px solid rgba(0,0,0,0.05) !important; 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; 
+    body.light-mode nav.bg-slate-950 {
+        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
-    
-    body.light-mode nav .text-white { color: #111827 !important; }
-    body.light-mode nav .text-slate-300 { color: #4B5563 !important; }
+
+    body.light-mode nav .text-white { color: var(--sl-100) !important; }
+    body.light-mode nav .text-slate-300 { color: var(--sl-400) !important; }
     body.light-mode table, body.light-mode tr, body.light-mode td, body.light-mode th { border-color: rgba(0,0,0,0.04) !important; }
-    
+
+    body.light-mode thead.bg-slate-900,
+    body.light-mode thead {
+        background-color: #eff6ff !important;
+        color: var(--sl-300) !important;
+    }
+
     body.light-mode #spWarning, body.light-mode .bg-red-950\/30 {
-        background-color: var(--alert-bg) !important; 
-        color: var(--alert-text) !important; 
+        background-color: var(--alert-bg) !important;
+        color: var(--alert-text) !important;
         border: 1px solid #fca5a5 !important;
     }
-    
-    /* Fix File Upload Button */
+
     body.light-mode input[type="file"]::file-selector-button {
-        background-color: #2563eb !important;
+        background-color: var(--accent-primary) !important;
         color: #ffffff !important;
         border: none !important;
     }
@@ -132,47 +168,39 @@
        ========================================= */
     main > div { margin-bottom: 24px !important; }
 
-    /* Six Pack Chart Sizing Fix */
     div[id^="cont-spChart"] { display: flex !important; flex-direction: column !important; height: 100% !important; }
     div[id^="spChart"]:not(#spChart6) { flex-grow: 1 !important; height: 100% !important; min-height: 300px; }
 
-    /* Scrollbars */
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--sl-900); }
     ::-webkit-scrollbar-thumb { background: var(--sl-600); border-radius: 4px; }
 
-    /* Tabs & Filters */
     .tab-btn { color: var(--sl-400); border-bottom-width: 2px; border-color: transparent; transition: color 0.2s, border-color 0.2s; }
-    .tab-btn.active { color: #3b82f6 !important; border-color: #3b82f6 !important; font-weight: 600; }
+    .tab-btn.active { color: var(--accent-primary) !important; border-color: var(--accent-primary) !important; font-weight: 600; }
     [id$="FilterContent"] { background-color: var(--sl-800) !important; border-color: var(--sl-700) !important; }
-    [id$="FilterContent"] > div:hover { background-color: var(--sl-900) !important; }
+    [id$="FilterContent"] > div:hover { background-color: var(--sl-850) !important; }
 
-    /* Chart Buttons & Fullscreen */
     .chart-help-btn, .chart-expand-btn { position: absolute; top: 8px; z-index: 10; padding: 4px 8px; background: var(--sl-900); border: 1px solid var(--sl-700); border-radius: 4px; color: var(--sl-400); font-size: 10px; cursor: pointer; }
-    .chart-help-btn { right: 8px; } 
+    .chart-help-btn { right: 8px; }
     .chart-expand-btn { right: 40px; }
-    
+
     .chart-fullscreen { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 9999 !important; background: var(--sl-900) !important; padding: 3rem !important; display: flex !important; flex-direction: column !important; }
     .chart-fullscreen div[id^="spChart"] { flex-grow: 1 !important; height: 100% !important; }
 
-    /* AI Flyout Sidebar */
     #ai-helper-sidebar { position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background-color: var(--sl-800); border-left: 1px solid var(--sl-700); box-shadow: -10px 0 15px -3px rgba(0, 0, 0, 0.2); z-index: 1000; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; }
     #ai-helper-sidebar.open { right: 0; }
     .ai-header { padding: 1.25rem; border-bottom: 1px solid var(--sl-700); background-color: var(--sl-900); display: flex; justify-content: space-between; align-items: center; }
     .ai-body { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
     .ai-checklist li { padding: 12px; background-color: var(--sl-900); border: 1px solid var(--sl-700); margin-bottom: 8px; border-radius: 6px; color: var(--sl-200); }
-    .highlight-tip { background-color: rgba(245, 158, 11, 0.15) !important; border-left: 4px solid #f59e0b !important; border-color: rgba(245, 158, 11, 0.3) !important; }
+    .highlight-tip { background-color: rgba(245, 158, 11, 0.15) !important; border-left: 4px solid var(--accent-warning) !important; border-color: rgba(245, 158, 11, 0.3) !important; }
 
-    /* Pulsing Bulb Animation */
     @keyframes bulbPulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
-    .chart-insight-btn.pulsing-bulb { background-color: #f59e0b !important; color: white !important; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; animation: bulbPulse 2s infinite; border: 2px solid white; position: absolute; top: 8px; right: 80px; z-index: 20; cursor: pointer; }
+    .chart-insight-btn.pulsing-bulb { background-color: var(--accent-warning) !important; color: white !important; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; animation: bulbPulse 2s infinite; border: 2px solid white; position: absolute; top: 8px; right: 80px; z-index: 20; cursor: pointer; }
 
-    /* PDF Viewfinder */
     #pdf-wrapper { position: relative; display: inline-block; }
-    #pdf-viewfinder-setup { position: absolute; width: 300px; height: 250px; border: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); pointer-events: none; z-index: 100; display: none; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
-    #pdf-viewfinder-setup::after { content: "LEFT CLICK TO CAPTURE"; position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
-	
-    /* Ensure the PDF Viewfinder and Reticle stay high-visibility blue/red */
+    #pdf-viewfinder-setup { position: absolute; width: 300px; height: 250px; border: 3px solid var(--accent-primary); background: rgba(59, 130, 246, 0.1); pointer-events: none; z-index: 100; display: none; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
+    #pdf-viewfinder-setup::after { content: "LEFT CLICK TO CAPTURE"; position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); background: var(--accent-primary); color: white; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+
     body:not(.light-mode) #pdf-viewfinder-setup,
     body:not(.light-mode) #pdf-reticle {
         filter: none !important;

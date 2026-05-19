@@ -1,15 +1,12 @@
 import { isLightMode } from "../state.js";
+import { getChartRefColors, getThemeVar } from "../theme.js";
 
 export function getBaseLayout() {
-    const style = getComputedStyle(document.body);
-    
-    // Dynamically grab the exact colors based on the active mode
-    const paperColor = style.getPropertyValue('--sl-800').trim() || (isLightMode ? '#ffffff' : '#18191b');
-    const plotColor = isLightMode ? '#F8FAFC' : paperColor;
-    const fontColor = style.getPropertyValue('--sl-300').trim() || (isLightMode ? '#111827' : '#9ba1a6');
-    
-    // Darkened the Light Mode grid from 0.04 to 0.1 so it is clearly visible
-    const gridColor = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.03)';
+    const chartRef = getChartRefColors(isLightMode);
+    const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
+    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
+    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
+    const gridColor = chartRef.grid;
 
     return { 
         autosize: true, 

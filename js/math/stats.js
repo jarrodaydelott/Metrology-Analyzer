@@ -12,11 +12,22 @@ function calculateSkewness(data, mean, std) {
 function getNormalitySuggestion(analysis) {
   const { isMultimodal, hasTrend, featureName } = analysis;
   const name = featureName ? featureName.toLowerCase() : "";
-  if (isMultimodal) return "⚠️ Critical: Mixing cavities creates Non-Normal data. Filter to a single cavity.";
-  if (hasTrend) return "⚠️ Process Drift: The machine likely hasn't reached thermal equilibrium.";
-  if (name.includes("flatness") || name.includes("position") || name.includes("runout"))
-    return "ℹ️ Natural Skew: Zero-bounded features are naturally non-normal.";
-  return "⚠️ Unstable Process: Check for outliers or material inconsistency.";
+  if (isMultimodal) {
+    return "⚠️ <strong>Mixed populations detected.</strong> You are analyzing multiple cavities or series together, which creates a non-normal (bimodal) distribution. Filter to a single cavity before interpreting Cpk/Ppk — combined data inflates sigma and hides which cavity is actually failing.";
+  }
+  if (hasTrend) {
+    return "⚠️ <strong>Process drift detected.</strong> The mean is moving over time, most commonly because the machine or mold has not reached thermal equilibrium. Allow 30–60 minutes of soak after start-up, then re-sample. Do not adjust parameters based on early-run data.";
+  }
+  if (
+    name.includes("flatness") ||
+    name.includes("position") ||
+    name.includes("runout") ||
+    name.includes("profile") ||
+    name.includes("concentricity")
+  ) {
+    return "ℹ️ <strong>Expected non-normality.</strong> Zero-bounded GD&T (flatness, position, runout, etc.) cannot go below zero, so the distribution is naturally skewed. This is not a process defect. Use the Non-Parametric (Percentile) Ppk for lot acceptance — do not attempt to center the data.";
+  }
+  return "⚠️ <strong>Unstable or non-normal process.</strong> The distribution shape is not a bell curve. Check the Run Chart for outliers (flyers, short shots) or stratification (mixed lots/cavities). Inspect flagged parts physically before removing data. Use percentile Ppk if normality cannot be achieved.";
 }
 
 function calculateTrend(values) {

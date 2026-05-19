@@ -10,6 +10,14 @@ import {
 } from "../state.js";
 import { calculateSkewness } from "../math/stats.js";
 import { getSeriesLabel, getFullDimensionName } from "../utils/labels.js";
+import {
+  persistThemeIsLight,
+  readStoredThemeIsLight,
+  getChartRefColors,
+  CHART_SERIES_PALETTE_LIGHT,
+  CHART_SERIES_PALETTE_DARK,
+  getThemeVar,
+} from "../theme.js";
 
 // ==========================================
 // 6. DASHBOARD & ANALYSIS LOGIC
@@ -61,9 +69,7 @@ export function updateDashboard() {
     const stats = [];
     const plotTraces = [];
 
-    const lightPalette = ["#4A78B0", "#B25A5A", "#5E8D6B", "#C09241", "#8D70A3", "#5C9494", "#B85C74", "#60699F", "#A9704C", "#7A8D55"];
-    const darkPalette = ["#3b82f6", "#ef4444", "#22c55e", "#eab308", "#a855f7", "#06b6d4", "#f43f5e", "#f97316", "#84cc16", "#14b8a6"];
-    const colors = isLightMode ? lightPalette : darkPalette;
+    const colors = isLightMode ? CHART_SERIES_PALETTE_LIGHT : CHART_SERIES_PALETTE_DARK;
     
     let allFilteredValues = [];
 
@@ -148,7 +154,7 @@ export function updateDashboard() {
         document.getElementById('statCount').textContent = `${nAll} Samples | ${activeSeriesFilter.size} Series`;
         const cpkEl = document.getElementById('statCpk');
         cpkEl.textContent = cpkAll.toFixed(2);
-        cpkEl.className = cpkAll >= targetCpk ? "font-mono font-bold text-xl text-green-400" : "font-mono font-bold text-xl text-red-400";
+        cpkEl.className = cpkAll >= targetCpk ? "font-mono font-bold text-xl text-accent-success" : "font-mono font-bold text-xl text-accent-danger";
         statsBanner.classList.remove('hidden');
         statsBanner.classList.add('flex');
         
@@ -168,11 +174,11 @@ export function updateDashboard() {
     const allY = plotTraces.flatMap(t => t.y); allY.push(rec.usl, rec.lsl);
     const MathRange = Math.max(...allY) - Math.min(...allY);
     
-    const style = getComputedStyle(document.body);
-    const bgColor = style.getPropertyValue('--sl-800').trim() || (isLightMode ? '#ffffff' : '#18191b');
-    const plotColor = isLightMode ? '#F8FAFC' : bgColor;
-    const fontColor = style.getPropertyValue('--sl-300').trim() || (isLightMode ? '#111827' : '#9ba1a6');
-    const gridColor = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.03)';
+    const chartRef = getChartRefColors(isLightMode);
+    const bgColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
+    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
+    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
+    const gridColor = chartRef.grid;
 
     const layout = {
         margin: { t: 60, r: 50, l: 80, b: 50 }, 
@@ -182,10 +188,10 @@ export function updateDashboard() {
         plot_bgcolor: plotColor, paper_bgcolor: bgColor, 
         font: { family: 'Segoe UI, sans-serif', color: fontColor },
         showlegend: false, hoverlabel: { namelength: -1, font: { size: 12 } }, 
-        shapes: [ 
-            { type: 'line', y0: rec.usl, y1: rec.usl, x0: 0, x1: 1, xref: 'paper', line: {color: '#ef4444', width: 2, dash: 'dash'} }, 
-            { type: 'line', y0: rec.lsl, y1: rec.lsl, x0: 0, x1: 1, xref: 'paper', line: {color: '#ef4444', width: 2, dash: 'dash'} }, 
-            { type: 'line', y0: rec.nominal, y1: rec.nominal, x0: 0, x1: 1, xref: 'paper', line: {color: '#22c55e', width: 2} } 
+        shapes: [
+            { type: 'line', y0: rec.usl, y1: rec.usl, x0: 0, x1: 1, xref: 'paper', line: { color: chartRef.limit, width: 2, dash: 'dash' } },
+            { type: 'line', y0: rec.lsl, y1: rec.lsl, x0: 0, x1: 1, xref: 'paper', line: { color: chartRef.limit, width: 2, dash: 'dash' } },
+            { type: 'line', y0: rec.nominal, y1: rec.nominal, x0: 0, x1: 1, xref: 'paper', line: { color: chartRef.nominal, width: 2 } }
         ]
     };
 
@@ -251,11 +257,11 @@ export function renderTable(stats) {
     const targetCpk = parseFloat(document.getElementById('targetCpkInput').value) || 1.33; 
     tbody.innerHTML = "";
     stats.forEach(s => {
-        const cpkColor = s.cpk >= targetCpk ? "text-green-500 font-bold" : "text-red-400 font-bold";
+        const cpkColor = s.cpk >= targetCpk ? "text-accent-success font-bold" : "text-accent-danger font-bold";
         const tr = document.createElement('tr');
         // Adds zebra striping and removes heavy borders
         tr.className = s.isTotal 
-            ? "bg-slate-750 hover:bg-slate-700 transition-colors font-bold border-l-4 border-l-blue-500" 
+            ? "bg-slate-750 hover:bg-slate-700 transition-colors font-bold border-l-4 border-l-[var(--accent-primary)]" 
             : "bg-slate-800 hover:bg-slate-750 transition-colors border-b border-slate-700/30 even:bg-[rgba(0,0,0,0.1)]";
         
         tr.innerHTML = `
@@ -273,19 +279,31 @@ export function renderTable(stats) {
 // ==========================================
 // LIGHT MODE & THEME LOGIC
 // ==========================================
-export function toggleLightMode() {
-    isLightMode = !isLightMode;
-    document.body.classList.toggle('light-mode');
-    
-    // Toggle Button Text and Icon ONLY (CSS handles the colors now)
+export function initThemeFromStorage() {
+    const light = readStoredThemeIsLight();
+    document.body.classList.toggle('light-mode', light);
+    isLightMode = light;
+    syncThemeToggleButtons();
+}
+
+function syncThemeToggleButtons() {
     const btns = document.querySelectorAll('button[onclick="toggleLightMode()"]');
     btns.forEach(btn => {
-        if(isLightMode) {
-            btn.innerHTML = '<i class="fa-solid fa-moon mr-2"></i>Dark Mode';
+        if (isLightMode) {
+            btn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            btn.title = 'Dark Mode';
         } else {
-            btn.innerHTML = '<i class="fa-solid fa-sun mr-2"></i>Light Mode';
+            btn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            btn.title = 'Light Mode';
         }
     });
+}
+
+export function toggleLightMode() {
+    isLightMode = !isLightMode;
+    document.body.classList.toggle('light-mode', isLightMode);
+    persistThemeIsLight(isLightMode);
+    syncThemeToggleButtons();
 
     // Force Re-Render 
     if (currentTab === "standard") {
@@ -301,12 +319,11 @@ export function toggleLightMode() {
 }
 
 export function applyThemeToCharts() {
-    const style = getComputedStyle(document.body);
-    
-    const paperColor = style.getPropertyValue('--sl-800').trim() || (isLightMode ? '#ffffff' : '#18191b');
-    const plotColor = isLightMode ? '#F8FAFC' : paperColor;
-    const fontColor = style.getPropertyValue('--sl-300').trim() || (isLightMode ? '#111827' : '#9ba1a6');
-    const gridColor = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.03)';
+    const chartRef = getChartRefColors(isLightMode);
+    const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
+    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
+    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
+    const gridColor = chartRef.grid;
 
     const updateObj = {
         'plot_bgcolor': plotColor,
