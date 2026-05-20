@@ -4,6 +4,7 @@ import { isLightMode } from "../state.js";
 import { getChartRefColors, getThemeVar } from "../theme.js";
 import { plotSixPackChart } from "./plotly-sixpack-utils.js";
 import { METHOD_IDS } from "../analysis/capability-methods.js";
+import { getNormalityPSeverity } from "../analysis/minitab-guide.js";
 
 function sixPackPlotMargin(base, extra = {}) {
   return { ...base.margin, t: 12, ...extra };
@@ -28,11 +29,12 @@ function methodBadgeHtml(meta) {
   if (!meta || (meta.methodId === METHOD_IDS.PARAMETRIC && !meta.showReferenceNorm && !meta.nonNormalWarning))
     return { ppkDisplay: null, ppTag: "", helpKey: "cap", headerButton: "" };
   if (meta.methodId === METHOD_IDS.PARAMETRIC && meta.nonNormalWarning) {
+    const sev = getNormalityPSeverity(meta.rawAdP);
     return {
       helpKey: "cap_parametric",
       ppTag: "",
       headerButton: "",
-      ppkDisplay: (Ppk, colorClass) => `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold ${colorClass}">${Ppk.toFixed(2)}</span><span class="text-[10px] text-amber-400 border border-amber-500/50 px-1 rounded">NON-NORMAL</span></div><div class="text-[10px] text-slate-500">Select a method in the panel above.</div></div>`,
+      ppkDisplay: (Ppk, colorClass) => `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold ${colorClass}">${Ppk.toFixed(2)}</span><span class="text-[10px] px-1 rounded ${sev.badgeClass}">${sev.label}</span></div><div class="text-[10px] text-slate-500">Select a method in the panel above.</div></div>`,
     };
   }
   const targetCpk = parseFloat(document.getElementById('targetCpkInput')?.value) || 1.33;

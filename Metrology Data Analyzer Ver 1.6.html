@@ -145,6 +145,234 @@
         color: var(--accent-success);
     }
 
+    .cap-method-disabled .cap-method-blocked {
+        color: var(--accent-warning);
+        font-weight: 500;
+    }
+    body.light-mode .cap-method-disabled .cap-method-blocked {
+        color: #b45309;
+    }
+
+    .minitab-guide-kv dt {
+        color: var(--sl-300);
+    }
+    .minitab-guide-kv dd code {
+        color: var(--sl-200);
+    }
+
+    #spTriageNote {
+        border-color: color-mix(in srgb, var(--accent-warning) 45%, transparent);
+    }
+
+    /* Cavity triage — in document flow, contained Plotly mini charts */
+    #spCavityTriage.sp-cavity-triage-panel {
+        position: relative;
+        z-index: 15;
+        display: block;
+        width: 100%;
+        flex-shrink: 0;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: var(--sl-800);
+        border: 1px solid var(--sl-700);
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: min(50vh, 420px);
+        isolation: isolate;
+    }
+    #spCavityTriage.hidden {
+        display: none !important;
+    }
+
+    #spCavityTriage.sp-cavity-triage-fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 9998 !important;
+        width: 100vw !important;
+        max-height: none !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 1.25rem 1.5rem 1.5rem !important;
+        box-shadow: none !important;
+    }
+    body.sp-cavity-triage-fs-lock {
+        overflow: hidden;
+    }
+    #spCavityTriage.sp-cavity-triage-fullscreen .sp-cavity-triage-toolbar {
+        flex-shrink: 0;
+    }
+    #spCavityTriage.sp-cavity-triage-fullscreen #spCavityTriageHint,
+    #spCavityTriage.sp-cavity-triage-fullscreen .flex.flex-wrap.items-center.gap-2.mb-2 {
+        flex-shrink: 0;
+    }
+    #spCavityTriage.sp-cavity-triage-fullscreen #spCavityTriageGrid {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        max-height: none;
+    }
+    #spCavityTriage.sp-cavity-triage-fullscreen .sp-cavity-mini-plot,
+    #spCavityTriage.sp-cavity-triage-fullscreen .sp-cavity-mini-plot .plot-container.plotly,
+    #spCavityTriage.sp-cavity-triage-fullscreen .sp-cavity-mini-plot .js-plotly-plot {
+        height: 168px !important;
+        min-height: 168px !important;
+        max-height: 168px !important;
+        flex: 0 0 168px;
+    }
+    #spCavityTriage.sp-cavity-triage-fullscreen .sp-cavity-mini-plot .main-svg {
+        max-height: 168px !important;
+    }
+    #spCavityTriage.sp-cavity-triage-fullscreen .sp-cavity-mini-card--run {
+        flex: 0 0 15rem;
+        width: 15rem;
+        min-width: 15rem;
+    }
+    .sp-cavity-triage-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        align-content: flex-start;
+        gap: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 0.25rem;
+        width: 100%;
+        min-height: 0;
+        height: auto;
+    }
+
+    .sp-cavity-triage-bands-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+    }
+
+    .sp-triage-cavity-band {
+        padding: 0.65rem 0 0.85rem;
+        margin-bottom: 0.25rem;
+        border-bottom: 2px solid var(--sl-700);
+    }
+    .sp-triage-cavity-band:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .sp-triage-cavity-band:nth-child(even) {
+        background: color-mix(in srgb, var(--sl-900) 35%, transparent);
+        border-radius: 0.375rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    .sp-triage-cavity-band-header {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding-left: 0.35rem;
+        border-left: 4px solid var(--accent-primary);
+    }
+    .sp-triage-cavity-band-title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--sl-200);
+        letter-spacing: 0.02em;
+    }
+    .sp-cavity-triage-grid--band {
+        min-height: 10.5rem;
+    }
+    .sp-cavity-mini-card--run {
+        flex: 0 0 auto;
+        width: 13.75rem;
+        min-width: 13.75rem;
+        height: auto;
+        align-self: flex-start;
+    }
+    .sp-cavity-run-title {
+        line-height: 1.2;
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .sp-cavity-mini-card {
+        flex: 0 0 auto;
+        width: 11.5rem;
+        min-width: 11.5rem;
+        height: auto;
+        align-self: flex-start;
+        display: flex;
+        flex-direction: column;
+        background: color-mix(in srgb, var(--sl-900) 60%, transparent);
+        border: 1px solid var(--sl-700);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        overflow: visible;
+    }
+    .sp-cavity-mini-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-bottom: 0.25rem;
+        min-height: 1.25rem;
+    }
+    .sp-cavity-mini-plot {
+        width: 100%;
+        height: 140px;
+        min-height: 140px;
+        max-height: 140px;
+        flex: 0 0 auto;
+        flex-shrink: 0;
+        overflow: visible;
+        position: relative;
+    }
+    .sp-cavity-mini-plot .plot-container.plotly,
+    .sp-cavity-mini-plot .js-plotly-plot {
+        position: relative !important;
+        width: 100% !important;
+        height: 140px !important;
+        max-height: 140px !important;
+        overflow: visible !important;
+    }
+    .sp-cavity-mini-plot .main-svg {
+        max-height: 140px !important;
+        overflow: visible !important;
+    }
+
+    #spSixPackChartsRow {
+        position: relative;
+        z-index: 0;
+    }
+
+    .sp-triage-group-btn {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        color: var(--sl-400);
+        background: var(--sl-850);
+        border-right: 1px solid var(--sl-700);
+        transition: background 0.15s, color 0.15s;
+    }
+    .sp-triage-group-btn:last-child {
+        border-right: none;
+    }
+    .sp-triage-group-btn:hover {
+        color: var(--sl-200);
+        background: var(--sl-750);
+    }
+    .sp-triage-group-btn.active {
+        color: var(--sl-100);
+        background: color-mix(in srgb, var(--accent-primary) 35%, var(--sl-850));
+    }
+
     .sp-collapsible-icon {
         transition: transform 0.2s ease;
     }
@@ -657,11 +885,12 @@
                 
                 <div id="spWarning" class="hidden bg-slate-800 border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm ring-1 ring-slate-700/50">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div class="flex items-center">
+                        <div class="flex items-center min-w-0 flex-grow">
                             <div class="flex-shrink-0 bg-red-500/10 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i></div>
-                            <div class="ml-3">
+                            <div class="ml-3 min-w-0 flex-grow">
                                 <h3 class="text-sm font-bold text-slate-200">Process Insight</h3>
                                 <div id="spWarningText" class="mt-0.5 text-xs text-slate-400"></div>
+                                <div id="spRemediationActions" class="hidden flex flex-wrap gap-2 mt-2"></div>
                             </div>
                         </div>
                         <div class="flex gap-2 shrink-0">
@@ -722,8 +951,16 @@
                         <div id="spCapabilityMethodList" class="grid grid-cols-1 lg:grid-cols-2 gap-2"></div>
                     </div>
                 </div>
+
+                <div id="spMinitabGuide" class="hidden bg-slate-800 border border-indigo-500/30 rounded-lg shadow-sm overflow-hidden ring-1 ring-indigo-500/20">
+                    <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-700 bg-indigo-950/30">
+                        <i class="fa-solid fa-route text-indigo-400 text-sm" aria-hidden="true"></i>
+                        <h3 class="text-sm font-bold text-slate-200">Minitab Path Forward Recommendation</h3>
+                    </div>
+                    <div id="spMinitabGuideBody" class="px-4 py-3"></div>
+                </div>
                 
-                <div class="relative z-30 bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="relative bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Critical Dimension</label>
                         <div class="relative"><select id="spDimSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-sm"></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
@@ -735,7 +972,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Cavity Grouping</label>
-                        <div class="relative"><select id="spCavSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium"><option value="all">All Cavities (Combined)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
+                        <div class="flex gap-2">
+                            <div class="relative flex-grow min-w-0"><select id="spCavSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium"><option value="all">All Cavities (Combined)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
+                            <button type="button" id="btn-triage-cavities" onclick="toggleCavityTriage()" aria-expanded="false" class="shrink-0 text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-2.5 rounded-lg border border-slate-600 transition-colors whitespace-nowrap" title="Side-by-side cavity comparison"><i class="fa-solid fa-table-cells mr-1"></i>Triage Cavities</button>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2"><i class="fa-solid fa-screwdriver-wrench mr-2 text-orange-400"></i>Steel Adj</label>
@@ -743,7 +983,27 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col xl:flex-row gap-6 w-full">
+                <div id="spCavityTriage" class="hidden sp-cavity-triage-panel">
+                    <div class="sp-cavity-triage-toolbar flex items-center justify-between mb-3 border-b border-slate-700 pb-2 shrink-0">
+                        <h3 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-table-cells-large mr-2 text-blue-400"></i>Cavity Breakdown — Quick Compare</h3>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" id="btn-triage-fullscreen" onclick="toggleCavityTriageFullscreen()" class="text-xs text-slate-400 hover:text-white px-2 py-1 rounded border border-slate-600 hover:border-slate-500" title="Expand fullscreen (Esc to exit)"><i class="fa-solid fa-expand" id="btn-triage-fullscreen-icon"></i></button>
+                            <button type="button" onclick="toggleCavityTriage()" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-xmark mr-1"></i>Close</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">View layout</span>
+                        <div class="inline-flex flex-wrap rounded-lg border border-slate-600 overflow-hidden" role="group" aria-label="Cavity breakdown grouping">
+                            <button type="button" data-triage-group="cavity" onclick="setCavityTriageGroup('cavity')" class="sp-triage-group-btn active">Group by Cavity</button>
+                            <button type="button" data-triage-group="run" onclick="setCavityTriageGroup('run')" class="sp-triage-group-btn">Group by Run</button>
+                            <button type="button" data-triage-group="cavity_run" onclick="setCavityTriageGroup('cavity_run')" class="sp-triage-group-btn">Group by Cavity × Run</button>
+                        </div>
+                    </div>
+                    <p id="spCavityTriageHint" class="text-[10px] text-slate-500 mb-2">One box plot per physical cavity (all selected runs combined). Use <strong class="text-slate-400">Focus</strong> to drill into a single cavity in the six-pack.</p>
+                    <div id="spCavityTriageGrid" class="sp-cavity-triage-grid"></div>
+                </div>
+
+                <div id="spSixPackChartsRow" class="relative z-0 clear-both flex flex-col xl:flex-row gap-6 w-full">
                     
                     <div class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
                         <div id="cont-spChart1" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart1" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart1-title" class="sp-chart-title">Xbar Chart</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart1" class="w-full h-[300px]"></div></div>
@@ -751,7 +1011,7 @@
                         <div id="cont-spChart3" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart3" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart3-title" class="sp-chart-title">Run Chart (All Obs)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart3" class="w-full h-[300px]"></div></div>
                         <div id="cont-spChart4" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart4" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart4-title" class="sp-chart-title">Capability Histogram</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart4" class="w-full h-[300px]"></div></div>
                         <div id="cont-spChart5" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart5" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart5-title" class="sp-chart-title">Normal Prob Plot (AD)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart5" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spStats" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spStats" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 class="sp-chart-title">Capability Statistics</h3></div></div><div id="spStats" class="flex-grow font-mono text-xs overflow-auto px-2"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
+                        <div id="cont-spStats" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spStats" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 class="sp-chart-title">Capability Statistics</h3></div></div><div id="spTriageNote" class="hidden mx-2 mb-2 p-2 rounded-lg border border-amber-500/40 bg-amber-950/30"></div><div id="spStats" class="flex-grow font-mono text-xs overflow-auto px-2"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
                     </div>
 
                     <div id="sp-drawing-panel" class="w-full xl:w-[480px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-start max-h-[min(40vh,320px)] xl:max-h-none xl:self-stretch">
@@ -1904,11 +2164,56 @@ const chartExplanations = {
   },
   normality_tests: {
     title: "Tests for Normality",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">Two roles in this app</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Program review (Anderson–Darling)</strong> — always shown at the top. Gates the Capability Method panel, warnings, and transform screening.</li><li><strong>Display test</strong> — the radio you select (AD, Ryan–Joiner, or K–S). Updates the second P-value line and probability plot annotation; does not change transform λ or which methods are offered.</li></ul></div><div><strong class="text-blue-400">Anderson–Darling (default)</strong><p>Sensitive in the <em>tails</em> where defect-rate estimates live. Minitab uses AD for Individual Distribution Identification and Box-Cox/Johnson selection. Statistic A²; higher A² → smaller P. Use for audits and lot acceptance decisions.</p></div><div><strong class="text-blue-400">Ryan–Joiner</strong><p>Correlation of sorted data with normal scores (Minitab; similar to Shapiro–Wilk). Emphasizes the <em>middle</em> of the distribution. On borderline data, RJ may fail while AD passes (heavy tails) or pass while AD fails (mild center non-normality).</p></div><div><strong class="text-blue-400">Kolmogorov–Smirnov</strong><p>Maximum CDF gap (Lilliefors with sample μ, σ). Often <em>less sensitive in the tails</em> than AD — do not treat a KS pass as permission to ignore an AD fail for Ppk.</p></div><div><strong class="text-blue-400">When tests disagree</strong><p>Read the normal probability plot shape (S-curve, banana, flat bottom) before changing tests. See <strong>Test vs transform</strong> for how this differs from Box-Cox, Johnson, or percentile capability.</p></div></div>`,
+    content: `<div class="space-y-4 text-xs text-slate-400">
+      <div><strong class="text-blue-400 text-sm">Two roles in this app</strong>
+        <ul class="list-disc list-inside mt-2 ml-1 space-y-1">
+          <li><strong>Program review (Anderson–Darling)</strong> — gates capability panel, warnings, and transform screening (α = 0.05).</li>
+          <li><strong>Display test</strong> — radio selection only; updates P-line and probability plot label — does <strong>not</strong> change λ or offered methods.</li>
+        </ul>
+      </div>
+      <div><strong class="text-blue-400 text-sm">Test cheat sheet</strong>
+        <dl class="mt-2 space-y-2">
+          <div><dt class="font-bold text-slate-200">Anderson–Darling (default)</dt><dd class="mt-0.5">Tail-sensitive; Minitab IDI / transform selection. <strong>Trigger:</strong> P &lt; 0.05 → non-normal for lot acceptance.</dd></div>
+          <div><dt class="font-bold text-slate-200">Ryan–Joiner</dt><dd class="mt-0.5">Center-weighted (like Shapiro–Wilk). <strong>Trigger:</strong> compare when AD fails but plot looks straight.</dd></div>
+          <div><dt class="font-bold text-slate-200">Kolmogorov–Smirnov</dt><dd class="mt-0.5">Often lenient in tails. <strong>Trigger:</strong> exploratory only — KS pass does not override AD fail.</dd></div>
+        </dl>
+      </div>
+      <div><strong class="text-blue-400 text-sm">When tests disagree</strong>
+        <ul class="list-disc list-inside mt-2 ml-1 space-y-1">
+          <li><strong>AD fail + Ryan–Joiner pass (P ≥ 0.10)</strong> — inspect probability plot for S-curve or flat bottom.</li>
+          <li><strong>S-curve</strong> — mixed cavities; filter before capability.</li>
+          <li><strong>Flat bottom</strong> — zero-bounded GD&T; consider <strong>Percentile</strong>.</li>
+        </ul>
+      </div>
+    </div>`,
   },
   normality_recommendations: {
     title: "Normality Test vs. Capability Transformation",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">Normality test (goodness-of-fit)</strong><p>Answers: <em>Does this sample look like a bell curve on the scale we are viewing?</em> It does <strong>not</strong> change your measurements — only whether parametric formulas are appropriate on <strong>raw</strong> data.</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Change the display test</strong> when you want a second opinion on borderline data or to match another software’s reported test.</li><li><strong>Do not change tests</strong> to “force” normality for lot acceptance — use a capability method instead.</li></ul></div><div><strong class="text-blue-400">Capability transformation / method</strong><p>Answers: <em>How should overall Pp/Ppk be computed when raw data are not normal?</em> This <strong>does</strong> change the math (and sometimes the scale shown on the histogram).</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Percentile</strong> — no transform; uses empirical 0.135th / 99.865th percentiles (Minitab nonparametric path).</li><li><strong>Box-Cox</strong> — power transform; all values must be &gt; 0; λ chosen to maximize AD P on transformed data (target P ≥ 0.10).</li><li><strong>Johnson</strong> — Sb / Sl / Su families; for zeros, negatives, or when Box-Cox cannot normalize.</li><li><strong>Taylor STAT-18</strong> — documents normality waiver when Ppk is very high and skew is mild; still parametric on raw data.</li><li><strong>Parametric (raw)</strong> — reference when AD fails; can overstate Ppk unless Taylor applies.</li></ul></div><div><strong class="text-blue-400">Practical order</strong><ol class="list-decimal list-inside mt-1 ml-1 text-xs text-slate-400"><li>AD review fails → read recommendations under Tests for Normality.</li><li>Fix mixed cavities, drift, or outliers if indicated.</li><li>Pick a capability method (recommended badge) — not a different normality test.</li><li>Change normality test only for interpretation; change capability method for acceptance indices.</li></ol></div></div>`,
+    content: `<div class="space-y-4 text-xs text-slate-400">
+      <div><strong class="text-blue-400 text-sm">Normality test</strong> — judges raw shape only; does not change measurements.
+        <ul class="list-disc list-inside mt-2 ml-1 space-y-1">
+          <li><strong>Change display test</strong> for a second opinion — not for lot acceptance.</li>
+          <li><strong>Do not</strong> switch tests to “force” normality.</li>
+        </ul>
+      </div>
+      <div><strong class="text-blue-400 text-sm">Capability methods — triggers</strong>
+        <dl class="mt-2 grid gap-2">
+          <div><dt class="font-bold text-slate-200">Percentile</dt><dd>Zero-bounded GD&T; transforms fail AD P ≥ 0.10.</dd></div>
+          <div><dt class="font-bold text-slate-200">Box-Cox</dt><dd><strong>All values &gt; 0</strong>; right skew; transformed <strong>AD P ≥ 0.10</strong>.</dd></div>
+          <div><dt class="font-bold text-slate-200">Johnson</dt><dd>Zeros/negatives present; Box-Cox cannot normalize; <strong>AD P ≥ 0.10</strong> on transform.</dd></div>
+          <div><dt class="font-bold text-slate-200">Taylor STAT-18</dt><dd><strong>Ppk ≥ multiplier × target</strong> (e.g. ≥ 2.35× at n=20) and <strong>skew between −2 and 2</strong>; stable process.</dd></div>
+          <div><dt class="font-bold text-slate-200">Parametric (raw)</dt><dd>Reference when AD fails unless Taylor applies.</dd></div>
+        </dl>
+      </div>
+      <div><strong class="text-blue-400 text-sm">Practical order</strong>
+        <ol class="list-decimal list-inside mt-2 ml-1 space-y-1">
+          <li>AD fails → read Tests for Normality recommendations.</li>
+          <li>Fix mixed cavities, drift, outliers.</li>
+          <li>Pick capability method (badge) — not a different normality test.</li>
+          <li>Use <strong>Minitab Path Forward</strong> card for final report setup.</li>
+        </ol>
+      </div>
+    </div>`,
   },
   spc_verdict: {
     title: "Run-Level Verdict",
@@ -2059,6 +2364,169 @@ function scheduleSixPackResize() {
   });
 }
 
+/* global jStat */
+
+/** Badge / emphasis classes aligned with stats-panel P-value severity. */
+function getNormalityPSeverity(p) {
+  if (p == null || Number.isNaN(p)) {
+    return { badgeClass: "text-amber-400 border border-amber-500/50", label: "NON-NORMAL" };
+  }
+  if (p < 0.001) {
+    return {
+      badgeClass: "text-red-400 border border-red-500 bg-red-500/10",
+      label: "NON-NORMAL",
+    };
+  }
+  if (p < 0.05) {
+    return {
+      badgeClass: "text-accent-danger border border-red-500/60 bg-red-500/5",
+      label: "NON-NORMAL",
+    };
+  }
+  return { badgeClass: "text-accent-success border border-emerald-500/50", label: "NORMAL" };
+}
+
+function formatP(p) {
+  if (p < 0.001) return "< 0.001";
+  return p.toFixed(3);
+}
+
+function inferShapeReason(analysis, values, mean, std) {
+  const { isMultimodal, hasTrend, isBoundary, featureName } = analysis;
+  if (isMultimodal) return "multi-cavity / mixed populations combined";
+  if (hasTrend) return "process drift over the sampling window";
+  if (isBoundary) return "zero-bounded GD&T (physical lower limit)";
+  const skew = calculateSkewness(values, mean, std);
+  if (Math.abs(skew) > 1) return skew > 0 ? "heavy right skew" : "heavy left skew";
+  return "non-bell-curve shape on raw data";
+}
+
+function pickPath(options, adStats) {
+  const rec =
+    options?.find((o) => o.recommended && o.applicable !== false) ||
+    options?.find((o) => o.applicable !== false);
+  const box = options?.find((o) => o.id === METHOD_IDS.BOXCOX);
+  const johnson = options?.find((o) => o.id === METHOD_IDS.JOHNSON);
+  const pct = options?.find((o) => o.id === METHOD_IDS.PERCENTILE);
+  const taylor = options?.find((o) => o.id === METHOD_IDS.TAYLOR);
+
+  if (adStats.p >= 0.05) {
+    return {
+      analysisType: "Normal Capability Analysis",
+      menuRoute: "Stat > Quality Tools > Capability Analysis > Normal",
+      transformation: "None (data pass Anderson–Darling)",
+      distribution: "Normal",
+      reasoning: `Raw data pass Anderson–Darling (P = ${formatP(adStats.p)}). Use standard parametric Pp/Ppk in Minitab.`,
+    };
+  }
+
+  if (johnson?.applicable && johnson.adP >= AD_TRANSFORM_MIN_P) {
+    const beatsBox =
+      !box?.applicable || !box.adP || johnson.adP >= (box.adP ?? 0);
+    if (rec?.id === METHOD_IDS.JOHNSON || beatsBox) {
+      return {
+        analysisType: "Nonnormal Capability Analysis",
+        menuRoute: "Stat > Quality Tools > Capability Analysis > Nonnormal",
+        transformation: "Johnson Transformation",
+        distribution: johnson.detail?.split(";")[0] || "Johnson system (Sb / Sl / Su)",
+        reasoning: `Raw data fails AD (P = ${formatP(adStats.p)}) but passes under Johnson (transformed AD P = ${formatP(johnson.adP)} ≥ ${AD_TRANSFORM_MIN_P.toFixed(2)}).`,
+        transformedAdP: johnson.adP,
+      };
+    }
+  }
+
+  if (box?.applicable && box.adP >= AD_TRANSFORM_MIN_P) {
+    return {
+      analysisType: "Nonnormal Capability Analysis",
+      menuRoute: "Stat > Quality Tools > Capability Analysis > Nonnormal",
+      transformation: "Box-Cox Transformation",
+      distribution: "After Box-Cox — evaluate transformed normality in IDI",
+      reasoning: `Raw data fails AD (P = ${formatP(adStats.p)}) but passes under Box-Cox (transformed AD P = ${formatP(box.adP)} ≥ ${AD_TRANSFORM_MIN_P.toFixed(2)}). All values must be > 0.`,
+      transformedAdP: box.adP,
+    };
+  }
+
+  if (taylor?.applicable) {
+    return {
+      analysisType: "Normal Capability Analysis (with STAT-18 waiver)",
+      menuRoute: "Stat > Quality Tools > Capability Analysis > Normal",
+      transformation: "None — document Taylor STAT-18 Appendix I criteria in report",
+      distribution: "Normal (normality test waived when Ppk is very high)",
+      reasoning: `AD fails (P = ${formatP(adStats.p)}) but Taylor high-capability criteria are met — parametric Ppk may still be defensible for variables sampling.`,
+    };
+  }
+
+  if (pct?.applicable) {
+    return {
+      analysisType: "Nonnormal Capability Analysis",
+      menuRoute: "Stat > Quality Tools > Capability Analysis > Nonnormal",
+      transformation: "None — use nonparametric / percentile capability",
+      distribution: "Nonparametric (empirical percentiles)",
+      reasoning: `Transforms do not reach AD P ≥ ${AD_TRANSFORM_MIN_P.toFixed(2)}. Use Minitab nonparametric capability (0.135th / 99.865th percentiles) for lot acceptance.`,
+    };
+  }
+
+  return {
+    analysisType: "Nonnormal Capability Analysis",
+    menuRoute: "Stat > Quality Tools > Capability Analysis > Nonnormal",
+    transformation: "Try Johnson, then Box-Cox (if all values > 0), else nonparametric",
+    distribution: "Select best fit in Individual Distribution Identification",
+    reasoning: `Raw Anderson–Darling P = ${formatP(adStats.p)}. Screen transforms in IDI; prefer path with AD P ≥ ${AD_TRANSFORM_MIN_P.toFixed(2)}.`,
+  };
+}
+
+/**
+ * @returns {{ html: string, path: object } | null}
+ */
+function buildMinitabPathForward(ctx) {
+  const { adStats, options, analysis, values } = ctx;
+  if (!adStats || adStats.p == null) return null;
+
+  const mean = values?.length ? jStat.mean(values) : 0;
+  const std = values?.length ? jStat.stdev(values, true) : 0;
+  const shapeHint = inferShapeReason(analysis, values || [], mean, std);
+  const path = pickPath(options, adStats);
+
+  let reasoning = path.reasoning;
+  if (adStats.p < 0.05 && !reasoning.includes(shapeHint)) {
+    reasoning += ` Likely driver: ${shapeHint}.`;
+  } else if (adStats.p < 0.05 && analysis?.isMultimodal) {
+    reasoning = reasoning.replace(/\.$/, "") + ` due to ${shapeHint}.`;
+  }
+
+  const rows = [
+    ["Analysis Type", path.analysisType],
+    ["Menu Route", `<code class="text-[11px] bg-slate-900/80 px-1.5 py-0.5 rounded">${path.menuRoute}</code>`],
+    ["Transformation", path.transformation],
+    ["Distribution", path.distribution],
+    ["Reasoning", reasoning],
+  ];
+
+  const html = `<dl class="minitab-guide-kv grid grid-cols-1 sm:grid-cols-[minmax(7rem,auto)_1fr] gap-x-3 gap-y-2 text-xs">
+    ${rows
+      .map(
+        ([k, v]) =>
+          `<dt class="font-bold text-slate-300">${k}</dt><dd class="text-slate-400 min-w-0">${v}</dd>`,
+      )
+      .join("")}
+  </dl>`;
+
+  return { html, path };
+}
+
+function renderMinitabGuidePanel(guide) {
+  const panel = document.getElementById("spMinitabGuide");
+  const body = document.getElementById("spMinitabGuideBody");
+  if (!panel || !body) return;
+  if (!guide) {
+    panel.classList.add("hidden");
+    body.innerHTML = "";
+    return;
+  }
+  body.innerHTML = guide.html;
+  panel.classList.remove("hidden");
+}
+
 
 
 function sixPackPlotMargin(base, extra = {}) {
@@ -2084,11 +2552,12 @@ function methodBadgeHtml(meta) {
   if (!meta || (meta.methodId === METHOD_IDS.PARAMETRIC && !meta.showReferenceNorm && !meta.nonNormalWarning))
     return { ppkDisplay: null, ppTag: "", helpKey: "cap", headerButton: "" };
   if (meta.methodId === METHOD_IDS.PARAMETRIC && meta.nonNormalWarning) {
+    const sev = getNormalityPSeverity(meta.rawAdP);
     return {
       helpKey: "cap_parametric",
       ppTag: "",
       headerButton: "",
-      ppkDisplay: (Ppk, colorClass) => `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold ${colorClass}">${Ppk.toFixed(2)}</span><span class="text-[10px] text-amber-400 border border-amber-500/50 px-1 rounded">NON-NORMAL</span></div><div class="text-[10px] text-slate-500">Select a method in the panel above.</div></div>`,
+      ppkDisplay: (Ppk, colorClass) => `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold ${colorClass}">${Ppk.toFixed(2)}</span><span class="text-[10px] px-1 rounded ${sev.badgeClass}">${sev.label}</span></div><div class="text-[10px] text-slate-500">Select a method in the panel above.</div></div>`,
     };
   }
   const targetCpk = parseFloat(document.getElementById('targetCpkInput')?.value) || 1.33;
@@ -2379,6 +2848,27 @@ function renderStatsPanel(
 
 function getSeriesLabel(d) {
   return d.run ? `Cav ${d.cavity} (${d.run})` : `Cav ${d.cavity}`;
+}
+
+/** Physical cavity id for triage compare (ignores run/work order). */
+function getCavityKey(d) {
+  const c = d.cavity;
+  if (c != null && c !== "") return String(c);
+  return getSeriesLabel(d);
+}
+
+/** Match a cavity-grouping dropdown option for a physical cavity number. */
+function findCavitySelectOption(cavityKey) {
+  const cavSelect = document.getElementById("spCavSelect");
+  if (!cavSelect) return null;
+  const prefix = `Cav ${cavityKey}`;
+  return (
+    Array.from(cavSelect.options).find(
+      (o) =>
+        o.value !== "all" &&
+        (o.value === prefix || o.value.startsWith(`${prefix} (`)),
+    ) || null
+  );
 }
 
 function getFullDimensionName(rec) {
@@ -3305,6 +3795,570 @@ function renderNormalityReviewHtml(review) {
         `<div class="mt-3 pt-3 border-t border-slate-700/80 first:mt-0 first:pt-0 first:border-0"><h4 class="text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">${s.title}</h4>${s.html}</div>`,
     )
     .join("");
+}
+
+/* global Plotly, jStat */
+
+const TRIAGE_GROUP_MODES = {
+  CAVITY: "cavity",
+  RUN: "run",
+  CAVITY_RUN: "cavity_run",
+};
+
+let cavityTriageOpen = false;
+let cavityTriageFullscreen = false;
+let cavityTriageGroupMode = TRIAGE_GROUP_MODES.CAVITY;
+const CAVITY_TRIAGE_PLOT_PREFIX = "sp-cavity-mini-";
+let triageFullscreenEscHandler = null;
+
+const TRIAGE_HINTS = {
+  [TRIAGE_GROUP_MODES.CAVITY]:
+    "One box plot per <strong class=\"text-slate-400\">physical cavity</strong> (all selected runs combined). Compare cavity-to-cavity imbalance. <strong class=\"text-slate-400\">Focus</strong> filters the six-pack to that cavity.",
+  [TRIAGE_GROUP_MODES.RUN]:
+    "One box plot per <strong class=\"text-slate-400\">production run</strong> (all cavities combined). See whether a specific run went off the rails. <strong class=\"text-slate-400\">Focus</strong> isolates that run with all cavities combined.",
+  [TRIAGE_GROUP_MODES.CAVITY_RUN]:
+    "Runs grouped under each <strong class=\"text-slate-400\">physical cavity</strong> — scroll within a band for runs, scroll the panel for cavities. Same synced Y-axis across all combos. <strong class=\"text-slate-400\">Focus</strong> opens that cavity × run in the six-pack.",
+};
+
+function isCavityTriageOpen() {
+  return cavityTriageOpen;
+}
+
+function purgeCavityTriagePlots() {
+  document.querySelectorAll(`[id^="${CAVITY_TRIAGE_PLOT_PREFIX}"]`).forEach((el) => {
+    if (el.id && el.data) Plotly.purge(el.id);
+  });
+}
+
+function getCavityTriagePanel() {
+  return document.getElementById("spCavityTriage");
+}
+
+function isCavityTriageFullscreenActive() {
+  return getCavityTriagePanel()?.classList.contains("sp-cavity-triage-fullscreen") ?? false;
+}
+
+function getMiniPlotHeight() {
+  return isCavityTriageFullscreenActive() ? 168 : 140;
+}
+
+function resizeCavityTriagePlots() {
+  const h = getMiniPlotHeight();
+  document.querySelectorAll(`[id^="${CAVITY_TRIAGE_PLOT_PREFIX}"]`).forEach((el) => {
+    if (!el.id || !el.layout) return;
+    Plotly.relayout(el.id, { height: h, width: el.clientWidth || undefined }).then(() => {
+      Plotly.Plots.resize(el.id);
+    });
+  });
+}
+
+function syncTriageFullscreenButton() {
+  const icon = document.getElementById("btn-triage-fullscreen-icon");
+  const btn = document.getElementById("btn-triage-fullscreen");
+  if (!icon) return;
+  const on = isCavityTriageFullscreenActive();
+  icon.classList.toggle("fa-expand", !on);
+  icon.classList.toggle("fa-compress", on);
+  if (btn) {
+    btn.title = on ? "Exit fullscreen (Esc)" : "Expand fullscreen (Esc to exit)";
+  }
+}
+
+function setCavityTriageFullscreen(on) {
+  const panel = getCavityTriagePanel();
+  if (!panel) return;
+  cavityTriageFullscreen = on;
+  panel.classList.toggle("sp-cavity-triage-fullscreen", on);
+  document.body.classList.toggle("sp-cavity-triage-fs-lock", on);
+  syncTriageFullscreenButton();
+  if (triageFullscreenEscHandler) {
+    document.removeEventListener("keydown", triageFullscreenEscHandler);
+    triageFullscreenEscHandler = null;
+  }
+  if (on) {
+    triageFullscreenEscHandler = (e) => {
+      if (e.key === "Escape") toggleCavityTriageFullscreen(false);
+    };
+    document.addEventListener("keydown", triageFullscreenEscHandler);
+  }
+  requestAnimationFrame(() => {
+    setTimeout(resizeCavityTriagePlots, 50);
+  });
+}
+
+function toggleCavityTriageFullscreen(force) {
+  const panel = getCavityTriagePanel();
+  if (!panel || panel.classList.contains("hidden")) return;
+  const next = typeof force === "boolean" ? force : !isCavityTriageFullscreenActive();
+  setCavityTriageFullscreen(next);
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+function syncTriageGroupButtons() {
+  document.querySelectorAll(".sp-triage-group-btn").forEach((btn) => {
+    const active = btn.dataset.triageGroup === cavityTriageGroupMode;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+  const hint = document.getElementById("spCavityTriageHint");
+  if (hint) hint.innerHTML = TRIAGE_HINTS[cavityTriageGroupMode] || "";
+}
+
+function setCavityTriageGroup(mode) {
+  if (!Object.values(TRIAGE_GROUP_MODES).includes(mode)) return;
+  cavityTriageGroupMode = mode;
+  syncTriageGroupButtons();
+  if (cavityTriageOpen) renderCavityTriageGrid();
+}
+
+function splitByCavityAndReAnalyze() {
+  const cavSelect = document.getElementById("spCavSelect");
+  if (!cavSelect) return;
+  const firstCavity = Array.from(cavSelect.options).find((o) => o.value !== "all");
+  if (!firstCavity) return;
+  cavSelect.value = firstCavity.value;
+  globalThis.resetAndUpdateSixPack?.();
+}
+
+function applyRecommendedBoxCox() {
+  const box = capabilityOptions.find((o) => o.id === METHOD_IDS.BOXCOX && o.applicable);
+  if (!box) return;
+  setCapabilityMethodState(METHOD_IDS.BOXCOX);
+  globalThis.updateSixPack?.();
+}
+
+function buildRemediationButtons(ctx) {
+  const { cavMode, isNormalByAD, isMultimodal, options } = ctx;
+  const actions = [];
+  if (!isNormalByAD && cavMode === "all" && isMultimodal) {
+    actions.push({
+      id: "btn-split-cavity",
+      label: "📊 Split by Cavity & Re-Analyze",
+      className:
+        "sp-remediation-btn text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded shadow-sm transition-colors",
+      onclick: "splitByCavityAndReAnalyze()",
+    });
+  }
+  if (!isNormalByAD && cavMode !== "all") {
+    const box = options?.find((o) => o.id === METHOD_IDS.BOXCOX && o.applicable);
+    if (box) {
+      actions.push({
+        id: "btn-apply-boxcox",
+        label: "✨ Apply Recommended Box-Cox",
+        className:
+          "sp-remediation-btn text-xs font-semibold bg-violet-700 hover:bg-violet-600 text-white px-3 py-1.5 rounded shadow-sm transition-colors",
+        onclick: "applyRecommendedBoxCox()",
+      });
+    }
+  }
+  return actions;
+}
+
+function renderSmartRemediationActions(ctx) {
+  const container = document.getElementById("spRemediationActions");
+  if (!container) return;
+  const actions = buildRemediationButtons(ctx);
+  if (actions.length === 0) {
+    container.classList.add("hidden");
+    container.innerHTML = "";
+    return;
+  }
+  container.innerHTML = actions
+    .map(
+      (a) =>
+        `<button type="button" id="${a.id}" class="${a.className}" onclick="${a.onclick}">${a.label}</button>`,
+    )
+    .join("");
+  container.classList.remove("hidden");
+}
+
+function renderTriageNote(review) {
+  const el = document.getElementById("spTriageNote");
+  if (!el) return;
+  const ad = review?.allTests?.[NORMALITY_TEST_IDS.ANDERSON_DARLING];
+  const rj = review?.allTests?.[NORMALITY_TEST_IDS.RYAN_JOINER];
+  const show = ad && rj && ad.p < 0.05 && rj.p >= 0.1;
+  if (!show) {
+    el.classList.add("hidden");
+    el.innerHTML = "";
+    return;
+  }
+  el.innerHTML = `<div class="flex gap-2 items-start">
+    <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 shrink-0" aria-hidden="true"></i>
+    <p class="text-[11px] text-amber-100/90 leading-snug"><strong class="text-amber-300">Triage Note:</strong> AD and Ryan-Joiner disagree on normality. Visually inspect the Normal Probability Plot for an S-curve or flat bottom before finalizing your Minitab method.</p>
+  </div>`;
+  el.classList.remove("hidden");
+}
+
+function toggleCavityTriage() {
+  const drawer = document.getElementById("spCavityTriage");
+  const btn = document.getElementById("btn-triage-cavities");
+  if (!drawer) return;
+  cavityTriageOpen = !cavityTriageOpen;
+  drawer.classList.toggle("hidden", !cavityTriageOpen);
+  if (btn) {
+    btn.setAttribute("aria-expanded", String(cavityTriageOpen));
+    btn.classList.toggle("ring-2", cavityTriageOpen);
+    btn.classList.toggle("ring-blue-500/50", cavityTriageOpen);
+  }
+  if (cavityTriageOpen) {
+    syncTriageGroupButtons();
+    syncTriageFullscreenButton();
+    renderCavityTriageGrid();
+    requestAnimationFrame(() => {
+      drawer.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  } else {
+    purgeCavityTriagePlots();
+  }
+}
+
+function getSixPackFilteredData(dim) {
+  const adj = adjustments[dim] || 0;
+  return globalData
+    .filter((d) => d.element === dim && !ignoredIds.has(d._id))
+    .filter((d) => activeRunFilter.has(d.run || "No Run"))
+    .map((d) => ({ ...d, valAdj: d.value + adj }));
+}
+
+/**
+ * @returns {{ key: string, title: string, vals: number[], focusKind: string, focusArg: string }[]}
+ */
+function buildTriageGroups(data, mode) {
+  const map = new Map();
+  const add = (key, title, d) => {
+    if (!map.has(key)) map.set(key, { key, title, vals: [], focusKind: mode, focusArg: key });
+    map.get(key).vals.push(d.valAdj);
+  };
+
+  if (mode === TRIAGE_GROUP_MODES.CAVITY) {
+    data.forEach((d) => {
+      const key = getCavityKey(d);
+      add(key, `Cav ${key}`, d);
+      const g = map.get(key);
+      g.focusKind = "cavity";
+      g.focusArg = key;
+    });
+  } else if (mode === TRIAGE_GROUP_MODES.RUN) {
+    data.forEach((d) => {
+      const key = d.run || "No Run";
+      add(key, key, d);
+      const g = map.get(key);
+      g.focusKind = "run";
+      g.focusArg = key;
+    });
+  }
+
+  return [...map.values()].sort((a, b) =>
+    a.key.localeCompare(b.key, undefined, { numeric: true }),
+  );
+}
+
+/**
+ * Cavity × Run: nest runs under each physical cavity for banded layout.
+ * @returns {{ cavityKey: string, cavityTitle: string, runs: object[] }[]}
+ */
+function buildTriageCavityBands(data) {
+  const cavityMap = new Map();
+  data.forEach((d) => {
+    const cavKey = getCavityKey(d);
+    const runKey = d.run || "No Run";
+    const seriesLabel = getSeriesLabel(d);
+    if (!cavityMap.has(cavKey)) {
+      cavityMap.set(cavKey, {
+        cavityKey: cavKey,
+        cavityTitle: `Cav ${cavKey}`,
+        runs: new Map(),
+      });
+    }
+    const band = cavityMap.get(cavKey);
+    if (!band.runs.has(runKey)) {
+      band.runs.set(runKey, {
+        runKey,
+        runTitle: runKey,
+        seriesLabel,
+        title: runKey,
+        vals: [],
+        focusKind: "series",
+        focusArg: seriesLabel,
+      });
+    }
+    band.runs.get(runKey).vals.push(d.valAdj);
+  });
+  return [...cavityMap.values()]
+    .sort((a, b) => a.cavityKey.localeCompare(b.cavityKey, undefined, { numeric: true }))
+    .map((band) => ({
+      ...band,
+      runs: [...band.runs.values()].sort((a, b) =>
+        a.runKey.localeCompare(b.runKey, undefined, { numeric: true }),
+      ),
+    }));
+}
+
+function flattenBandRuns(bands) {
+  return bands.flatMap((b) => b.runs);
+}
+
+function minGroupsMessage(mode) {
+  if (mode === TRIAGE_GROUP_MODES.RUN) {
+    return "Need at least two runs in the current run filter to compare.";
+  }
+  if (mode === TRIAGE_GROUP_MODES.CAVITY_RUN) {
+    return "Need at least two cavity × run series in the current filter to compare.";
+  }
+  return "Need at least two physical cavities in the current run filter to compare.";
+}
+
+/** Shared Y limits: axis min/max = global extrema ± 10% of total data range. */
+function computeSharedYRange(groups) {
+  const all = groups.flatMap((g) => g.vals).filter((v) => Number.isFinite(v));
+  if (all.length === 0) return null;
+  const globalMin = Math.min(...all);
+  const globalMax = Math.max(...all);
+  const totalRange = globalMax - globalMin;
+  const pad = totalRange > 0 ? totalRange * 0.1 : Math.max(Math.abs(globalMax) * 0.01, 0.0001);
+  let lo = globalMin - pad;
+  let hi = globalMax + pad;
+  if (lo === hi) {
+    lo -= 0.0001;
+    hi += 0.0001;
+  }
+  return [lo, hi];
+}
+
+/** Room for y tick labels (e.g. 19.5500) inside narrow mini cards. */
+function computePlotLeftMargin(yRange) {
+  if (!yRange) return 48;
+  const fmt = (v) => {
+    const span = yRange[1] - yRange[0];
+    if (span < 0.0001) return v.toFixed(5);
+    if (span < 0.01) return v.toFixed(4);
+    if (span < 1) return v.toFixed(3);
+    return v.toFixed(2);
+  };
+  const maxLen = Math.max(fmt(yRange[0]).length, fmt(yRange[1]).length);
+  return Math.min(68, Math.max(46, Math.round(maxLen * 6.5 + 10)));
+}
+
+function tickFormatForRange(yRange) {
+  if (!yRange) return ".4f";
+  const span = yRange[1] - yRange[0];
+  if (span < 0.0001) return ".5f";
+  if (span < 0.01) return ".4f";
+  if (span < 1) return ".3f";
+  return ".2f";
+}
+
+function plotMiniBox(plotId, vals, label, yRange) {
+  const el = document.getElementById(plotId);
+  if (!el) return Promise.resolve();
+  if (el.data) Plotly.purge(plotId);
+
+  if (vals.length < 2) {
+    el.innerHTML =
+      '<div class="text-[10px] text-slate-500 flex items-center justify-center h-full">n &lt; 2</div>';
+    return Promise.resolve();
+  }
+
+  const base = getBaseLayout();
+  const layout = {
+    margin: { t: 4, r: 8, l: computePlotLeftMargin(yRange), b: 20 },
+    paper_bgcolor: base.paper_bgcolor,
+    plot_bgcolor: base.plot_bgcolor,
+    font: { size: 9, color: base.font.color },
+    xaxis: { visible: false, fixedrange: true },
+    yaxis: {
+      gridcolor: base.yaxis.gridcolor,
+      tickfont: { size: 8 },
+      fixedrange: true,
+      automargin: true,
+      ticklabelstandoff: 2,
+      ...(yRange ? { range: yRange, autorange: false } : {}),
+      tickformat: tickFormatForRange(yRange),
+    },
+    showlegend: false,
+    autosize: false,
+    height: getMiniPlotHeight(),
+  };
+
+  const runPlot = () => {
+    if (el.clientWidth < 1) {
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve(runPlot())));
+      });
+    }
+    layout.width = el.clientWidth;
+    return Plotly.newPlot(
+      plotId,
+      [
+        {
+          y: vals,
+          type: "box",
+          name: label,
+          boxpoints: "outliers",
+          marker: { color: "#3b82f6", size: 3 },
+          line: { color: "#60a5fa" },
+          fillcolor: "rgba(59,130,246,0.15)",
+        },
+      ],
+      layout,
+      { displayModeBar: false, responsive: true, staticPlot: true },
+    );
+  };
+
+  return runPlot();
+}
+
+function focusOnclick(group) {
+  const arg = escapeAttr(group.focusArg);
+  if (group.focusKind === "cavity") return `inspectCavityFromTriage('${arg}')`;
+  if (group.focusKind === "run") return `inspectRunFromTriage('${arg}')`;
+  return `inspectSeriesFromTriage('${arg}')`;
+}
+
+function renderMiniCardHtml(group, plotId, { bandCard = false } = {}) {
+  const tooltip = (group.seriesLabel || group.title).replace(/"/g, "&quot;");
+  const titleClass = bandCard ? "sp-cavity-run-title" : "truncate";
+  const cardClass = bandCard ? "sp-cavity-mini-card sp-cavity-mini-card--run" : "sp-cavity-mini-card";
+  return `<div class="${cardClass}">
+        <div class="sp-cavity-mini-card-header">
+          <span class="text-xs font-bold text-slate-200 ${titleClass}" title="${tooltip}">${group.title}</span>
+          <span class="text-[10px] text-slate-500 shrink-0">n=${group.vals.length}</span>
+          <button type="button" class="text-[10px] text-blue-400 hover:text-blue-300 shrink-0 ml-auto" onclick="${focusOnclick(group)}">Focus</button>
+        </div>
+        <div id="${plotId}" class="sp-cavity-mini-plot"></div>
+      </div>`;
+}
+
+function renderFlatTriageGrid(grid, groups) {
+  grid.className = "sp-cavity-triage-grid";
+  grid.innerHTML = groups
+    .map((group, index) => {
+      const plotId = `${CAVITY_TRIAGE_PLOT_PREFIX}${index}`;
+      return renderMiniCardHtml(group, plotId);
+    })
+    .join("");
+
+  const yRange = computeSharedYRange(groups);
+  Promise.all(
+    groups.map((group, index) =>
+      plotMiniBox(`${CAVITY_TRIAGE_PLOT_PREFIX}${index}`, group.vals, group.title, yRange),
+    ),
+  ).catch((err) => console.error("Cavity triage plots failed:", err));
+}
+
+function renderBandTriageGrid(grid, bands) {
+  const leafGroups = flattenBandRuns(bands);
+  grid.className = "sp-cavity-triage-bands-wrap";
+  grid.innerHTML = bands
+    .map((band, bandIndex) => {
+      const runCount = band.runs.length;
+      const cards = band.runs
+        .map((run, runIndex) => {
+          const plotId = `${CAVITY_TRIAGE_PLOT_PREFIX}${bandIndex}-${runIndex}`;
+          return renderMiniCardHtml(run, plotId, { bandCard: true });
+        })
+        .join("");
+      return `<section class="sp-triage-cavity-band" aria-label="${band.cavityTitle}">
+        <div class="sp-triage-cavity-band-header">
+          <span class="sp-triage-cavity-band-title">${band.cavityTitle}</span>
+          <span class="text-[10px] text-slate-500">${runCount} run${runCount === 1 ? "" : "s"}</span>
+        </div>
+        <div class="sp-cavity-triage-grid sp-cavity-triage-grid--band">${cards}</div>
+      </section>`;
+    })
+    .join("");
+
+  const yRange = computeSharedYRange(leafGroups);
+  const plotJobs = [];
+  bands.forEach((band, bandIndex) => {
+    band.runs.forEach((run, runIndex) => {
+      const plotId = `${CAVITY_TRIAGE_PLOT_PREFIX}${bandIndex}-${runIndex}`;
+      plotJobs.push(plotMiniBox(plotId, run.vals, run.runTitle, yRange));
+    });
+  });
+  Promise.all(plotJobs).catch((err) => console.error("Cavity triage plots failed:", err));
+}
+
+function renderCavityTriageGrid() {
+  const grid = document.getElementById("spCavityTriageGrid");
+  const dim = document.getElementById("spDimSelect")?.value;
+  if (!grid || !dim) return;
+
+  purgeCavityTriagePlots();
+  syncTriageGroupButtons();
+
+  const data = getSixPackFilteredData(dim);
+
+  if (cavityTriageGroupMode === TRIAGE_GROUP_MODES.CAVITY_RUN) {
+    const bands = buildTriageCavityBands(data);
+    const leafGroups = flattenBandRuns(bands);
+    if (leafGroups.length < 2) {
+      grid.className = "sp-cavity-triage-bands-wrap";
+      grid.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center w-full">${minGroupsMessage(cavityTriageGroupMode)}</p>`;
+      return;
+    }
+    renderBandTriageGrid(grid, bands);
+    return;
+  }
+
+  const groups = buildTriageGroups(data, cavityTriageGroupMode);
+  if (groups.length < 2) {
+    grid.className = "sp-cavity-triage-grid";
+    grid.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center w-full">${minGroupsMessage(cavityTriageGroupMode)}</p>`;
+    return;
+  }
+  renderFlatTriageGrid(grid, groups);
+}
+
+function inspectCavityFromTriage(cavityKey) {
+  const dim = document.getElementById("spDimSelect")?.value;
+  const cavSelect = document.getElementById("spCavSelect");
+  if (!dim || !cavSelect) return;
+  const opt = findCavitySelectOption(cavityKey);
+  if (!opt) return;
+  cavSelect.value = opt.value;
+  closeCavityTriageIfOpen();
+  globalThis.updateSixPack?.();
+}
+
+function inspectRunFromTriage(runKey) {
+  const dim = document.getElementById("spDimSelect")?.value;
+  const cavSelect = document.getElementById("spCavSelect");
+  if (!dim || !cavSelect) return;
+  activeRunFilter.clear();
+  activeRunFilter.add(runKey);
+  cavSelect.value = "all";
+  closeCavityTriageIfOpen();
+  globalThis.initRunFilter?.("sixpack", dim, true);
+  globalThis.updateSixPack?.();
+}
+
+function inspectSeriesFromTriage(seriesLabel) {
+  const dim = document.getElementById("spDimSelect")?.value;
+  const cavSelect = document.getElementById("spCavSelect");
+  if (!dim || !cavSelect) return;
+  const opt = Array.from(cavSelect.options).find((o) => o.value === seriesLabel);
+  if (!opt) return;
+  cavSelect.value = seriesLabel;
+  closeCavityTriageIfOpen();
+  globalThis.updateSixPack?.();
+}
+
+function closeCavityTriageIfOpen() {
+  if (!cavityTriageOpen) return;
+  cavityTriageOpen = false;
+  if (isCavityTriageFullscreenActive()) setCavityTriageFullscreen(false);
+  purgeCavityTriagePlots();
+  document.getElementById("spCavityTriage")?.classList.add("hidden");
+  const btn = document.getElementById("btn-triage-cavities");
+  if (btn) {
+    btn.setAttribute("aria-expanded", "false");
+    btn.classList.remove("ring-2", "ring-blue-500/50");
+  }
 }
 
 /** Late-bound callbacks so data/* modules avoid circular imports with application.mjs */
@@ -4816,11 +5870,11 @@ function renderCapabilityMethodPanel(options, normP, selectedId, review) {
       const adLine =
         o.adP != null ? `AD P: ${o.adP.toFixed(3)}` : o.id === "percentile" ? "AD: n/a" : "";
       const blocked = o.blockedReason
-        ? `<span class="text-[10px] text-slate-500 block mt-0.5"><i class="fa-solid fa-ban mr-1 text-slate-500"></i>${o.blockedReason}</span>`
+        ? `<span class="cap-method-blocked text-[10px] block mt-1 pl-5 relative"><i class="fa-solid fa-circle-info text-amber-400 absolute left-0 top-0.5" aria-hidden="true"></i>${o.blockedReason}</span>`
         : "";
       const rowClass = `flex items-start gap-3 p-2 rounded border transition-colors ${
         disabled
-          ? "opacity-55 border-slate-700/80 bg-slate-900/30 cursor-not-allowed"
+          ? "cap-method-disabled opacity-70 border-amber-500/25 bg-amber-950/15 cursor-not-allowed"
           : checked
             ? "border-blue-500 bg-blue-900/20 cursor-pointer"
             : "border-slate-700 hover:border-slate-500 cursor-pointer"
@@ -5260,6 +6314,9 @@ function updateSixPack() {
         document.getElementById('spStats').innerHTML = '<div class="text-slate-500 text-sm">No Data Selected</div>';
         document.getElementById('spCapabilityMethod')?.classList.add('hidden');
         document.getElementById('spNormalityTest')?.classList.add('hidden');
+        renderMinitabGuidePanel(null);
+        renderSmartRemediationActions({});
+        renderTriageNote(null);
         return;
     }
 
@@ -5404,6 +6461,31 @@ function updateSixPack() {
         });
     }
     updateNormalityTestPanel(normStats, normalityTestId, normalityReview);
+
+    const isMultimodal =
+      cavMode === "all" && [...new Set(data.map((d) => d.cavity))].length > 1;
+    const minitabGuide = buildMinitabPathForward({
+      adStats,
+      options: evalOptions?.options ?? [],
+      analysis: {
+        isMultimodal,
+        hasTrend: currentAiState.hasTrend,
+        isBoundary: currentAiState.isBoundary,
+        featureName: dim,
+      },
+      values: allValues,
+    });
+    renderMinitabGuidePanel(minitabGuide);
+    renderSmartRemediationActions({
+      cavMode,
+      isNormalByAD,
+      isMultimodal,
+      options: evalOptions?.options ?? [],
+    });
+    renderTriageNote(normalityReview);
+    if (isCavityTriageOpen()) {
+      requestAnimationFrame(() => renderCavityTriageGrid());
+    }
 
     const capResult = computeCapabilityIndices(capabilityMethod, {
         values: allValues,
@@ -5788,7 +6870,8 @@ window.confirmOutlierRemoval = function() {
     updateSixPack();
 };
 
-function resetAndUpdateSixPack() { 
+function resetAndUpdateSixPack() {
+    closeCavityTriageIfOpen();
     ignoredIds.clear();
     setCapabilityMethodState(METHOD_IDS.PARAMETRIC);
     setNormalityTestId(NORMALITY_TEST_IDS.ANDERSON_DARLING);
@@ -5948,6 +7031,14 @@ const windowExports = {
   updateSummary,
   updateSPC,
   toggleGroup,
+  splitByCavityAndReAnalyze,
+  applyRecommendedBoxCox,
+  toggleCavityTriage,
+  setCavityTriageGroup,
+  inspectCavityFromTriage,
+  inspectRunFromTriage,
+  inspectSeriesFromTriage,
+  toggleCavityTriageFullscreen,
 };
 
 Object.assign(window, windowExports);

@@ -309,11 +309,12 @@
                 
                 <div id="spWarning" class="hidden bg-slate-800 border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm ring-1 ring-slate-700/50">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div class="flex items-center">
+                        <div class="flex items-center min-w-0 flex-grow">
                             <div class="flex-shrink-0 bg-red-500/10 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i></div>
-                            <div class="ml-3">
+                            <div class="ml-3 min-w-0 flex-grow">
                                 <h3 class="text-sm font-bold text-slate-200">Process Insight</h3>
                                 <div id="spWarningText" class="mt-0.5 text-xs text-slate-400"></div>
+                                <div id="spRemediationActions" class="hidden flex flex-wrap gap-2 mt-2"></div>
                             </div>
                         </div>
                         <div class="flex gap-2 shrink-0">
@@ -374,8 +375,16 @@
                         <div id="spCapabilityMethodList" class="grid grid-cols-1 lg:grid-cols-2 gap-2"></div>
                     </div>
                 </div>
+
+                <div id="spMinitabGuide" class="hidden bg-slate-800 border border-indigo-500/30 rounded-lg shadow-sm overflow-hidden ring-1 ring-indigo-500/20">
+                    <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-700 bg-indigo-950/30">
+                        <i class="fa-solid fa-route text-indigo-400 text-sm" aria-hidden="true"></i>
+                        <h3 class="text-sm font-bold text-slate-200">Minitab Path Forward Recommendation</h3>
+                    </div>
+                    <div id="spMinitabGuideBody" class="px-4 py-3"></div>
+                </div>
                 
-                <div class="relative z-30 bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="relative bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Critical Dimension</label>
                         <div class="relative"><select id="spDimSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-sm"></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
@@ -387,7 +396,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Cavity Grouping</label>
-                        <div class="relative"><select id="spCavSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium"><option value="all">All Cavities (Combined)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
+                        <div class="flex gap-2">
+                            <div class="relative flex-grow min-w-0"><select id="spCavSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium"><option value="all">All Cavities (Combined)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
+                            <button type="button" id="btn-triage-cavities" onclick="toggleCavityTriage()" aria-expanded="false" class="shrink-0 text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-2.5 rounded-lg border border-slate-600 transition-colors whitespace-nowrap" title="Side-by-side cavity comparison"><i class="fa-solid fa-table-cells mr-1"></i>Triage Cavities</button>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2"><i class="fa-solid fa-screwdriver-wrench mr-2 text-orange-400"></i>Steel Adj</label>
@@ -395,7 +407,27 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col xl:flex-row gap-6 w-full">
+                <div id="spCavityTriage" class="hidden sp-cavity-triage-panel">
+                    <div class="sp-cavity-triage-toolbar flex items-center justify-between mb-3 border-b border-slate-700 pb-2 shrink-0">
+                        <h3 class="text-sm font-bold text-slate-200"><i class="fa-solid fa-table-cells-large mr-2 text-blue-400"></i>Cavity Breakdown — Quick Compare</h3>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" id="btn-triage-fullscreen" onclick="toggleCavityTriageFullscreen()" class="text-xs text-slate-400 hover:text-white px-2 py-1 rounded border border-slate-600 hover:border-slate-500" title="Expand fullscreen (Esc to exit)"><i class="fa-solid fa-expand" id="btn-triage-fullscreen-icon"></i></button>
+                            <button type="button" onclick="toggleCavityTriage()" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-xmark mr-1"></i>Close</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">View layout</span>
+                        <div class="inline-flex flex-wrap rounded-lg border border-slate-600 overflow-hidden" role="group" aria-label="Cavity breakdown grouping">
+                            <button type="button" data-triage-group="cavity" onclick="setCavityTriageGroup('cavity')" class="sp-triage-group-btn active">Group by Cavity</button>
+                            <button type="button" data-triage-group="run" onclick="setCavityTriageGroup('run')" class="sp-triage-group-btn">Group by Run</button>
+                            <button type="button" data-triage-group="cavity_run" onclick="setCavityTriageGroup('cavity_run')" class="sp-triage-group-btn">Group by Cavity × Run</button>
+                        </div>
+                    </div>
+                    <p id="spCavityTriageHint" class="text-[10px] text-slate-500 mb-2">One box plot per physical cavity (all selected runs combined). Use <strong class="text-slate-400">Focus</strong> to drill into a single cavity in the six-pack.</p>
+                    <div id="spCavityTriageGrid" class="sp-cavity-triage-grid"></div>
+                </div>
+
+                <div id="spSixPackChartsRow" class="relative z-0 clear-both flex flex-col xl:flex-row gap-6 w-full">
                     
                     <div class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
                         <div id="cont-spChart1" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart1" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart1-title" class="sp-chart-title">Xbar Chart</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart1" class="w-full h-[300px]"></div></div>
@@ -403,7 +435,7 @@
                         <div id="cont-spChart3" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart3" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart3-title" class="sp-chart-title">Run Chart (All Obs)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart3" class="w-full h-[300px]"></div></div>
                         <div id="cont-spChart4" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart4" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart4-title" class="sp-chart-title">Capability Histogram</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart4" class="w-full h-[300px]"></div></div>
                         <div id="cont-spChart5" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart5" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart5-title" class="sp-chart-title">Normal Prob Plot (AD)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart5" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spStats" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spStats" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 class="sp-chart-title">Capability Statistics</h3></div></div><div id="spStats" class="flex-grow font-mono text-xs overflow-auto px-2"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
+                        <div id="cont-spStats" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spStats" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 class="sp-chart-title">Capability Statistics</h3></div></div><div id="spTriageNote" class="hidden mx-2 mb-2 p-2 rounded-lg border border-amber-500/40 bg-amber-950/30"></div><div id="spStats" class="flex-grow font-mono text-xs overflow-auto px-2"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
                     </div>
 
                     <div id="sp-drawing-panel" class="w-full xl:w-[480px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-start max-h-[min(40vh,320px)] xl:max-h-none xl:self-stretch">

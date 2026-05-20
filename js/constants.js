@@ -72,11 +72,56 @@ export const chartExplanations = {
   },
   normality_tests: {
     title: "Tests for Normality",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">Two roles in this app</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Program review (Anderson–Darling)</strong> — always shown at the top. Gates the Capability Method panel, warnings, and transform screening.</li><li><strong>Display test</strong> — the radio you select (AD, Ryan–Joiner, or K–S). Updates the second P-value line and probability plot annotation; does not change transform λ or which methods are offered.</li></ul></div><div><strong class="text-blue-400">Anderson–Darling (default)</strong><p>Sensitive in the <em>tails</em> where defect-rate estimates live. Minitab uses AD for Individual Distribution Identification and Box-Cox/Johnson selection. Statistic A²; higher A² → smaller P. Use for audits and lot acceptance decisions.</p></div><div><strong class="text-blue-400">Ryan–Joiner</strong><p>Correlation of sorted data with normal scores (Minitab; similar to Shapiro–Wilk). Emphasizes the <em>middle</em> of the distribution. On borderline data, RJ may fail while AD passes (heavy tails) or pass while AD fails (mild center non-normality).</p></div><div><strong class="text-blue-400">Kolmogorov–Smirnov</strong><p>Maximum CDF gap (Lilliefors with sample μ, σ). Often <em>less sensitive in the tails</em> than AD — do not treat a KS pass as permission to ignore an AD fail for Ppk.</p></div><div><strong class="text-blue-400">When tests disagree</strong><p>Read the normal probability plot shape (S-curve, banana, flat bottom) before changing tests. See <strong>Test vs transform</strong> for how this differs from Box-Cox, Johnson, or percentile capability.</p></div></div>`,
+    content: `<div class="space-y-4 text-xs text-slate-400">
+      <div><strong class="text-blue-400 text-sm">Two roles in this app</strong>
+        <ul class="list-disc list-inside mt-2 ml-1 space-y-1">
+          <li><strong>Program review (Anderson–Darling)</strong> — gates capability panel, warnings, and transform screening (α = 0.05).</li>
+          <li><strong>Display test</strong> — radio selection only; updates P-line and probability plot label — does <strong>not</strong> change λ or offered methods.</li>
+        </ul>
+      </div>
+      <div><strong class="text-blue-400 text-sm">Test cheat sheet</strong>
+        <dl class="mt-2 space-y-2">
+          <div><dt class="font-bold text-slate-200">Anderson–Darling (default)</dt><dd class="mt-0.5">Tail-sensitive; Minitab IDI / transform selection. <strong>Trigger:</strong> P &lt; 0.05 → non-normal for lot acceptance.</dd></div>
+          <div><dt class="font-bold text-slate-200">Ryan–Joiner</dt><dd class="mt-0.5">Center-weighted (like Shapiro–Wilk). <strong>Trigger:</strong> compare when AD fails but plot looks straight.</dd></div>
+          <div><dt class="font-bold text-slate-200">Kolmogorov–Smirnov</dt><dd class="mt-0.5">Often lenient in tails. <strong>Trigger:</strong> exploratory only — KS pass does not override AD fail.</dd></div>
+        </dl>
+      </div>
+      <div><strong class="text-blue-400 text-sm">When tests disagree</strong>
+        <ul class="list-disc list-inside mt-2 ml-1 space-y-1">
+          <li><strong>AD fail + Ryan–Joiner pass (P ≥ 0.10)</strong> — inspect probability plot for S-curve or flat bottom.</li>
+          <li><strong>S-curve</strong> — mixed cavities; filter before capability.</li>
+          <li><strong>Flat bottom</strong> — zero-bounded GD&T; consider <strong>Percentile</strong>.</li>
+        </ul>
+      </div>
+    </div>`,
   },
   normality_recommendations: {
     title: "Normality Test vs. Capability Transformation",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">Normality test (goodness-of-fit)</strong><p>Answers: <em>Does this sample look like a bell curve on the scale we are viewing?</em> It does <strong>not</strong> change your measurements — only whether parametric formulas are appropriate on <strong>raw</strong> data.</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Change the display test</strong> when you want a second opinion on borderline data or to match another software’s reported test.</li><li><strong>Do not change tests</strong> to “force” normality for lot acceptance — use a capability method instead.</li></ul></div><div><strong class="text-blue-400">Capability transformation / method</strong><p>Answers: <em>How should overall Pp/Ppk be computed when raw data are not normal?</em> This <strong>does</strong> change the math (and sometimes the scale shown on the histogram).</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Percentile</strong> — no transform; uses empirical 0.135th / 99.865th percentiles (Minitab nonparametric path).</li><li><strong>Box-Cox</strong> — power transform; all values must be &gt; 0; λ chosen to maximize AD P on transformed data (target P ≥ 0.10).</li><li><strong>Johnson</strong> — Sb / Sl / Su families; for zeros, negatives, or when Box-Cox cannot normalize.</li><li><strong>Taylor STAT-18</strong> — documents normality waiver when Ppk is very high and skew is mild; still parametric on raw data.</li><li><strong>Parametric (raw)</strong> — reference when AD fails; can overstate Ppk unless Taylor applies.</li></ul></div><div><strong class="text-blue-400">Practical order</strong><ol class="list-decimal list-inside mt-1 ml-1 text-xs text-slate-400"><li>AD review fails → read recommendations under Tests for Normality.</li><li>Fix mixed cavities, drift, or outliers if indicated.</li><li>Pick a capability method (recommended badge) — not a different normality test.</li><li>Change normality test only for interpretation; change capability method for acceptance indices.</li></ol></div></div>`,
+    content: `<div class="space-y-4 text-xs text-slate-400">
+      <div><strong class="text-blue-400 text-sm">Normality test</strong> — judges raw shape only; does not change measurements.
+        <ul class="list-disc list-inside mt-2 ml-1 space-y-1">
+          <li><strong>Change display test</strong> for a second opinion — not for lot acceptance.</li>
+          <li><strong>Do not</strong> switch tests to “force” normality.</li>
+        </ul>
+      </div>
+      <div><strong class="text-blue-400 text-sm">Capability methods — triggers</strong>
+        <dl class="mt-2 grid gap-2">
+          <div><dt class="font-bold text-slate-200">Percentile</dt><dd>Zero-bounded GD&T; transforms fail AD P ≥ 0.10.</dd></div>
+          <div><dt class="font-bold text-slate-200">Box-Cox</dt><dd><strong>All values &gt; 0</strong>; right skew; transformed <strong>AD P ≥ 0.10</strong>.</dd></div>
+          <div><dt class="font-bold text-slate-200">Johnson</dt><dd>Zeros/negatives present; Box-Cox cannot normalize; <strong>AD P ≥ 0.10</strong> on transform.</dd></div>
+          <div><dt class="font-bold text-slate-200">Taylor STAT-18</dt><dd><strong>Ppk ≥ multiplier × target</strong> (e.g. ≥ 2.35× at n=20) and <strong>skew between −2 and 2</strong>; stable process.</dd></div>
+          <div><dt class="font-bold text-slate-200">Parametric (raw)</dt><dd>Reference when AD fails unless Taylor applies.</dd></div>
+        </dl>
+      </div>
+      <div><strong class="text-blue-400 text-sm">Practical order</strong>
+        <ol class="list-decimal list-inside mt-2 ml-1 space-y-1">
+          <li>AD fails → read Tests for Normality recommendations.</li>
+          <li>Fix mixed cavities, drift, outliers.</li>
+          <li>Pick capability method (badge) — not a different normality test.</li>
+          <li>Use <strong>Minitab Path Forward</strong> card for final report setup.</li>
+        </ol>
+      </div>
+    </div>`,
   },
   spc_verdict: {
     title: "Run-Level Verdict",

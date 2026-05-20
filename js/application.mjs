@@ -71,6 +71,21 @@ import {
   buildNormalityReview,
   renderNormalityReviewHtml,
 } from "./analysis/normality-review.js";
+import { buildMinitabPathForward, renderMinitabGuidePanel } from "./analysis/minitab-guide.js";
+import {
+  renderSmartRemediationActions,
+  renderTriageNote,
+  renderCavityTriageGrid,
+  closeCavityTriageIfOpen,
+  splitByCavityAndReAnalyze,
+  applyRecommendedBoxCox,
+  toggleCavityTriage,
+  setCavityTriageGroup,
+  inspectCavityFromTriage,
+  inspectRunFromTriage,
+  inspectSeriesFromTriage,
+  isCavityTriageOpen,
+} from "./ui/sixpack-triage.js";
 import {
   compressForExcel,
   generateTemplate,
@@ -209,11 +224,11 @@ function renderCapabilityMethodPanel(options, normP, selectedId, review) {
       const adLine =
         o.adP != null ? `AD P: ${o.adP.toFixed(3)}` : o.id === "percentile" ? "AD: n/a" : "";
       const blocked = o.blockedReason
-        ? `<span class="text-[10px] text-slate-500 block mt-0.5"><i class="fa-solid fa-ban mr-1 text-slate-500"></i>${o.blockedReason}</span>`
+        ? `<span class="cap-method-blocked text-[10px] block mt-1 pl-5 relative"><i class="fa-solid fa-circle-info text-amber-400 absolute left-0 top-0.5" aria-hidden="true"></i>${o.blockedReason}</span>`
         : "";
       const rowClass = `flex items-start gap-3 p-2 rounded border transition-colors ${
         disabled
-          ? "opacity-55 border-slate-700/80 bg-slate-900/30 cursor-not-allowed"
+          ? "cap-method-disabled opacity-70 border-amber-500/25 bg-amber-950/15 cursor-not-allowed"
           : checked
             ? "border-blue-500 bg-blue-900/20 cursor-pointer"
             : "border-slate-700 hover:border-slate-500 cursor-pointer"
@@ -653,6 +668,9 @@ function updateSixPack() {
         document.getElementById('spStats').innerHTML = '<div class="text-slate-500 text-sm">No Data Selected</div>';
         document.getElementById('spCapabilityMethod')?.classList.add('hidden');
         document.getElementById('spNormalityTest')?.classList.add('hidden');
+        renderMinitabGuidePanel(null);
+        renderSmartRemediationActions({});
+        renderTriageNote(null);
         return;
     }
 
@@ -797,6 +815,31 @@ function updateSixPack() {
         });
     }
     updateNormalityTestPanel(normStats, normalityTestId, normalityReview);
+
+    const isMultimodal =
+      cavMode === "all" && [...new Set(data.map((d) => d.cavity))].length > 1;
+    const minitabGuide = buildMinitabPathForward({
+      adStats,
+      options: evalOptions?.options ?? [],
+      analysis: {
+        isMultimodal,
+        hasTrend: currentAiState.hasTrend,
+        isBoundary: currentAiState.isBoundary,
+        featureName: dim,
+      },
+      values: allValues,
+    });
+    renderMinitabGuidePanel(minitabGuide);
+    renderSmartRemediationActions({
+      cavMode,
+      isNormalByAD,
+      isMultimodal,
+      options: evalOptions?.options ?? [],
+    });
+    renderTriageNote(normalityReview);
+    if (isCavityTriageOpen()) {
+      requestAnimationFrame(() => renderCavityTriageGrid());
+    }
 
     const capResult = computeCapabilityIndices(capabilityMethod, {
         values: allValues,
@@ -1183,7 +1226,8 @@ window.confirmOutlierRemoval = function() {
     updateSixPack();
 };
 
-function resetAndUpdateSixPack() { 
+function resetAndUpdateSixPack() {
+    closeCavityTriageIfOpen();
     ignoredIds.clear();
     setCapabilityMethodState(METHOD_IDS.PARAMETRIC);
     setNormalityTestId(NORMALITY_TEST_IDS.ANDERSON_DARLING);
@@ -1344,6 +1388,14 @@ const windowExports = {
   updateSummary,
   updateSPC,
   toggleGroup,
+  splitByCavityAndReAnalyze,
+  applyRecommendedBoxCox,
+  toggleCavityTriage,
+  setCavityTriageGroup,
+  inspectCavityFromTriage,
+  inspectRunFromTriage,
+  inspectSeriesFromTriage,
+  toggleCavityTriageFullscreen,
 };
 
 Object.assign(window, windowExports);
