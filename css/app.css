@@ -67,6 +67,52 @@
     .text-accent-warning { color: var(--accent-warning) !important; }
     .text-accent-primary { color: var(--accent-primary) !important; }
 
+    /* Normality / capability review — readable in light and dark mode */
+    .normality-review-label {
+        color: var(--sl-500);
+    }
+    .normality-review-value {
+        color: var(--sl-200);
+    }
+    .normality-review-value.is-pass {
+        color: var(--accent-success) !important;
+    }
+    .normality-review-value.is-fail {
+        color: var(--accent-danger) !important;
+    }
+    .normality-rec-box {
+        background: var(--alert-bg);
+        border: 1px solid color-mix(in srgb, var(--accent-danger) 35%, transparent);
+    }
+    .normality-rec-content {
+        color: var(--sl-300);
+    }
+    .normality-review-msg-fail {
+        color: var(--alert-text);
+    }
+    .normality-review-msg-pass {
+        color: var(--accent-success);
+    }
+    .normality-compare-warn {
+        color: var(--alert-text);
+    }
+    .normality-compare-caution {
+        color: var(--sl-300);
+    }
+    .normality-compare-info {
+        color: var(--sl-400);
+    }
+    .capability-rec-summary {
+        color: var(--accent-success);
+    }
+
+    .sp-collapsible-icon {
+        transition: transform 0.2s ease;
+    }
+    .sp-collapsible.is-expanded .sp-collapsible-icon {
+        transform: rotate(90deg);
+    }
+
 	/* DARK MODE DRAWING INVERSION: Inverts White/Black while keeping Red Bubbles Red */
     body:not(.light-mode) #inline-drawing-image-std,
     body:not(.light-mode) #sp-static-drawing-img,
@@ -168,8 +214,42 @@
        ========================================= */
     main > div { margin-bottom: 24px !important; }
 
-    div[id^="cont-spChart"] { display: flex !important; flex-direction: column !important; height: 100% !important; }
-    div[id^="spChart"]:not(#spChart6) { flex-grow: 1 !important; height: 100% !important; min-height: 300px; }
+    div[id^="cont-spChart"] {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0;
+        overflow: hidden;
+    }
+    div[id^="spChart"]:not(#spChart6) {
+        width: 100%;
+        height: 300px !important;
+        min-height: 300px;
+        max-height: 300px;
+        flex: 0 0 300px;
+    }
+    #spChart6 {
+        width: 100%;
+        height: 150px !important;
+        min-height: 150px;
+        max-height: 150px;
+        flex: 0 0 150px;
+    }
+
+    #spChart4,
+    #spChart5 {
+        overflow: hidden;
+    }
+
+    #spChart4 .plot-container.plotly,
+    #spChart4 .js-plotly-plot,
+    #spChart4 .main-svg {
+        height: 100% !important;
+        min-height: 100%;
+    }
+
+    #spChart4 .legend {
+        pointer-events: none;
+    }
 
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--sl-900); }
@@ -180,9 +260,66 @@
     [id$="FilterContent"] { background-color: var(--sl-800) !important; border-color: var(--sl-700) !important; }
     [id$="FilterContent"] > div:hover { background-color: var(--sl-850) !important; }
 
-    .chart-help-btn, .chart-expand-btn { position: absolute; top: 8px; z-index: 10; padding: 4px 8px; background: var(--sl-900); border: 1px solid var(--sl-700); border-radius: 4px; color: var(--sl-400); font-size: 10px; cursor: pointer; }
+    .chart-help-btn, .chart-expand-btn { position: absolute; top: 8px; z-index: 5; padding: 4px 8px; background: var(--sl-900); border: 1px solid var(--sl-700); border-radius: 4px; color: var(--sl-400); font-size: 10px; cursor: pointer; }
     .chart-help-btn { right: 8px; }
     .chart-expand-btn { right: 40px; }
+
+    div[id^="cont-spChart"] .sp-chart-header .chart-expand-btn,
+    div[id^="cont-spChart"] .sp-chart-header .chart-insight-btn.pulsing-bulb,
+    #cont-spStats .sp-chart-header .chart-insight-btn.pulsing-bulb {
+        position: static;
+        top: auto;
+        right: auto;
+    }
+    .sp-chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 32px;
+        padding-bottom: 4px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid var(--sl-700);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 20;
+    }
+    #cont-spStats .sp-chart-header {
+        border-bottom: 1px solid var(--sl-700);
+    }
+    .normality-test-option:hover {
+        background-color: rgba(148, 163, 184, 0.12);
+    }
+    body.light-mode .normality-test-option:hover .normality-test-name {
+        color: var(--sl-100) !important;
+    }
+    body:not(.light-mode) .normality-test-option:hover .normality-test-name {
+        color: #f1f5f9 !important;
+    }
+    body.light-mode .normality-test-option:hover .normality-test-name .text-slate-400 {
+        color: var(--sl-400) !important;
+    }
+    body.light-mode .normality-rec-content {
+        color: var(--sl-300);
+    }
+    body.light-mode .normality-compare-caution {
+        color: var(--sl-400);
+    }
+    .sp-chart-header-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+    }
+    .sp-chart-title {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--sl-300);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .chart-fullscreen { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 9999 !important; background: var(--sl-900) !important; padding: 3rem !important; display: flex !important; flex-direction: column !important; }
     .chart-fullscreen div[id^="spChart"] { flex-grow: 1 !important; height: 100% !important; }
@@ -195,7 +332,9 @@
     .highlight-tip { background-color: rgba(245, 158, 11, 0.15) !important; border-left: 4px solid var(--accent-warning) !important; border-color: rgba(245, 158, 11, 0.3) !important; }
 
     @keyframes bulbPulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
-    .chart-insight-btn.pulsing-bulb { background-color: var(--accent-warning) !important; color: white !important; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; animation: bulbPulse 2s infinite; border: 2px solid white; position: absolute; top: 8px; right: 80px; z-index: 20; cursor: pointer; }
+    .chart-insight-btn.pulsing-bulb { background-color: var(--accent-warning) !important; color: white !important; border-radius: 50%; width: 24px; height: 24px; min-width: 24px; display: flex; align-items: center; justify-content: center; animation: bulbPulse 2s infinite; border: 2px solid white; position: absolute; top: 8px; right: 80px; z-index: 5; cursor: pointer; flex-shrink: 0; }
+    div[id^="cont-spChart"] .chart-insight-btn.pulsing-bulb { font-size: 11px; }
+    [id$="FilterContent"] { z-index: 40; }
 
     #pdf-wrapper { position: relative; display: inline-block; }
     #pdf-viewfinder-setup { position: absolute; width: 300px; height: 250px; border: 3px solid var(--accent-primary); background: rgba(59, 130, 246, 0.1); pointer-events: none; z-index: 100; display: none; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }

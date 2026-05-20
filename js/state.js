@@ -20,3 +20,27 @@ export let isLightMode = true;
 export let currentAiState = {};
 export let currentOutliers = [];
 export let targetCaptureDim = null;
+
+/** Active normality test for Six-Pack (Minitab-style). */
+export let normalityTestId = "anderson_darling";
+
+export function setNormalityTestId(id) {
+  normalityTestId = id;
+}
+
+/** Six-Pack overall capability method when data is non-normal (AD p < 0.05). */
+export let capabilityMethod = "parametric";
+export let capabilityMethodMeta = {};
+export let capabilityOptions = [];
+
+export function setCapabilityMethodState(id) {
+  capabilityMethod = id;
+}
+
+export function setCapabilityMethodMeta(meta) {
+  capabilityMethodMeta = meta;
+}
+
+export function setCapabilityOptions(options) {
+  capabilityOptions = options;
+}

@@ -2,6 +2,7 @@
 
 import { currentTab } from "../state.js";
 import { closeAiHelper } from "./ai-sidebar.js";
+import { scheduleSixPackResize } from "../charts/plotly-sixpack-utils.js";
 export function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
@@ -24,13 +25,10 @@ export function switchTab(tab) {
     document.getElementById("viewSixPack").classList.remove("hidden");
     const dim = document.getElementById("spDimSelect").value;
     if (dim) globalThis.initRunFilter?.("sixpack", dim, true);
-    globalThis.updateSixPack?.();
-
-    setTimeout(() => {
-      ["spChart1", "spChart2", "spChart3", "spChart4", "spChart5"].forEach((id) => {
-        if (document.getElementById(id)) Plotly.Plots.resize(id);
-      });
-    }, 50);
+    requestAnimationFrame(() => {
+      globalThis.updateSixPack?.();
+      setTimeout(scheduleSixPackResize, 50);
+    });
   } else if (tab === "spc") {
     document.getElementById("viewSPC").classList.remove("hidden");
     globalThis.updateSPC?.();

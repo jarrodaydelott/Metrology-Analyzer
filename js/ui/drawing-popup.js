@@ -31,6 +31,18 @@ export function updateDrawingPopupImage(page = "std") {
     }
 }
 
+export function toggleSpDrawingPanel() {
+    const body = document.getElementById("sp-drawing-body");
+    const icon = document.getElementById("sp-drawing-toggle-icon");
+    if (!body) return;
+    body.classList.toggle("hidden");
+    body.classList.toggle("flex");
+    if (icon) {
+        icon.classList.toggle("fa-chevron-down", body.classList.contains("hidden"));
+        icon.classList.toggle("fa-chevron-up", !body.classList.contains("hidden"));
+    }
+}
+
 export function updateDrawingButtonVisibility() {
     const dimStd = document.getElementById('dimSelect')?.value;
     const containerStd = document.getElementById('inline-drawing-container-std');

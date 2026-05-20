@@ -8,10 +8,16 @@ window.currentInsights = {};
 export function addBulb(chartId, title, observation, tips) {
   const safeTips = Array.isArray(tips) ? tips : [tips];
   window.currentInsights[chartId] = { title, observation, tips: safeTips };
+}
 
-  const bulb = document.getElementById(`bulb-${chartId}`);
-  if (bulb) {
-    bulb.classList.remove("hidden");
+export function applySixPackBulbs() {
+  const insights = window.currentInsights || {};
+  if (insights.spChart6 && !insights.spStats) {
+    insights.spStats = insights.spChart6;
+  }
+  document.querySelectorAll(".pulsing-bulb").forEach((el) => el.classList.add("hidden"));
+  for (const chartId of Object.keys(insights)) {
+    document.getElementById(`bulb-${chartId}`)?.classList.remove("hidden");
   }
 }
 
@@ -26,6 +32,7 @@ export function runExpertAnalysis(ctx, dimName) {
     withinStDev,
     trend,
     isNormal,
+    normalityTestLabel,
     tolerance,
     subSize,
     subgroups,
@@ -176,32 +183,56 @@ export function runExpertAnalysis(ctx, dimName) {
   }
 
   if (currentAiState.isBoundary) {
+    const boundaryTips = [
+      "<strong>Why you cannot 'center' this:</strong> There is no negative flatness or runout. Attempting to shift the process mean toward nominal on a zero-bounded feature is physically meaningless and will mislead your corrective action.",
+      "<strong>Choose a capability method:</strong> Open the Capability Method panel and select Non-Parametric (Percentile) — recommended for zero-bounded GD&T per Minitab/AIAG.",
+      "<strong>Normality test will fail — that is OK:</strong> Anderson-Darling P < 0.05 is expected for zero-bounded GD&T. Do not treat a failed normality test as a process problem.",
+      "<strong>Evaluate against USL only:</strong> Focus on how close the 99.865th percentile is to the upper spec limit, not on symmetry.",
+      "<strong>Document in your quality plan:</strong> Note that percentile-based indices are the correct acceptance method for this feature type per ISO/AIAG guidance.",
+    ];
     addBulb(
       "spChart4",
       "Physically Bounded (Truncated) Distribution",
       "Data is piled up near zero because this GD&T characteristic (Flatness, Profile, Position, Runout, etc.) cannot have negative values. The distribution is naturally right-skewed — this is expected physics, not a process defect.",
-      [
-        "<strong>Why you cannot 'center' this:</strong> There is no negative flatness or runout. Attempting to shift the process mean toward nominal on a zero-bounded feature is physically meaningless and will mislead your corrective action.",
-        "<strong>Use percentile Ppk:</strong> Switch to the Non-Parametric (Percentile) Ppk shown in the capability panel. This method does not assume a bell curve.",
-        "<strong>Normality test will fail — that is OK:</strong> Anderson-Darling P < 0.05 is expected for zero-bounded GD&T. Do not treat a failed normality test as a process problem.",
-        "<strong>Evaluate against USL only:</strong> Focus on how close the 99.865th percentile is to the upper spec limit, not on symmetry.",
-        "<strong>Document in your quality plan:</strong> Note that percentile-based indices are the correct acceptance method for this feature type per ISO/AIAG guidance.",
-      ],
+      boundaryTips,
+    );
+    addBulb(
+      "spChart5",
+      "Probability Plot — Zero-Bounded Feature",
+      "The flat bottom on this plot is expected: the measurement cannot go below zero (flatness, profile, position, runout, etc.). Do not interpret the failed normality test as poor process control.",
+      boundaryTips,
     );
   }
 
-  if (!isNormal && !currentAiState.isBoundary) {
+  const failedAD = ctx.isNormalByAD === false;
+  if (failedAD && !currentAiState.isBoundary) {
+    const adP = ctx.adStats?.p?.toFixed?.(3) ?? "—";
+    const displayNote =
+      ctx.normStats && ctx.adStats && ctx.normStats.p >= 0.05
+        ? `<strong>Display test passes, AD fails:</strong> ${ctx.normalityTestLabel} P ≥ 0.05 but Anderson–Darling P = ${adP}. Lot acceptance should not rely on parametric raw Ppk until you pick a method below.`
+        : "";
+    const rec = ctx.normalityReview?.recommendedMethod;
+    const recTip = rec
+      ? `<strong>Recommended method:</strong> ${rec.title} — ${rec.short}`
+      : "<strong>Capability Method panel:</strong> Compare percentile, Box-Cox, Johnson, Taylor STAT-18, and parametric (reference).";
+    const taylorTip = ctx.taylor?.met
+      ? "<strong>Taylor STAT-18:</strong> High Capability criteria are met — parametric Ppk may be documented with a normality waiver (see Taylor method)."
+      : "";
     addBulb(
       "spChart5",
-      "Non-Normal Distribution Detected",
-      "The Anderson-Darling normality test failed (P < 0.05). The data does not follow a bell curve, which means standard Cpk/Ppk calculations may not accurately predict the defect rate.",
+      "Non-Normal Distribution (Anderson–Darling Review)",
+      `Anderson–Darling failed on raw data (P = ${adP}, α = 0.05). This is the program default review — transform fitting and capability recommendations always use AD, regardless of the display test selected above. Standard overall Ppk on untransformed data can overstate protection when tails are heavy or skewed.`,
       [
-        "<strong>Read the probability plot shape:</strong> An S-curve (bends at both ends) = mixed populations (cavities or lots). A banana curve (one tail bends) = outliers or skew. A flat bottom = physical boundary.",
-        "<strong>S-curve action:</strong> Filter to a single cavity or lot and re-analyze. Do not proceed with combined data.",
-        "<strong>Outlier action:</strong> Check the Run Chart for isolated points far from the cluster. Inspect those physical parts before removing from the dataset.",
-        "<strong>Switch to percentile Ppk:</strong> Use the Non-Parametric Ppk value for lot acceptance decisions when normality fails.",
-        "<strong>Do not ignore this flag:</strong> Reporting a high Cpk on non-normal data can overstate capability by 30–50% or more, depending on the distribution shape.",
-      ],
+        displayNote,
+        "<strong>Normality test vs. transformation:</strong> Changing Ryan–Joiner or K–S only changes what you <em>see</em> in the Tests panel. Changing Box-Cox, Johnson, or Percentile changes <em>how Pp/Ppk are calculated</em>. Open <strong>Test vs transform</strong> in that panel for the full decision guide.",
+        "<strong>When to change the display test:</strong> Keep AD for audits and Minitab alignment. Try Ryan–Joiner if the prob plot looks straight but AD fails (center-weighted). K–S is exploratory — a KS pass with AD fail still leaves tail risk.",
+        "<strong>When to change capability method:</strong> Percentile = no transform, empirical tails (best for zero-bounded GD&T). Box-Cox = all-positive skew. Johnson = zeros/negatives or Box-Cox failure. Use transform only if transformed AD P ≥ 0.10.",
+        "<strong>Probability plot shapes:</strong> S-curve = mixed cavities/lots. Banana tail = skew/outliers. Flat bottom = physical lower bound.",
+        "<strong>Fix data first:</strong> Filter mixed cavities and stabilize drift before trusting any transform.",
+        recTip,
+        taylorTip,
+        "<strong>Do not ignore AD failure:</strong> Parametric Ppk on raw skewed data can overstate capability by 30–50% or more.",
+      ].filter(Boolean),
     );
   }
 
@@ -271,5 +302,23 @@ export function runExpertAnalysis(ctx, dimName) {
         "<strong>Re-sample after change:</strong> Run 25–30 shots after any adjustment and confirm the new mean is stable before submitting for approval.",
       ],
     );
+  }
+
+  if (!window.currentInsights.spStats) {
+    if (window.currentInsights.spChart6) {
+      window.currentInsights.spStats = window.currentInsights.spChart6;
+    } else {
+      addBulb(
+        "spStats",
+        "Capability Statistics",
+        `Within Cpk is ${Cpk?.toFixed?.(2) ?? Cpk} (short-term potential). Overall Ppk is ${Ppk?.toFixed?.(2) ?? Ppk} (long-term actual). ${Math.abs(Cpk - Ppk) > 0.5 ? "A large Cpk − Ppk gap suggests drift or mixed data — filter cavities/runs before centering." : "Cpk and Ppk are aligned — focus on maintaining stability on the Range chart."}`,
+        [
+          "<strong>Cpk (within):</strong> Uses within-subgroup variation. Improve by reducing shot-to-shot spread (Range/MR chart).",
+          "<strong>Ppk (overall):</strong> Uses total variation. Sensitive to drift, outliers, and mixing cavities or lots.",
+          "<strong>Normality:</strong> Overall Pp/Ppk assume normality unless you select another method in the Capability Method panel.",
+          "<strong>Target:</strong> Compare indices to your Target Cpk from the setup bar.",
+        ],
+      );
+    }
   }
 }

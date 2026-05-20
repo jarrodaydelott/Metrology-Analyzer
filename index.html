@@ -213,7 +213,7 @@
                             <button id="runFilterBtn" onclick="toggleRunDropdown('std')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-medium flex justify-between items-center">
                                 <span id="runFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                             </button>
-                            <div id="runFilterContent" class="hidden absolute z-30 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                            <div id="runFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
                         </div>
                         
                         <div class="relative group">
@@ -221,7 +221,7 @@
                             <button id="seriesFilterBtn" onclick="document.getElementById('seriesFilterContent').classList.toggle('hidden')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-medium flex justify-between items-center">
                                 <span id="seriesFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                             </button>
-                            <div id="seriesFilterContent" class="hidden absolute z-30 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                            <div id="seriesFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
                         </div>
 
                         <div>
@@ -254,7 +254,7 @@
                 <div id="chart" class="w-full min-h-[500px] h-full"></div>
             </div>
             
-            <div id="inline-drawing-container-std" class="hidden w-full xl:w-[600px] h-[500px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-stretch">
+            <div id="inline-drawing-container-std" class="hidden w-full xl:w-[480px] max-h-[min(40vh,320px)] xl:max-h-none xl:h-[500px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-start xl:self-stretch">
                 <h3 class="font-bold text-sm text-slate-300 mb-4 border-b border-slate-700 pb-2">
                     <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
                 </h3>
@@ -319,12 +319,63 @@
                         <div class="flex gap-2 shrink-0">
                             <button id="btn-reset-outliers" onclick="resetOutliers()" class="hidden text-xs bg-slate-700 text-slate-300 px-3 py-1.5 rounded hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> Reset</button>
                             <button id="btn-remove-outliers" onclick="removeOutliers()" class="hidden text-xs bg-red-900/40 text-red-200 px-3 py-1.5 rounded hover:bg-red-900/60 transition-colors shadow-sm"><i class="fa-solid fa-filter mr-1"></i> Review Outliers</button>
-                            <button id="btn-ai-help" onclick="openAiHelper()" class="hidden text-xs bg-blue-900/20 text-blue-400 px-3 py-1.5 rounded border border-blue-500/30 hover:bg-blue-900/40 transition-colors shadow-sm"><i class="fa-solid fa-robot mr-1"></i> Diagnose</button>
+                            <button id="btn-ai-help" onclick="openAiHelper()" class="hidden text-xs bg-blue-900/20 text-blue-400 px-3 py-1.5 rounded border border-blue-500/30 hover:bg-blue-900/40 transition-colors shadow-sm"><i class="fa-solid fa-lightbulb mr-1"></i> Expert Help</button>
                         </div>
                     </div>
                 </div>
+
+                <div id="spNormalityTest" class="hidden sp-collapsible bg-slate-800 border border-slate-700 rounded-lg shadow-sm overflow-hidden">
+                    <div class="sp-collapsible-header flex flex-wrap items-start justify-between gap-2 p-4 pb-3 border-b border-slate-700">
+                        <button type="button" class="sp-collapsible-toggle flex items-start gap-2 min-w-0 flex-grow text-left rounded -m-1 p-1 hover:bg-slate-700/40 transition-colors" aria-expanded="false" aria-controls="spNormalityTestBody" onclick="toggleSpCollapsible('spNormalityTest')">
+                            <i class="fa-solid fa-chevron-right sp-collapsible-icon text-slate-400 text-xs mt-1 shrink-0" aria-hidden="true"></i>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-bold text-slate-200">Tests for Normality</h3>
+                                <p class="text-xs text-slate-400 mt-0.5"><span class="normality-review-label">Program review (default):</span> <span id="spNormalityAdReview" class="font-mono normality-review-value">—</span></p>
+                                <p class="text-xs text-slate-400 mt-0.5"><span class="normality-review-label">Display test:</span> <span id="spNormalityTestP" class="font-mono normality-review-value">—</span> (α = 0.05)</p>
+                            </div>
+                        </button>
+                        <div class="flex gap-2 shrink-0" role="group" aria-label="Normality help">
+                            <button type="button" onclick="showChartHelp('normality_recommendations')" class="text-xs text-blue-400 hover:text-blue-300"><i class="fa-solid fa-book-open mr-1"></i>Test vs transform</button>
+                            <button type="button" onclick="showChartHelp('normality_tests')" class="text-xs text-blue-400 hover:text-blue-300"><i class="fa-solid fa-circle-question mr-1"></i>Guide</button>
+                        </div>
+                    </div>
+                    <div id="spNormalityTestBody" class="sp-collapsible-body hidden px-4 pb-4 pt-3">
+                        <div id="spNormalityRecommendations" class="hidden text-xs normality-rec-content mb-3 rounded-lg normality-rec-box p-3"></div>
+                        <div class="flex flex-col gap-2 text-sm">
+                            <label class="normality-test-option flex items-center gap-2 cursor-pointer rounded px-1 -mx-1">
+                                <input type="radio" name="normalityTest" value="anderson_darling" class="shrink-0" checked onchange="setNormalityTest(this.value)" />
+                                <span class="normality-test-name text-slate-200">Anderson-Darling</span>
+                            </label>
+                            <label class="normality-test-option flex items-center gap-2 cursor-pointer rounded px-1 -mx-1">
+                                <input type="radio" name="normalityTest" value="ryan_joiner" class="shrink-0" onchange="setNormalityTest(this.value)" />
+                                <span class="normality-test-name text-slate-200">Ryan-Joiner <span class="text-slate-400 text-xs font-normal">(Similar to Shapiro-Wilk)</span></span>
+                            </label>
+                            <label class="normality-test-option flex items-center gap-2 cursor-pointer rounded px-1 -mx-1">
+                                <input type="radio" name="normalityTest" value="kolmogorov_smirnov" class="shrink-0" onchange="setNormalityTest(this.value)" />
+                                <span class="normality-test-name text-slate-200">Kolmogorov-Smirnov</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="spCapabilityMethod" class="hidden sp-collapsible bg-slate-800 border border-slate-700 rounded-lg shadow-sm overflow-hidden">
+                    <div class="sp-collapsible-header flex flex-wrap items-start justify-between gap-2 p-4 pb-3 border-b border-slate-700">
+                        <button type="button" class="sp-collapsible-toggle flex items-start gap-2 min-w-0 flex-grow text-left rounded -m-1 p-1 hover:bg-slate-700/40 transition-colors" aria-expanded="false" aria-controls="spCapabilityMethodBody" onclick="toggleSpCollapsible('spCapabilityMethod')">
+                            <i class="fa-solid fa-chevron-right sp-collapsible-icon text-slate-400 text-xs mt-1 shrink-0" aria-hidden="true"></i>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-bold text-slate-200">Capability Method</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Anderson–Darling review: P = <span id="spCapabilityMethodAdP" class="font-mono normality-review-value">—</span> (non-normal). Expand to choose how overall Pp/Ppk are calculated.</p>
+                                <p id="spCapabilityMethodRec" class="text-xs capability-rec-summary mt-1 hidden"></p>
+                            </div>
+                        </button>
+                        <button type="button" onclick="showChartHelp('cap_method_panel')" class="text-xs text-blue-400 hover:text-blue-300 shrink-0"><i class="fa-solid fa-circle-question mr-1"></i>Guide</button>
+                    </div>
+                    <div id="spCapabilityMethodBody" class="sp-collapsible-body hidden px-4 pb-4 pt-3">
+                        <div id="spCapabilityMethodList" class="grid grid-cols-1 lg:grid-cols-2 gap-2"></div>
+                    </div>
+                </div>
                 
-                <div class="bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="relative z-30 bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Critical Dimension</label>
                         <div class="relative"><select id="spDimSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-sm"></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
@@ -332,7 +383,7 @@
                     <div class="relative group">
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Filter Run</label>
                         <button id="spRunFilterBtn" onclick="toggleRunDropdown('sixpack')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 font-medium flex justify-between items-center"><span id="spRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
-                        <div id="spRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                        <div id="spRunFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Cavity Grouping</label>
@@ -347,28 +398,32 @@
                 <div class="flex flex-col xl:flex-row gap-6 w-full">
                     
                     <div class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
-                        <div id="cont-spChart1" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart1" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart1')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart1" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart2" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart2')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart2" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart2')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart2" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart3" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart3" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart3')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart3" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart4" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart4" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart4')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart4" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart5" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart5" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart5')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart5" class="w-full h-[300px]"></div></div>
-                        <div class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col"><h3 class="font-bold text-sm text-slate-300 mb-2 border-b border-slate-700 pb-1">Capability Statistics</h3><div id="spStats" class="flex-grow font-mono text-xs overflow-auto"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
+                        <div id="cont-spChart1" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart1" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart1-title" class="sp-chart-title">Xbar Chart</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart1" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart2" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart2" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart2-title" class="sp-chart-title">R Chart</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart2')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart2" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart3" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart3" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart3-title" class="sp-chart-title">Run Chart (All Obs)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart3" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart4" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart4" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart4-title" class="sp-chart-title">Capability Histogram</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart4" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart5" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart5" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart5-title" class="sp-chart-title">Normal Prob Plot (AD)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart5" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spStats" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spStats" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 class="sp-chart-title">Capability Statistics</h3></div></div><div id="spStats" class="flex-grow font-mono text-xs overflow-auto px-2"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
                     </div>
 
-                    <div class="w-full xl:w-[600px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-stretch">
-    <h3 class="font-bold text-sm text-slate-300 mb-4 border-b border-slate-700 pb-2">
-        <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
-    </h3>
-    
-    <div class="flex-grow flex items-center justify-center bg-slate-900/50 rounded border border-slate-700 overflow-hidden relative">
-        
+                    <div id="sp-drawing-panel" class="w-full xl:w-[480px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-start max-h-[min(40vh,320px)] xl:max-h-none xl:self-stretch">
+    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-2">
+        <h3 class="font-bold text-sm text-slate-300">
+            <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
+        </h3>
+        <button type="button" id="sp-drawing-toggle" onclick="toggleSpDrawingPanel()" class="xl:hidden text-slate-400 hover:text-white p-1" title="Show/hide drawing">
+            <i class="fa-solid fa-chevron-down" id="sp-drawing-toggle-icon"></i>
+        </button>
+    </div>
+    <div id="sp-drawing-body" class="hidden xl:flex flex-grow flex-col min-h-0">
+    <div class="flex-grow flex items-center justify-center bg-slate-900/50 rounded border border-slate-700 overflow-hidden relative min-h-[120px]">
         <img id="sp-static-drawing-img" class="hidden w-full h-full object-contain p-2" src="">
-        
-        <div id="sp-static-placeholder" class="text-center text-slate-500 p-8">
-            <i class="fa-regular fa-image text-6xl mb-4 opacity-40"></i>
-            <p class="text-xl font-bold">No Drawing Found</p>
-            <p class="text-sm opacity-50">Please capture a snippet in PDF Setup</p>
+        <div id="sp-static-placeholder" class="text-center text-slate-500 p-4">
+            <i class="fa-regular fa-image text-4xl mb-2 opacity-40"></i>
+            <p class="text-base font-bold">No Drawing Found</p>
+            <p class="text-xs opacity-50">Please capture a snippet in PDF Setup</p>
         </div>
+    </div>
     </div>
 </div>
 
@@ -434,9 +489,9 @@
                     <div class="flex gap-4">
                         <div class="relative group w-48">
                             <button id="spcRiskRunFilterBtn" onclick="toggleRunDropdown('spc')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-1.5 text-sm text-slate-200 font-medium flex justify-between items-center"><span id="spcRiskRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
-                            <div id="spcRiskRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
+                            <div id="spcRiskRunFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
                         </div>
-                        <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Ask AI Expert</button>
+                        <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Expert Help</button>
                     </div>
                 </div>
                 <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-6"><h2 class="font-bold text-slate-200 text-lg mb-4"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2><div id="spcVerdict" class="text-lg text-slate-300 font-medium bg-slate-900/50 p-4 rounded border border-slate-600 font-mono mb-4"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div><h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4><div id="spcCommonCause" class="text-sm text-slate-300"></div></div><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4><div id="spcSpecialCause" class="text-sm text-slate-300"></div></div></div></div>
@@ -453,7 +508,7 @@
                         <div><h2 class="font-bold text-slate-200 text-lg"><i class="fa-solid fa-flag text-red-500 mr-2"></i>Automated Issues List</h2><p class="text-sm text-slate-400 mt-1">Scanning for critical capability and centering issues.</p></div>
                         <div class="relative group w-48">
                             <button id="sumRunFilterBtn" onclick="toggleRunDropdown('sum')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-1.5 text-sm text-slate-200 font-medium flex justify-between items-center"><span id="sumRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
-                            <div id="sumRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
+                            <div id="sumRunFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
                         </div>
                     </div>
                     <div class="table-container overflow-x-auto">
@@ -476,7 +531,7 @@
         </main>
 		<div id="ai-helper-sidebar">
             <div class="ai-header">
-                <h3 class="text-blue-400 font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-robot"></i> AI Analysis</h3>
+                <h3 class="text-blue-400 font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-lightbulb"></i> Expert Help</h3>
                 <button onclick="closeAiHelper()" class="text-2xl hover:text-white">&times;</button>
             </div>
             <div id="ai-content-area" class="ai-body"></div>
@@ -547,7 +602,22 @@
                 <div id="wizard-dim-list" class="flex-grow overflow-y-auto p-2 space-y-2"></div>
             </div>
         </div>
-    </div>	
+    </div>
+    <script>
+        // Start-page onclick handlers before ES module load (modular index.html only).
+        (function () {
+            function pending(name) {
+                return function () {
+                    console.warn(name + ": app still loading…");
+                };
+            }
+            ["showMainApp", "generateTemplate"].forEach(function (name) {
+                if (typeof window[name] !== "function") {
+                    window[name] = pending(name);
+                }
+            });
+        })();
+    </script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

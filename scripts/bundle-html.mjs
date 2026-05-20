@@ -118,9 +118,18 @@ function main() {
     `\n    <style>\n${css}\n    </style>\n`
   );
 
+  const inlineGlobals = html.match(
+    /\s*<script>\s*\n\s*\/\/ Start-page onclick handlers[\s\S]*?\n\s*<\/script>\s*(?=\s*<script\s+type="module")/i
+  );
+  const globalsBlock = inlineGlobals ? inlineGlobals[0].trim() + "\n" : "";
+
+  html = html.replace(
+    /\s*<script>\s*\n\s*\/\/ Start-page onclick handlers[\s\S]*?\n\s*<\/script>\s*/i,
+    "\n"
+  );
   html = html.replace(
     /\s*<script\s+type="module"\s+src="js\/main\.js"\s*>\s*<\/script>\s*/i,
-    `\n    <script type="module">\n${js}\n    </script>\n`
+    `\n    ${globalsBlock}    <script>\n${js}\n    </script>\n`
   );
 
   html = html.replace(/Ver\s+1\.\d+(?=<\/span>)/gi, `Ver ${VERSION}`);

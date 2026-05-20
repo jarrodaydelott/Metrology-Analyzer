@@ -106,6 +106,52 @@
     .text-accent-warning { color: var(--accent-warning) !important; }
     .text-accent-primary { color: var(--accent-primary) !important; }
 
+    /* Normality / capability review — readable in light and dark mode */
+    .normality-review-label {
+        color: var(--sl-500);
+    }
+    .normality-review-value {
+        color: var(--sl-200);
+    }
+    .normality-review-value.is-pass {
+        color: var(--accent-success) !important;
+    }
+    .normality-review-value.is-fail {
+        color: var(--accent-danger) !important;
+    }
+    .normality-rec-box {
+        background: var(--alert-bg);
+        border: 1px solid color-mix(in srgb, var(--accent-danger) 35%, transparent);
+    }
+    .normality-rec-content {
+        color: var(--sl-300);
+    }
+    .normality-review-msg-fail {
+        color: var(--alert-text);
+    }
+    .normality-review-msg-pass {
+        color: var(--accent-success);
+    }
+    .normality-compare-warn {
+        color: var(--alert-text);
+    }
+    .normality-compare-caution {
+        color: var(--sl-300);
+    }
+    .normality-compare-info {
+        color: var(--sl-400);
+    }
+    .capability-rec-summary {
+        color: var(--accent-success);
+    }
+
+    .sp-collapsible-icon {
+        transition: transform 0.2s ease;
+    }
+    .sp-collapsible.is-expanded .sp-collapsible-icon {
+        transform: rotate(90deg);
+    }
+
 	/* DARK MODE DRAWING INVERSION: Inverts White/Black while keeping Red Bubbles Red */
     body:not(.light-mode) #inline-drawing-image-std,
     body:not(.light-mode) #sp-static-drawing-img,
@@ -207,8 +253,42 @@
        ========================================= */
     main > div { margin-bottom: 24px !important; }
 
-    div[id^="cont-spChart"] { display: flex !important; flex-direction: column !important; height: 100% !important; }
-    div[id^="spChart"]:not(#spChart6) { flex-grow: 1 !important; height: 100% !important; min-height: 300px; }
+    div[id^="cont-spChart"] {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0;
+        overflow: hidden;
+    }
+    div[id^="spChart"]:not(#spChart6) {
+        width: 100%;
+        height: 300px !important;
+        min-height: 300px;
+        max-height: 300px;
+        flex: 0 0 300px;
+    }
+    #spChart6 {
+        width: 100%;
+        height: 150px !important;
+        min-height: 150px;
+        max-height: 150px;
+        flex: 0 0 150px;
+    }
+
+    #spChart4,
+    #spChart5 {
+        overflow: hidden;
+    }
+
+    #spChart4 .plot-container.plotly,
+    #spChart4 .js-plotly-plot,
+    #spChart4 .main-svg {
+        height: 100% !important;
+        min-height: 100%;
+    }
+
+    #spChart4 .legend {
+        pointer-events: none;
+    }
 
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--sl-900); }
@@ -219,9 +299,66 @@
     [id$="FilterContent"] { background-color: var(--sl-800) !important; border-color: var(--sl-700) !important; }
     [id$="FilterContent"] > div:hover { background-color: var(--sl-850) !important; }
 
-    .chart-help-btn, .chart-expand-btn { position: absolute; top: 8px; z-index: 10; padding: 4px 8px; background: var(--sl-900); border: 1px solid var(--sl-700); border-radius: 4px; color: var(--sl-400); font-size: 10px; cursor: pointer; }
+    .chart-help-btn, .chart-expand-btn { position: absolute; top: 8px; z-index: 5; padding: 4px 8px; background: var(--sl-900); border: 1px solid var(--sl-700); border-radius: 4px; color: var(--sl-400); font-size: 10px; cursor: pointer; }
     .chart-help-btn { right: 8px; }
     .chart-expand-btn { right: 40px; }
+
+    div[id^="cont-spChart"] .sp-chart-header .chart-expand-btn,
+    div[id^="cont-spChart"] .sp-chart-header .chart-insight-btn.pulsing-bulb,
+    #cont-spStats .sp-chart-header .chart-insight-btn.pulsing-bulb {
+        position: static;
+        top: auto;
+        right: auto;
+    }
+    .sp-chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 32px;
+        padding-bottom: 4px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid var(--sl-700);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 20;
+    }
+    #cont-spStats .sp-chart-header {
+        border-bottom: 1px solid var(--sl-700);
+    }
+    .normality-test-option:hover {
+        background-color: rgba(148, 163, 184, 0.12);
+    }
+    body.light-mode .normality-test-option:hover .normality-test-name {
+        color: var(--sl-100) !important;
+    }
+    body:not(.light-mode) .normality-test-option:hover .normality-test-name {
+        color: #f1f5f9 !important;
+    }
+    body.light-mode .normality-test-option:hover .normality-test-name .text-slate-400 {
+        color: var(--sl-400) !important;
+    }
+    body.light-mode .normality-rec-content {
+        color: var(--sl-300);
+    }
+    body.light-mode .normality-compare-caution {
+        color: var(--sl-400);
+    }
+    .sp-chart-header-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+    }
+    .sp-chart-title {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--sl-300);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .chart-fullscreen { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 9999 !important; background: var(--sl-900) !important; padding: 3rem !important; display: flex !important; flex-direction: column !important; }
     .chart-fullscreen div[id^="spChart"] { flex-grow: 1 !important; height: 100% !important; }
@@ -234,7 +371,9 @@
     .highlight-tip { background-color: rgba(245, 158, 11, 0.15) !important; border-left: 4px solid var(--accent-warning) !important; border-color: rgba(245, 158, 11, 0.3) !important; }
 
     @keyframes bulbPulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
-    .chart-insight-btn.pulsing-bulb { background-color: var(--accent-warning) !important; color: white !important; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; animation: bulbPulse 2s infinite; border: 2px solid white; position: absolute; top: 8px; right: 80px; z-index: 20; cursor: pointer; }
+    .chart-insight-btn.pulsing-bulb { background-color: var(--accent-warning) !important; color: white !important; border-radius: 50%; width: 24px; height: 24px; min-width: 24px; display: flex; align-items: center; justify-content: center; animation: bulbPulse 2s infinite; border: 2px solid white; position: absolute; top: 8px; right: 80px; z-index: 5; cursor: pointer; flex-shrink: 0; }
+    div[id^="cont-spChart"] .chart-insight-btn.pulsing-bulb { font-size: 11px; }
+    [id$="FilterContent"] { z-index: 40; }
 
     #pdf-wrapper { position: relative; display: inline-block; }
     #pdf-viewfinder-setup { position: absolute; width: 300px; height: 250px; border: 3px solid var(--accent-primary); background: rgba(59, 130, 246, 0.1); pointer-events: none; z-index: 100; display: none; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); }
@@ -422,7 +561,7 @@
                             <button id="runFilterBtn" onclick="toggleRunDropdown('std')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-medium flex justify-between items-center">
                                 <span id="runFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                             </button>
-                            <div id="runFilterContent" class="hidden absolute z-30 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                            <div id="runFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
                         </div>
                         
                         <div class="relative group">
@@ -430,7 +569,7 @@
                             <button id="seriesFilterBtn" onclick="document.getElementById('seriesFilterContent').classList.toggle('hidden')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-medium flex justify-between items-center">
                                 <span id="seriesFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                             </button>
-                            <div id="seriesFilterContent" class="hidden absolute z-30 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                            <div id="seriesFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
                         </div>
 
                         <div>
@@ -463,7 +602,7 @@
                 <div id="chart" class="w-full min-h-[500px] h-full"></div>
             </div>
             
-            <div id="inline-drawing-container-std" class="hidden w-full xl:w-[600px] h-[500px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-stretch">
+            <div id="inline-drawing-container-std" class="hidden w-full xl:w-[480px] max-h-[min(40vh,320px)] xl:max-h-none xl:h-[500px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-start xl:self-stretch">
                 <h3 class="font-bold text-sm text-slate-300 mb-4 border-b border-slate-700 pb-2">
                     <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
                 </h3>
@@ -528,12 +667,63 @@
                         <div class="flex gap-2 shrink-0">
                             <button id="btn-reset-outliers" onclick="resetOutliers()" class="hidden text-xs bg-slate-700 text-slate-300 px-3 py-1.5 rounded hover:text-white transition-colors shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> Reset</button>
                             <button id="btn-remove-outliers" onclick="removeOutliers()" class="hidden text-xs bg-red-900/40 text-red-200 px-3 py-1.5 rounded hover:bg-red-900/60 transition-colors shadow-sm"><i class="fa-solid fa-filter mr-1"></i> Review Outliers</button>
-                            <button id="btn-ai-help" onclick="openAiHelper()" class="hidden text-xs bg-blue-900/20 text-blue-400 px-3 py-1.5 rounded border border-blue-500/30 hover:bg-blue-900/40 transition-colors shadow-sm"><i class="fa-solid fa-robot mr-1"></i> Diagnose</button>
+                            <button id="btn-ai-help" onclick="openAiHelper()" class="hidden text-xs bg-blue-900/20 text-blue-400 px-3 py-1.5 rounded border border-blue-500/30 hover:bg-blue-900/40 transition-colors shadow-sm"><i class="fa-solid fa-lightbulb mr-1"></i> Expert Help</button>
                         </div>
                     </div>
                 </div>
+
+                <div id="spNormalityTest" class="hidden sp-collapsible bg-slate-800 border border-slate-700 rounded-lg shadow-sm overflow-hidden">
+                    <div class="sp-collapsible-header flex flex-wrap items-start justify-between gap-2 p-4 pb-3 border-b border-slate-700">
+                        <button type="button" class="sp-collapsible-toggle flex items-start gap-2 min-w-0 flex-grow text-left rounded -m-1 p-1 hover:bg-slate-700/40 transition-colors" aria-expanded="false" aria-controls="spNormalityTestBody" onclick="toggleSpCollapsible('spNormalityTest')">
+                            <i class="fa-solid fa-chevron-right sp-collapsible-icon text-slate-400 text-xs mt-1 shrink-0" aria-hidden="true"></i>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-bold text-slate-200">Tests for Normality</h3>
+                                <p class="text-xs text-slate-400 mt-0.5"><span class="normality-review-label">Program review (default):</span> <span id="spNormalityAdReview" class="font-mono normality-review-value">—</span></p>
+                                <p class="text-xs text-slate-400 mt-0.5"><span class="normality-review-label">Display test:</span> <span id="spNormalityTestP" class="font-mono normality-review-value">—</span> (α = 0.05)</p>
+                            </div>
+                        </button>
+                        <div class="flex gap-2 shrink-0" role="group" aria-label="Normality help">
+                            <button type="button" onclick="showChartHelp('normality_recommendations')" class="text-xs text-blue-400 hover:text-blue-300"><i class="fa-solid fa-book-open mr-1"></i>Test vs transform</button>
+                            <button type="button" onclick="showChartHelp('normality_tests')" class="text-xs text-blue-400 hover:text-blue-300"><i class="fa-solid fa-circle-question mr-1"></i>Guide</button>
+                        </div>
+                    </div>
+                    <div id="spNormalityTestBody" class="sp-collapsible-body hidden px-4 pb-4 pt-3">
+                        <div id="spNormalityRecommendations" class="hidden text-xs normality-rec-content mb-3 rounded-lg normality-rec-box p-3"></div>
+                        <div class="flex flex-col gap-2 text-sm">
+                            <label class="normality-test-option flex items-center gap-2 cursor-pointer rounded px-1 -mx-1">
+                                <input type="radio" name="normalityTest" value="anderson_darling" class="shrink-0" checked onchange="setNormalityTest(this.value)" />
+                                <span class="normality-test-name text-slate-200">Anderson-Darling</span>
+                            </label>
+                            <label class="normality-test-option flex items-center gap-2 cursor-pointer rounded px-1 -mx-1">
+                                <input type="radio" name="normalityTest" value="ryan_joiner" class="shrink-0" onchange="setNormalityTest(this.value)" />
+                                <span class="normality-test-name text-slate-200">Ryan-Joiner <span class="text-slate-400 text-xs font-normal">(Similar to Shapiro-Wilk)</span></span>
+                            </label>
+                            <label class="normality-test-option flex items-center gap-2 cursor-pointer rounded px-1 -mx-1">
+                                <input type="radio" name="normalityTest" value="kolmogorov_smirnov" class="shrink-0" onchange="setNormalityTest(this.value)" />
+                                <span class="normality-test-name text-slate-200">Kolmogorov-Smirnov</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="spCapabilityMethod" class="hidden sp-collapsible bg-slate-800 border border-slate-700 rounded-lg shadow-sm overflow-hidden">
+                    <div class="sp-collapsible-header flex flex-wrap items-start justify-between gap-2 p-4 pb-3 border-b border-slate-700">
+                        <button type="button" class="sp-collapsible-toggle flex items-start gap-2 min-w-0 flex-grow text-left rounded -m-1 p-1 hover:bg-slate-700/40 transition-colors" aria-expanded="false" aria-controls="spCapabilityMethodBody" onclick="toggleSpCollapsible('spCapabilityMethod')">
+                            <i class="fa-solid fa-chevron-right sp-collapsible-icon text-slate-400 text-xs mt-1 shrink-0" aria-hidden="true"></i>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-bold text-slate-200">Capability Method</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Anderson–Darling review: P = <span id="spCapabilityMethodAdP" class="font-mono normality-review-value">—</span> (non-normal). Expand to choose how overall Pp/Ppk are calculated.</p>
+                                <p id="spCapabilityMethodRec" class="text-xs capability-rec-summary mt-1 hidden"></p>
+                            </div>
+                        </button>
+                        <button type="button" onclick="showChartHelp('cap_method_panel')" class="text-xs text-blue-400 hover:text-blue-300 shrink-0"><i class="fa-solid fa-circle-question mr-1"></i>Guide</button>
+                    </div>
+                    <div id="spCapabilityMethodBody" class="sp-collapsible-body hidden px-4 pb-4 pt-3">
+                        <div id="spCapabilityMethodList" class="grid grid-cols-1 lg:grid-cols-2 gap-2"></div>
+                    </div>
+                </div>
                 
-                <div class="bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="relative z-30 bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Critical Dimension</label>
                         <div class="relative"><select id="spDimSelect" onchange="resetAndUpdateSixPack()" class="block w-full rounded-lg border-slate-600 bg-slate-900 border p-2.5 pr-10 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-sm"></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><i class="fa-solid fa-chevron-down text-xs"></i></div></div>
@@ -541,7 +731,7 @@
                     <div class="relative group">
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Filter Run</label>
                         <button id="spRunFilterBtn" onclick="toggleRunDropdown('sixpack')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-2.5 text-slate-200 font-medium flex justify-between items-center"><span id="spRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
-                        <div id="spRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
+                        <div id="spRunFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto p-2"></div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Cavity Grouping</label>
@@ -556,28 +746,32 @@
                 <div class="flex flex-col xl:flex-row gap-6 w-full">
                     
                     <div class="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
-                        <div id="cont-spChart1" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart1" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart1')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart1" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart2" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart2')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart2" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart2')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart2" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart3" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart3" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart3')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart3" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart4" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart4" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart4')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart4" class="w-full h-[300px]"></div></div>
-                        <div id="cont-spChart5" class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2"><button class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button><button id="bulb-spChart5" class="chart-insight-btn pulsing-bulb hidden" onclick="showInsight('spChart5')"><i class="fa-solid fa-lightbulb"></i></button><div id="spChart5" class="w-full h-[300px]"></div></div>
-                        <div class="relative bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col"><h3 class="font-bold text-sm text-slate-300 mb-2 border-b border-slate-700 pb-1">Capability Statistics</h3><div id="spStats" class="flex-grow font-mono text-xs overflow-auto"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
+                        <div id="cont-spChart1" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart1" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart1-title" class="sp-chart-title">Xbar Chart</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart1')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart1" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart2" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart2" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart2-title" class="sp-chart-title">R Chart</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart2')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart2" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart3" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart3" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart3-title" class="sp-chart-title">Run Chart (All Obs)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart3')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart3" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart4" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart4" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart4-title" class="sp-chart-title">Capability Histogram</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart4')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart4" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spChart5" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spChart5" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 id="spChart5-title" class="sp-chart-title">Normal Prob Plot (AD)</h3></div><button type="button" class="chart-expand-btn" onclick="toggleChartFullscreen('cont-spChart5')"><i class="fa-solid fa-expand"></i></button></div><div id="spChart5" class="w-full h-[300px]"></div></div>
+                        <div id="cont-spStats" class="relative overflow-hidden bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-2 flex flex-col"><div class="sp-chart-header"><div class="sp-chart-header-left"><button id="bulb-spStats" type="button" class="chart-insight-btn pulsing-bulb hidden"  title="Process insight"><i class="fa-solid fa-lightbulb"></i></button><h3 class="sp-chart-title">Capability Statistics</h3></div></div><div id="spStats" class="flex-grow font-mono text-xs overflow-auto px-2"></div><div id="spChart6" class="w-full h-[150px] mt-2"></div></div>
                     </div>
 
-                    <div class="w-full xl:w-[600px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-stretch">
-    <h3 class="font-bold text-sm text-slate-300 mb-4 border-b border-slate-700 pb-2">
-        <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
-    </h3>
-    
-    <div class="flex-grow flex items-center justify-center bg-slate-900/50 rounded border border-slate-700 overflow-hidden relative">
-        
+                    <div id="sp-drawing-panel" class="w-full xl:w-[480px] flex-shrink-0 bg-slate-800 rounded-lg shadow-sm border border-slate-700 p-4 flex flex-col self-start max-h-[min(40vh,320px)] xl:max-h-none xl:self-stretch">
+    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-2">
+        <h3 class="font-bold text-sm text-slate-300">
+            <i class="fa-solid fa-image mr-2 text-blue-500"></i>Dimension Drawing
+        </h3>
+        <button type="button" id="sp-drawing-toggle" onclick="toggleSpDrawingPanel()" class="xl:hidden text-slate-400 hover:text-white p-1" title="Show/hide drawing">
+            <i class="fa-solid fa-chevron-down" id="sp-drawing-toggle-icon"></i>
+        </button>
+    </div>
+    <div id="sp-drawing-body" class="hidden xl:flex flex-grow flex-col min-h-0">
+    <div class="flex-grow flex items-center justify-center bg-slate-900/50 rounded border border-slate-700 overflow-hidden relative min-h-[120px]">
         <img id="sp-static-drawing-img" class="hidden w-full h-full object-contain p-2" src="">
-        
-        <div id="sp-static-placeholder" class="text-center text-slate-500 p-8">
-            <i class="fa-regular fa-image text-6xl mb-4 opacity-40"></i>
-            <p class="text-xl font-bold">No Drawing Found</p>
-            <p class="text-sm opacity-50">Please capture a snippet in PDF Setup</p>
+        <div id="sp-static-placeholder" class="text-center text-slate-500 p-4">
+            <i class="fa-regular fa-image text-4xl mb-2 opacity-40"></i>
+            <p class="text-base font-bold">No Drawing Found</p>
+            <p class="text-xs opacity-50">Please capture a snippet in PDF Setup</p>
         </div>
+    </div>
     </div>
 </div>
 
@@ -643,9 +837,9 @@
                     <div class="flex gap-4">
                         <div class="relative group w-48">
                             <button id="spcRiskRunFilterBtn" onclick="toggleRunDropdown('spc')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-1.5 text-sm text-slate-200 font-medium flex justify-between items-center"><span id="spcRiskRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
-                            <div id="spcRiskRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
+                            <div id="spcRiskRunFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
                         </div>
-                        <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Ask AI Expert</button>
+                        <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Expert Help</button>
                     </div>
                 </div>
                 <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-6"><h2 class="font-bold text-slate-200 text-lg mb-4"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2><div id="spcVerdict" class="text-lg text-slate-300 font-medium bg-slate-900/50 p-4 rounded border border-slate-600 font-mono mb-4"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div><h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4><div id="spcCommonCause" class="text-sm text-slate-300"></div></div><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4><div id="spcSpecialCause" class="text-sm text-slate-300"></div></div></div></div>
@@ -662,7 +856,7 @@
                         <div><h2 class="font-bold text-slate-200 text-lg"><i class="fa-solid fa-flag text-red-500 mr-2"></i>Automated Issues List</h2><p class="text-sm text-slate-400 mt-1">Scanning for critical capability and centering issues.</p></div>
                         <div class="relative group w-48">
                             <button id="sumRunFilterBtn" onclick="toggleRunDropdown('sum')" class="block w-full text-left rounded-lg border-slate-600 bg-slate-900 border p-1.5 text-sm text-slate-200 font-medium flex justify-between items-center"><span id="sumRunFilterLabel">All Selected</span><i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>
-                            <div id="sumRunFilterContent" class="hidden absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
+                            <div id="sumRunFilterContent" class="hidden absolute z-40 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2"></div>
                         </div>
                     </div>
                     <div class="table-container overflow-x-auto">
@@ -685,7 +879,7 @@
         </main>
 		<div id="ai-helper-sidebar">
             <div class="ai-header">
-                <h3 class="text-blue-400 font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-robot"></i> AI Analysis</h3>
+                <h3 class="text-blue-400 font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-lightbulb"></i> Expert Help</h3>
                 <button onclick="closeAiHelper()" class="text-2xl hover:text-white">&times;</button>
             </div>
             <div id="ai-content-area" class="ai-body"></div>
@@ -757,7 +951,22 @@
             </div>
         </div>
     </div>
-    <script type="module">
+    <script>
+        // Start-page onclick handlers before ES module load (modular index.html only).
+        (function () {
+            function pending(name) {
+                return function () {
+                    console.warn(name + ": app still loading…");
+                };
+            }
+            ["showMainApp", "generateTemplate"].forEach(function (name) {
+                if (typeof window[name] !== "function") {
+                    window[name] = pending(name);
+                }
+            });
+        })();
+    </script>
+    <script>
 let globalData = [];
 let adjustments = {};
 let ignoredIds = new Set();
@@ -780,6 +989,846 @@ let isLightMode = true;
 let currentAiState = {};
 let currentOutliers = [];
 let targetCaptureDim = null;
+
+/** Active normality test for Six-Pack (Minitab-style). */
+let normalityTestId = "anderson_darling";
+
+function setNormalityTestId(id) {
+  normalityTestId = id;
+}
+
+/** Six-Pack overall capability method when data is non-normal (AD p < 0.05). */
+let capabilityMethod = "parametric";
+let capabilityMethodMeta = {};
+let capabilityOptions = [];
+
+function setCapabilityMethodState(id) {
+  capabilityMethod = id;
+}
+
+function setCapabilityMethodMeta(meta) {
+  capabilityMethodMeta = meta;
+}
+
+function setCapabilityOptions(options) {
+  capabilityOptions = options;
+}
+
+/* global jStat */
+
+function calculateSkewness(data, mean, std) {
+  if (data.length < 3 || std === 0) return 0;
+  let sum = 0;
+  data.forEach((v) => {
+    sum += Math.pow((v - mean) / std, 3);
+  });
+  return (sum * data.length) / ((data.length - 1) * (data.length - 2));
+}
+
+function getNormalitySuggestion(analysis) {
+  const { isMultimodal, hasTrend, featureName } = analysis;
+  const name = featureName ? featureName.toLowerCase() : "";
+  if (isMultimodal) {
+    return "⚠️ <strong>Mixed populations detected.</strong> You are analyzing multiple cavities or series together, which creates a non-normal (bimodal) distribution. Filter to a single cavity before interpreting Cpk/Ppk — combined data inflates sigma and hides which cavity is actually failing.";
+  }
+  if (hasTrend) {
+    return "⚠️ <strong>Process drift detected.</strong> The mean is moving over time, most commonly because the machine or mold has not reached thermal equilibrium. Allow 30–60 minutes of soak after start-up, then re-sample. Do not adjust parameters based on early-run data.";
+  }
+  if (
+    name.includes("flatness") ||
+    name.includes("position") ||
+    name.includes("runout") ||
+    name.includes("profile") ||
+    name.includes("concentricity")
+  ) {
+    return "ℹ️ <strong>Expected non-normality.</strong> Zero-bounded GD&T (flatness, position, runout, etc.) cannot go below zero, so the distribution is naturally skewed. This is not a process defect. The <strong>Capability Method</strong> panel below recommends percentile Ppk for lot acceptance — do not attempt to center the data.";
+  }
+  return "⚠️ <strong>Unstable or non-normal process.</strong> The distribution shape is not a bell curve. Check the Run Chart for outliers (flyers, short shots) or stratification (mixed lots/cavities). Inspect flagged parts physically before removing data. Compare methods in the <strong>Capability Method</strong> panel (percentile, Box-Cox, Johnson, or Taylor STAT-18 criteria).";
+}
+
+function calculateTrend(values) {
+  const n = values.length;
+  if (n < 2) return 0;
+  const x = Array.from({ length: n }, (_, i) => i);
+  const meanX = (n - 1) / 2;
+  const meanY = jStat.mean(values);
+  let num = 0,
+    den1 = 0,
+    den2 = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = x[i] - meanX;
+    const dy = values[i] - meanY;
+    num += dx * dy;
+    den1 += dx * dx;
+    den2 += dy * dy;
+  }
+  return den1 === 0 || den2 === 0 ? 0 : num / Math.sqrt(den1 * den2);
+}
+
+function getQuantile(arr, q) {
+  const sorted = [...arr].sort((a, b) => a - b);
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  if (sorted[base + 1] !== undefined) return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+  return sorted[base];
+}
+
+const NORMALITY_TEST_IDS = {
+  ANDERSON_DARLING: "anderson_darling",
+  RYAN_JOINER: "ryan_joiner",
+  KOLMOGOROV_SMIRNOV: "kolmogorov_smirnov",
+};
+
+const NORMALITY_ALPHA = 0.05;
+
+function wrapNormalityResult(base, testId, testLabel, statLabel) {
+  const statistic = base.statistic ?? base.A2;
+  return {
+    ...base,
+    statistic,
+    testId,
+    testLabel,
+    statLabel,
+    A2: statistic,
+  };
+}
+
+function calculateAndersonDarling(data) {
+  const Y = [...data].sort((a, b) => a - b);
+  const n = Y.length;
+  if (n < 3) {
+    return wrapNormalityResult(
+      { A2: 0, p: 1 },
+      NORMALITY_TEST_IDS.ANDERSON_DARLING,
+      "Anderson-Darling",
+      "AD"
+    );
+  }
+  const mean = jStat.mean(Y);
+  const s = jStat.stdev(Y, true);
+  if (s === 0) {
+    return wrapNormalityResult(
+      { A2: 0, p: 0 },
+      NORMALITY_TEST_IDS.ANDERSON_DARLING,
+      "Anderson-Darling",
+      "AD"
+    );
+  }
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const Z = (Y[i] - mean) / s;
+    const p = jStat.normal.cdf(Z, 0, 1);
+    const pClamped = Math.max(1e-10, Math.min(1 - 1e-10, p));
+    const term1 = Math.log(pClamped);
+    const Z_rev = (Y[n - 1 - i] - mean) / s;
+    const p_rev = jStat.normal.cdf(Z_rev, 0, 1);
+    const pRevClamped = Math.max(1e-10, Math.min(1 - 1e-10, p_rev));
+    const term2 = Math.log(1 - pRevClamped);
+    sum += (2 * (i + 1) - 1) * (term1 + term2);
+  }
+  const A2 = -n - sum / n;
+  const A2_adj = A2 * (1 + 0.75 / n + 2.25 / (n * n));
+  let pVal = 0;
+  if (A2_adj >= 0.6) pVal = Math.exp(1.2937 - 5.709 * A2_adj + 0.0186 * Math.pow(A2_adj, 2));
+  else if (A2_adj >= 0.34) pVal = Math.exp(0.9177 - 4.279 * A2_adj - 1.38 * Math.pow(A2_adj, 2));
+  else if (A2_adj > 0.2) pVal = 1 - Math.exp(-8.318 + 42.796 * A2_adj - 59.938 * Math.pow(A2_adj, 2));
+  else pVal = 1 - Math.exp(-13.436 + 101.14 * A2_adj - 223.73 * Math.pow(A2_adj, 2));
+  return wrapNormalityResult(
+    { A2: A2_adj, p: Math.max(0, Math.min(1, pVal)) },
+    NORMALITY_TEST_IDS.ANDERSON_DARLING,
+    "Anderson-Darling",
+    "AD"
+  );
+}
+
+/** Ryan–Joiner: correlation of sorted data with normal scores (Minitab; similar to Shapiro–Wilk). */
+function calculateRyanJoiner(data) {
+  const n = data.length;
+  if (n < 3) {
+    return wrapNormalityResult(
+      { statistic: 0, p: 1 },
+      NORMALITY_TEST_IDS.RYAN_JOINER,
+      "Ryan-Joiner",
+      "RJ"
+    );
+  }
+  const sorted = [...data].sort((a, b) => a - b);
+  const expected = Array.from({ length: n }, (_, i) =>
+    jStat.normal.inv((i + 1 - 0.375) / (n + 0.25), 0, 1)
+  );
+  const mx = jStat.mean(sorted);
+  const my = jStat.mean(expected);
+  let cov = 0;
+  let vX = 0;
+  let vY = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = sorted[i] - mx;
+    const dy = expected[i] - my;
+    cov += dx * dy;
+    vX += dx * dx;
+    vY += dy * dy;
+  }
+  const R = vX === 0 || vY === 0 ? 0 : cov / Math.sqrt(vX * vY);
+  const Rc = Math.min(0.999999, Math.max(-0.999999, R));
+
+  let p = 1;
+  if (n >= 4 && Rc < 0.999999) {
+    const ln1mR = Math.log(1 - Rc);
+    const lnN = Math.log(n);
+    const mu = 0.0038915 * lnN ** 3 - 0.083751 * lnN ** 2 - 0.31082 * lnN - 1.5861;
+    const sigma = Math.exp(-0.4803 + 0.082216 * lnN - 0.0032833 * lnN ** 2);
+    const z = (ln1mR - mu) / sigma;
+    p = 1 - jStat.normal.cdf(z, 0, 1);
+  }
+  return wrapNormalityResult(
+    { statistic: R, p: Math.max(0, Math.min(1, p)) },
+    NORMALITY_TEST_IDS.RYAN_JOINER,
+    "Ryan-Joiner",
+    "RJ"
+  );
+}
+
+/** Lilliefors K–S: max |F_emp − F_normal| with μ, σ estimated from data. */
+function lillieforsP(d, n) {
+  const x = d * (Math.sqrt(n) - 0.01 + 0.85 / Math.sqrt(n));
+  if (x < 0.7) return 1;
+  if (x < 0.8) return 1 - Math.exp(-13.436 + 101.14 * x - 223.73 * x * x);
+  if (x < 0.9) return 1 - Math.exp(-8.318 + 42.796 * x - 59.938 * x * x);
+  if (x < 1.0) return 1 - Math.exp(-3.9 + 14.81 * x - 27.5 * x * x);
+  return 0;
+}
+
+function calculateKolmogorovSmirnov(data) {
+  const sorted = [...data].sort((a, b) => a - b);
+  const n = sorted.length;
+  if (n < 4) {
+    return wrapNormalityResult(
+      { statistic: 0, p: 1 },
+      NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV,
+      "Kolmogorov-Smirnov",
+      "D"
+    );
+  }
+  const mean = jStat.mean(sorted);
+  const s = jStat.stdev(sorted, true);
+  if (s === 0) {
+    return wrapNormalityResult(
+      { statistic: 1, p: 0 },
+      NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV,
+      "Kolmogorov-Smirnov",
+      "D"
+    );
+  }
+  let d = 0;
+  for (let i = 0; i < n; i++) {
+    const cdf = jStat.normal.cdf(sorted[i], mean, s);
+    d = Math.max(d, (i + 1) / n - cdf, cdf - i / n);
+  }
+  const p = lillieforsP(d, n);
+  return wrapNormalityResult(
+    { statistic: d, p: Math.max(0, Math.min(1, p)) },
+    NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV,
+    "Kolmogorov-Smirnov",
+    "D"
+  );
+}
+
+function runNormalityTest(data, testId = NORMALITY_TEST_IDS.ANDERSON_DARLING) {
+  if (!data || data.length < 3) {
+    return calculateAndersonDarling(data || []);
+  }
+  switch (testId) {
+    case NORMALITY_TEST_IDS.RYAN_JOINER:
+      return calculateRyanJoiner(data);
+    case NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV:
+      return calculateKolmogorovSmirnov(data);
+    default:
+      return calculateAndersonDarling(data);
+  }
+}
+
+function checkRangeControl(subgroups, subSize) {
+  if (subgroups.length < 2) return { isStable: true, hasZeros: false };
+  const ranges = subgroups.map((g) => (g.mr !== undefined ? g.mr : g.range));
+  if (subSize === 1) ranges.shift();
+  const rBar = jStat.mean(ranges);
+  const D4_MAP = { 2: 3.267, 3: 2.574, 4: 2.282, 5: 2.114 };
+  let d4 = D4_MAP[subSize] || 2.114;
+  if (subSize === 1) d4 = 3.267;
+  const ucl = rBar * d4;
+  const violations = ranges.filter((r) => r > ucl).length;
+  const zeros = ranges.filter((r) => r === 0).length;
+  return { isStable: violations === 0, hasZeros: zeros > ranges.length * 0.2 };
+}
+
+/* global jStat */
+
+function geometricMean(values) {
+  if (values.some((v) => v <= 0)) return null;
+  const logs = values.map((v) => Math.log(v));
+  return Math.exp(jStat.mean(logs));
+}
+
+/** Minitab-style Box-Cox: T = (Y^λ - 1) / (λ · G^(λ-1)), λ=0 → ln(Y). */
+function boxCoxTransform(values, lambda, geomMean) {
+  const G = geomMean ?? geometricMean(values);
+  if (!G || G <= 0) return null;
+  return values.map((y) => {
+    if (y <= 0) return NaN;
+    if (Math.abs(lambda) < 1e-8) return Math.log(y / G);
+    return (Math.pow(y, lambda) - 1) / (lambda * Math.pow(G, lambda - 1));
+  });
+}
+
+function invBoxCox(t, lambda, geomMean) {
+  if (Math.abs(lambda) < 1e-8) return geomMean * Math.exp(t);
+  const inner = lambda * t * Math.pow(geomMean, lambda - 1) + 1;
+  if (inner <= 0) return NaN;
+  return Math.pow(inner, 1 / lambda);
+}
+
+function boxCoxAdP(values, lambda) {
+  const G = geometricMean(values);
+  if (!G) return { p: 0, lambda, geomMean: G, transformed: null };
+  const transformed = boxCoxTransform(values, lambda, G).filter((v) => Number.isFinite(v));
+  if (transformed.length < values.length) return { p: 0, lambda, geomMean: G, transformed: null };
+  const ad = calculateAndersonDarling(transformed);
+  return { p: ad.p, lambda, geomMean: G, transformed, adStats: ad };
+}
+
+/** Grid search λ ∈ [-2, 2]; maximize Anderson–Darling p (Minitab IDI criterion). */
+function fitBoxCox(values) {
+  const min = Math.min(...values);
+  if (min <= 0) {
+    return { ok: false, reason: "Box-Cox requires all values > 0." };
+  }
+  let best = { p: -1, lambda: 1, geomMean: geometricMean(values), transformed: null, adStats: { p: 0, A2: 0 } };
+  for (let lam = -2; lam <= 2.001; lam += 0.05) {
+    const r = boxCoxAdP(values, lam);
+    if (r.transformed && r.p > best.p) best = { ...r, ok: true };
+  }
+  let refine = best.lambda;
+  for (let lam = refine - 0.04; lam <= refine + 0.04; lam += 0.01) {
+    const r = boxCoxAdP(values, lam);
+    if (r.transformed && r.p > best.p) best = { ...r, ok: true };
+  }
+  if (!best.transformed) return { ok: false, reason: "Could not fit Box-Cox." };
+  return {
+    ok: true,
+    lambda: best.lambda,
+    geomMean: best.geomMean,
+    transformed: best.transformed,
+    adStats: best.adStats,
+    forwardSpec(lsl, usl) {
+      const tL = boxCoxTransform([lsl], best.lambda, best.geomMean)[0];
+      const tU = boxCoxTransform([usl], best.lambda, best.geomMean)[0];
+      return { lsl: Math.min(tL, tU), usl: Math.max(tL, tU) };
+    },
+    label: `Box-Cox (λ=${best.lambda.toFixed(2)})`,
+    helpKey: "cap_boxcox",
+  };
+}
+
+const Z50 = 0;
+function zQuantile(p) {
+  return jStat.normal.inv(p, 0, 1);
+}
+
+function percentile(sorted, p) {
+  const pos = (sorted.length - 1) * p;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  if (sorted[base + 1] !== undefined) return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+  return sorted[base];
+}
+
+function johnsonSuTransform(x, xi, lam, gamma, delta) {
+  return gamma + delta * Math.asinh((x - xi) / lam);
+}
+
+function johnsonSlTransform(x, xi, lam, gamma, delta) {
+  if (x <= xi || lam <= 0) return NaN;
+  return gamma + delta * Math.log((x - xi) / lam);
+}
+
+function johnsonSbTransform(x, xi, lam, gamma, delta) {
+  const denom = lam + xi - x;
+  if (x <= xi || denom <= 0 || lam <= 0) return NaN;
+  return gamma + delta * Math.log((x - xi) / denom);
+}
+
+function fitJohnsonFamily(values, family) {
+  const sorted = [...values].sort((a, b) => a - b);
+  const p135 = percentile(sorted, 0.135);
+  const p50 = percentile(sorted, 0.5);
+  const p865 = percentile(sorted, 0.865);
+  const min = sorted[0];
+  const max = sorted[sorted.length - 1];
+  const range = max - min;
+  if (range <= 0) return null;
+
+  let xi, lam, gamma, delta, transformFn;
+
+  if (family === "SU") {
+    xi = p50;
+    lam = Math.max((p865 - p135) / 2, range * 0.01);
+    const z135 = johnsonSuTransform(p135, xi, lam, 0, 1);
+    const z865 = johnsonSuTransform(p865, xi, lam, 0, 1);
+    delta = (zQuantile(0.865) - zQuantile(0.135)) / (z865 - z135 || 1);
+    gamma = Z50 - delta * johnsonSuTransform(p50, xi, lam, 0, 1);
+    transformFn = (x) => johnsonSuTransform(x, xi, lam, gamma, delta);
+  } else if (family === "SL") {
+    xi = Math.min(min - range * 0.01, p135 - range * 0.05);
+    lam = Math.max(p50 - xi, range * 0.01);
+    const z135 = johnsonSlTransform(p135, xi, lam, 0, 1);
+    const z865 = johnsonSlTransform(p865, xi, lam, 0, 1);
+    delta = (zQuantile(0.865) - zQuantile(0.135)) / (z865 - z135 || 1);
+    gamma = Z50 - delta * johnsonSlTransform(p50, xi, lam, 0, 1);
+    transformFn = (x) => johnsonSlTransform(x, xi, lam, gamma, delta);
+  } else {
+    xi = min - range * 0.01;
+    lam = range * 1.02;
+    const z135 = johnsonSbTransform(p135, xi, lam, 0, 1);
+    const z865 = johnsonSbTransform(p865, xi, lam, 0, 1);
+    delta = (zQuantile(0.865) - zQuantile(0.135)) / (z865 - z135 || 1);
+    gamma = Z50 - delta * johnsonSbTransform(p50, xi, lam, 0, 1);
+    transformFn = (x) => johnsonSbTransform(x, xi, lam, gamma, delta);
+  }
+
+  const transformed = values.map(transformFn).filter((v) => Number.isFinite(v));
+  if (transformed.length < values.length * 0.9) return null;
+  const ad = calculateAndersonDarling(transformed);
+  return {
+    family,
+    xi,
+    lam,
+    gamma,
+    delta,
+    transformed,
+    adStats: ad,
+    transformFn,
+    forwardSpec(lsl, usl) {
+      const tL = transformFn(lsl);
+      const tU = transformFn(usl);
+      if (!Number.isFinite(tL) || !Number.isFinite(tU)) return null;
+      return { lsl: Math.min(tL, tU), usl: Math.max(tL, tU) };
+    },
+    label: `Johnson ${family}`,
+    helpKey: "cap_johnson",
+  };
+}
+
+/** Try Johnson Sb, Sl, Su; pick best AD p (Minitab IDI). */
+function fitJohnson(values) {
+  const families = [];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  if (max > min) families.push("SB");
+  if (min > 0 || values.every((v) => v > 0)) families.push("SL");
+  families.push("SU");
+
+  let best = null;
+  for (const f of families) {
+    const fit = fitJohnsonFamily(values, f);
+    if (!fit) continue;
+    if (!best || fit.adStats.p > best.adStats.p) best = fit;
+  }
+  if (!best) return { ok: false, reason: "Could not fit Johnson transformation." };
+  return { ok: true, ...best };
+}
+
+/* global jStat */
+
+const METHOD_IDS = {
+  PARAMETRIC: "parametric",
+  PERCENTILE: "percentile",
+  BOXCOX: "boxcox",
+  JOHNSON: "johnson",
+  TAYLOR: "taylor_high_capability",
+};
+
+/** Minitab Individual Distribution Identification: prefer transform when AD P ≥ 0.10 */
+const AD_TRANSFORM_MIN_P = 0.1;
+
+function multimodalBlock() {
+  return "Filter to a single cavity before using this method.";
+}
+
+function transformNormalityBlock(adP) {
+  return `Normality not achieved (transformed AD P = ${adP.toFixed(3)}; need ≥ ${AD_TRANSFORM_MIN_P.toFixed(2)} per Minitab IDI).`;
+}
+
+/** STAT-18 Appendix I multipliers (95% confidence, two-sided Ppk); linear interpolation on n. */
+const TAYLOR_N = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 120, 150, 200];
+const TAYLOR_MULT = [2.55, 2.35, 2.18, 2.05, 1.96, 1.9, 1.87, 1.84, 1.75, 1.68, 1.62, 1.57, 1.53, 1.45, 1.38, 1.3];
+
+function getTaylorMultiplier(n) {
+  const nn = Math.max(15, Math.min(200, n));
+  if (nn <= TAYLOR_N[0]) return TAYLOR_MULT[0];
+  if (nn >= TAYLOR_N[TAYLOR_N.length - 1]) return TAYLOR_MULT[TAYLOR_MULT.length - 1];
+  for (let i = 0; i < TAYLOR_N.length - 1; i++) {
+    if (nn >= TAYLOR_N[i] && nn <= TAYLOR_N[i + 1]) {
+      const t = (nn - TAYLOR_N[i]) / (TAYLOR_N[i + 1] - TAYLOR_N[i]);
+      return TAYLOR_MULT[i] + t * (TAYLOR_MULT[i + 1] - TAYLOR_MULT[i]);
+    }
+  }
+  return TAYLOR_MULT[TAYLOR_MULT.length - 1];
+}
+
+function evaluateTaylorHighCapability(values, Ppk_Norm, targetCpk) {
+  const n = values.length;
+  const mean = jStat.mean(values);
+  const std = jStat.stdev(values, true);
+  const skew = calculateSkewness(values, mean, std);
+  const mult = getTaylorMultiplier(n);
+  const requiredPpk = mult * targetCpk;
+  const met = Ppk_Norm >= requiredPpk && skew > -2 && skew <= 2;
+  return { met, mult, requiredPpk, skew, Ppk_Norm };
+}
+
+function computePercentilePpPpk(values, lsl, usl) {
+  const median = jStat.median(values);
+  const p99865 = getQuantile(values, 0.99865);
+  const p00135 = getQuantile(values, 0.00135);
+  if (p99865 <= p00135) return null;
+  const Pp = (usl - lsl) / (p99865 - p00135);
+  const PpkU = (usl - median) / (p99865 - median);
+  const PpkL = (median - lsl) / (median - p00135);
+  const Ppk = Math.min(PpkU, PpkL);
+  return { Pp, Ppk };
+}
+
+function computeParametricPpPpk(values, lsl, usl) {
+  const mean = jStat.mean(values);
+  const std = jStat.stdev(values, true);
+  if (std <= 0) return { Pp: 0, Ppk: 0, mean, std };
+  const Pp = (usl - lsl) / (6 * std);
+  const PpkU = (usl - mean) / (3 * std);
+  const PpkL = (mean - lsl) / (3 * std);
+  const Ppk = Math.min(PpkU, PpkL);
+  return { Pp, Ppk, mean, std };
+}
+
+const METHOD_META = {
+  [METHOD_IDS.PARAMETRIC]: {
+    id: METHOD_IDS.PARAMETRIC,
+    title: "Parametric (σ-based)",
+    short: "Standard Pp/Ppk using overall standard deviation. Assumes normality.",
+    helpKey: "cap_parametric",
+  },
+  [METHOD_IDS.PERCENTILE]: {
+    id: METHOD_IDS.PERCENTILE,
+    title: "Non-Parametric (Percentile)",
+    short: "Uses 0.135th / 99.865th percentiles — Minitab nonparametric path; no bell-curve assumption.",
+    helpKey: "cap_percentile",
+  },
+  [METHOD_IDS.BOXCOX]: {
+    id: METHOD_IDS.BOXCOX,
+    title: "Box-Cox Transform",
+    short: "Power transform for positive data; capability on transformed scale (Minitab IDI).",
+    helpKey: "cap_boxcox",
+  },
+  [METHOD_IDS.JOHNSON]: {
+    id: METHOD_IDS.JOHNSON,
+    title: "Johnson Transform",
+    short: "Sb / Sl / Su system for skewed, bounded, or mixed-sign data (Minitab IDI).",
+    helpKey: "cap_johnson",
+  },
+  [METHOD_IDS.TAYLOR]: {
+    id: METHOD_IDS.TAYLOR,
+    title: "Taylor High Capability (STAT-18)",
+    short: "Parametric Ppk with normality waiver when capability is very high and skew is acceptable.",
+    helpKey: "cap_taylor",
+  },
+};
+
+/**
+ * @param {object} ctx
+ * @returns {{ options: object[], fits: { boxcox?: object, johnson?: object }, taylor: object }}
+ */
+function evaluateCapabilityOptions(ctx) {
+  const {
+    values,
+    lsl,
+    usl,
+    adStats,
+    Ppk_Norm,
+    targetCpk,
+    isMultimodal,
+    hasTrend,
+    isBoundary,
+    isLowRes,
+    minVal,
+  } = ctx;
+
+  const n = values.length;
+  const taylor = evaluateTaylorHighCapability(values, Ppk_Norm, targetCpk);
+  const allPositive = minVal > 0;
+  const hasNonPositive = minVal <= 0;
+
+  let boxcoxFit = null;
+  let johnsonFit = null;
+  if (!isMultimodal && allPositive) boxcoxFit = fitBoxCox(values);
+  if (!isMultimodal) johnsonFit = fitJohnson(values);
+
+  const pct = computePercentilePpPpk(values, lsl, usl);
+
+  const options = [];
+
+  const add = (id, extra = {}) => {
+    const base = { ...METHOD_META[id], ...extra };
+    options.push(base);
+  };
+
+  add(METHOD_IDS.PARAMETRIC, {
+    applicable: true,
+    recommended: false,
+    adP: adStats.p,
+    detail: `Raw AD P = ${adStats.p.toFixed(3)}. Indices assume normality.`,
+    rank: 50,
+  });
+
+  if (pct) {
+    let rec = isBoundary && !isMultimodal;
+    let rank = rec ? 10 : 20;
+    if (isMultimodal) rank = 90;
+    add(METHOD_IDS.PERCENTILE, {
+      applicable: !isMultimodal,
+      blockedReason: isMultimodal ? "Filter to a single cavity before using percentile capability." : null,
+      recommended: rec && !hasTrend,
+      adP: null,
+      detail: "99.73% spread from empirical percentiles (AIAG / Minitab nonparametric).",
+      rank,
+    });
+  }
+
+  if (boxcoxFit?.ok) {
+    const transformPasses = boxcoxFit.adStats.p >= AD_TRANSFORM_MIN_P;
+    const rec = transformPasses && !isBoundary;
+    const applicable = !isMultimodal && !isBoundary && transformPasses;
+    add(METHOD_IDS.BOXCOX, {
+      applicable,
+      blockedReason: isMultimodal
+        ? multimodalBlock()
+        : isBoundary
+          ? "Not valid for zero-bounded GD&T — distorts physical lower bound."
+          : !transformPasses
+            ? transformNormalityBlock(boxcoxFit.adStats.p)
+            : null,
+      recommended: rec && !hasTrend,
+      adP: boxcoxFit.adStats.p,
+      detail: `${boxcoxFit.label}; transformed AD P = ${boxcoxFit.adStats.p.toFixed(3)}`,
+      rank: rec ? 15 : 55,
+      fit: boxcoxFit,
+    });
+  } else if (allPositive && !isMultimodal) {
+    add(METHOD_IDS.BOXCOX, {
+      applicable: false,
+      blockedReason: boxcoxFit?.reason || "Box-Cox could not be fitted to this data.",
+      recommended: false,
+      adP: null,
+      detail: "Requires all values > 0.",
+      rank: 99,
+    });
+  } else if (!allPositive) {
+    add(METHOD_IDS.BOXCOX, {
+      applicable: false,
+      blockedReason: "Requires all values > 0 (use Johnson if zeros or negatives are present).",
+      recommended: false,
+      adP: null,
+      detail: "",
+      rank: 99,
+    });
+  }
+
+  if (johnsonFit?.ok) {
+    const transformPasses = johnsonFit.adStats.p >= AD_TRANSFORM_MIN_P;
+    const rec =
+      transformPasses &&
+      !isBoundary &&
+      (!boxcoxFit?.ok || !boxcoxFit.adStats || boxcoxFit.adStats.p < johnsonFit.adStats.p);
+    const applicable = !isMultimodal && transformPasses;
+    add(METHOD_IDS.JOHNSON, {
+      applicable,
+      blockedReason: isMultimodal
+        ? multimodalBlock()
+        : !transformPasses
+          ? transformNormalityBlock(johnsonFit.adStats.p)
+          : null,
+      recommended: rec && !hasTrend,
+      adP: johnsonFit.adStats.p,
+      detail: `${johnsonFit.label}; transformed AD P = ${johnsonFit.adStats.p.toFixed(3)}`,
+      rank: rec ? 12 : 50,
+      fit: johnsonFit,
+    });
+  } else if (!isMultimodal) {
+    add(METHOD_IDS.JOHNSON, {
+      applicable: false,
+      blockedReason: johnsonFit?.reason || "Johnson transformation could not be fitted.",
+      recommended: false,
+      adP: null,
+      detail: "",
+      rank: 99,
+    });
+  }
+
+  const taylorApplicable = taylor.met && !isMultimodal && !hasTrend;
+  const taylorDetail = taylor.met
+    ? `Criteria met — Ppk ${Ppk_Norm.toFixed(2)} ≥ ${taylor.requiredPpk.toFixed(2)} (×${taylor.mult.toFixed(2)} for n=${n}), skew ${taylor.skew.toFixed(2)}`
+    : `Need Ppk ≥ ${taylor.requiredPpk.toFixed(2)} (currently ${Ppk_Norm.toFixed(2)}) and skew between −2 and 2 (currently ${taylor.skew.toFixed(2)})`;
+  add(METHOD_IDS.TAYLOR, {
+    applicable: taylorApplicable,
+    blockedReason: taylorApplicable
+      ? null
+      : isMultimodal
+        ? multimodalBlock()
+        : hasTrend
+          ? "Stabilize the process (drift detected) before applying acceptance criteria."
+          : "STAT-18 Appendix I high-capability criteria not met.",
+    recommended: taylorApplicable,
+    adP: adStats.p,
+    detail: taylorDetail,
+    rank: taylorApplicable ? 18 : 70,
+    taylor,
+  });
+
+  if (hasTrend) {
+    options.forEach((o) => {
+      if (o.id !== METHOD_IDS.PARAMETRIC) o.recommended = false;
+    });
+  }
+  if (isLowRes) {
+    options.forEach((o) => {
+      o.detail = (o.detail || "") + " Note: coarse resolution may cause false AD rejection (STAT-18 ties).";
+    });
+  }
+
+  options.sort((a, b) => {
+    if (a.recommended !== b.recommended) return a.recommended ? -1 : 1;
+    return a.rank - b.rank;
+  });
+
+  return { options, fits: { boxcox: boxcoxFit, johnson: johnsonFit }, taylor };
+}
+
+/**
+ * @returns {{ Pp, Ppk, displayValues, adStats, meta, mean, overallSd }}
+ */
+function computeCapabilityIndices(method, ctx) {
+  const { values, lsl, usl, Pp_Norm, Ppk_Norm, adStatsRaw, fits, targetCpk } = ctx;
+  const rawAd = adStatsRaw;
+
+  const meta = {
+    methodId: method,
+    methodLabel: METHOD_META[method]?.title || method,
+    helpKey: METHOD_META[method]?.helpKey || "cap",
+    showReferenceNorm: false,
+    Pp_Norm,
+    Ppk_Norm,
+    rawAdP: rawAd.p,
+    isTransformed: false,
+    transformLabel: null,
+  };
+
+  if (method === METHOD_IDS.PERCENTILE) {
+    const r = computePercentilePpPpk(values, lsl, usl);
+    if (!r) return fallbackParametric(values, lsl, usl, meta, rawAd);
+    meta.methodLabel = "Percentile";
+    meta.helpKey = "cap_percentile";
+    meta.showReferenceNorm = true;
+    return {
+      ...r,
+      displayValues: values,
+      adStats: rawAd,
+      meta,
+      mean: jStat.median(values),
+      overallSd: jStat.stdev(values, true),
+    };
+  }
+
+  if (method === METHOD_IDS.BOXCOX && fits?.boxcox?.ok && fits.boxcox.adStats.p >= AD_TRANSFORM_MIN_P) {
+    const fit = fits.boxcox;
+    const specs = fit.forwardSpec(lsl, usl);
+    if (!specs) return fallbackParametric(values, lsl, usl, meta, rawAd);
+    const r = computeParametricPpPpk(fit.transformed, specs.lsl, specs.usl);
+    meta.isTransformed = true;
+    meta.transformLabel = fit.label;
+    meta.transformedAdP = fit.adStats.p;
+    meta.lambda = fit.lambda;
+    meta.displayLsl = specs.lsl;
+    meta.displayUsl = specs.usl;
+    meta.showReferenceNorm = true;
+    return {
+      ...r,
+      displayValues: fit.transformed,
+      adStats: fit.adStats,
+      meta,
+    };
+  }
+
+  if (method === METHOD_IDS.JOHNSON && fits?.johnson?.ok && fits.johnson.adStats.p >= AD_TRANSFORM_MIN_P) {
+    const fit = fits.johnson;
+    const specs = fit.forwardSpec(lsl, usl);
+    if (!specs) return fallbackParametric(values, lsl, usl, meta, rawAd);
+    const r = computeParametricPpPpk(fit.transformed, specs.lsl, specs.usl);
+    meta.isTransformed = true;
+    meta.transformLabel = fit.label;
+    meta.transformedAdP = fit.adStats.p;
+    meta.johnsonFamily = fit.family;
+    meta.displayLsl = specs.lsl;
+    meta.displayUsl = specs.usl;
+    meta.showReferenceNorm = true;
+    return {
+      ...r,
+      displayValues: fit.transformed,
+      adStats: fit.adStats,
+      meta,
+    };
+  }
+
+  if (method === METHOD_IDS.TAYLOR) {
+    const taylor = evaluateTaylorHighCapability(values, Ppk_Norm, targetCpk);
+    if (!taylor.met) {
+      meta.taylor = taylor;
+      return fallbackParametric(values, lsl, usl, meta, rawAd);
+    }
+    meta.taylor = taylor;
+    meta.helpKey = "cap_taylor";
+    const r = computeParametricPpPpk(values, lsl, usl);
+    return {
+      ...r,
+      displayValues: values,
+      adStats: rawAd,
+      meta,
+    };
+  }
+
+  const r = computeParametricPpPpk(values, lsl, usl);
+  if (rawAd && rawAd.p < 0.05) meta.nonNormalWarning = true;
+  return {
+    ...r,
+    displayValues: values,
+    adStats: rawAd,
+    meta,
+  };
+}
+
+function fallbackParametric(values, lsl, usl, meta, rawAd) {
+  const r = computeParametricPpPpk(values, lsl, usl);
+  meta.methodId = METHOD_IDS.PARAMETRIC;
+  return { ...r, displayValues: values, adStats: rawAd, meta };
+}
+
+function isMethodApplicable(method, options) {
+  const o = options.find((x) => x.id === method);
+  return o?.applicable !== false;
+}
+
+function getDefaultMethodForFailure(options) {
+  const rec = options.find((o) => o.recommended && o.applicable);
+  return rec?.id || METHOD_IDS.PARAMETRIC;
+}
 
 const PDF_MIN_SCALE = 0.1;
 const PDF_MAX_SCALE = 5.0;
@@ -815,7 +1864,7 @@ const chartExplanations = {
   },
   prob: {
     title: "Normal Probability Plot",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">What this chart shows</strong><p>Plots each data point against where it <em>would</em> fall if the data were perfectly normally distributed. A straight diagonal line means the data is normal; deviations reveal the true shape of your distribution.</p></div><div><strong class="text-blue-400">What to look for</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Straight line</strong> = Normal (Anderson-Darling P ≥ 0.05). Standard Cpk/Ppk is valid.</li><li><strong>S-curve</strong> = Bimodal / mixed populations (cavities, lots). Filter data before analyzing.</li><li><strong>Curved tail (banana shape)</strong> = Outliers or skew from special causes.</li><li><strong>Flat bottom, steep top</strong> = Truncated at a physical boundary (zero-bounded GD&T).</li></ul></div><div><strong class="text-blue-400">Why it matters</strong><p>Cpk and Ppk assume a bell curve. If your data is not normal (P &lt; 0.05), those indices can overstate capability and give you false confidence. Use the Non-Parametric (Percentile) method when normality fails.</p></div></div>`,
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">What this chart shows</strong><p>Plots each data point against where it <em>would</em> fall if the data were perfectly normally distributed. A straight diagonal line means the data is normal; deviations reveal the true shape of your distribution.</p></div><div><strong class="text-blue-400">What to look for</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Straight line</strong> = Normal (Anderson-Darling P ≥ 0.05). Standard Cpk/Ppk is valid.</li><li><strong>S-curve</strong> = Bimodal / mixed populations (cavities, lots). Filter data before analyzing.</li><li><strong>Curved tail (banana shape)</strong> = Outliers or skew from special causes.</li><li><strong>Flat bottom, steep top</strong> = Truncated at a physical boundary (zero-bounded GD&T).</li></ul></div><div><strong class="text-blue-400">Why it matters</strong><p>Cpk and Ppk assume a bell curve. If your data is not normal (P &lt; 0.05), use the <strong>Capability Method</strong> panel to choose percentile, Box-Cox, Johnson, or Taylor STAT-18 criteria.</p></div></div>`,
   },
   cap: {
     title: "Capability Statistics",
@@ -828,6 +1877,38 @@ const chartExplanations = {
   ppk_percentile: {
     title: "Non-Parametric (Percentile) Method",
     content: `<div class="space-y-3"><div><strong class="text-blue-400">Why use this?</strong><p>The data failed the Normality Test (P &lt; 0.05). Standard Ppk calculations mathematically <em>assume</em> a perfect bell curve. Applying standard math to non-normal data produces false risk estimates (e.g., reporting a capable process when defects are actually being produced).</p></div><div><strong class="text-blue-400">How is it calculated?</strong><p>Instead of using Sigma (Standard Deviation), we use the actual physical spread of your data.</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Ppk:</strong> Uses the distance between the Median and the 99.865th percentile (or 0.135th).</li><li><strong>Pp:</strong> (USL − LSL) / (99.865th percentile − 0.135th percentile).</li></ul><p class="mt-1">This range represents 99.73% of your actual data points, equivalent to the ±3σ range in a normal distribution.</p></div><div class="bg-slate-700/50 p-2 rounded border-l-2 border-green-500"><strong class="text-green-400 text-xs uppercase">Audit Defense Statement</strong><p class="italic text-slate-300">"Standard Cpk/Ppk indices were rejected because the data distribution is non-normal (Anderson-Darling P &lt; 0.05). The ISO/AIAG non-parametric percentile method was selected to provide a conservative and accurate representation of actual process performance."</p></div></div>`,
+  },
+  cap_parametric: {
+    title: "Parametric (σ-Based) Pp / Ppk",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">What it is</strong><p>Overall Pp and Ppk use the sample mean and overall standard deviation, assuming the data follow a normal distribution. This is the default in most SPC software when normality passes (Anderson–Darling P ≥ 0.05).</p></div><div><strong class="text-blue-400">When to use on non-normal data</strong><p>Use as a <em>reference only</em> when AD fails, unless <strong>Taylor High Capability</strong> criteria are met or a transform achieves normality. Parametric Ppk on skewed data can overstate protection by 30–50% or more.</p></div><div><strong class="text-blue-400">Industry reference</strong><p>Aligned with Minitab <em>Normal Capability Analysis</em> and AIAG SPC Manual capability formulas. Cp/Cpk (within) always remain on raw data in this tool.</p></div></div>`,
+  },
+  cap_percentile: {
+    title: "Non-Parametric (Percentile) Method",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">What it is</strong><p>Minitab’s nonparametric capability path: overall spread is taken from empirical percentiles (0.135th and 99.865th), equivalent to ±3σ for a normal distribution, without assuming a bell curve.</p></div><div><strong class="text-blue-400">When to use</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li>Zero-bounded GD&T (flatness, position, runout) where normality is expected to fail.</li><li>Heavy skew or outliers when you want indices tied to actual data spread.</li><li>When transforms cannot achieve AD P ≥ 0.10.</li></ul></div><div><strong class="text-blue-400">Reference</strong><p><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/supporting-topics/distributions-and-transformations-for-nonnormal-data/capability-analyses-with-nonnormal-data" class="text-blue-400 underline" target="_blank" rel="noopener">Minitab – Capability with nonnormal data</a></p></div></div>`,
+  },
+  cap_boxcox: {
+    title: "Box-Cox Transformation",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">What it is</strong><p>A power transformation (Y′ = (Y^λ − 1) / (λ · G^(λ−1))) that can straighten right-skewed positive data. λ is chosen to maximize the Anderson–Darling normality p-value (Minitab Individual Distribution Identification).</p></div><div><strong class="text-blue-400">Requirements</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li>All measurements must be <strong>&gt; 0</strong>.</li><li>Not recommended for zero-bounded GD&T where zero is a physical limit.</li></ul></div><div><strong class="text-blue-400">How Pp/Ppk are shown</strong><p>Histogram and probability plot use transformed data. Pp/Ppk are computed on the transformed scale with spec limits mapped into that scale (same approach as Minitab transformed capability).</p></div><div><strong class="text-blue-400">Reference</strong><p><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/individual-distribution-identification/methods-and-formulas/transformations/" class="text-blue-400 underline" target="_blank" rel="noopener">Minitab – Box-Cox transformations</a></p></div></div>`,
+  },
+  cap_johnson: {
+    title: "Johnson Transformation (Sb, Sl, Su)",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">What it is</strong><p>The Johnson system (bounded Sb, lognormal Sl, unbounded Su) maps non-normal data toward normality. Minitab evaluates each family and selects the transform with the best Anderson–Darling p-value (target P ≥ 0.10).</p></div><div><strong class="text-blue-400">When to use</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li>Data contain zeros or negative values (Box-Cox not valid).</li><li>Box-Cox fails to normalize but skew remains moderate.</li></ul></div><div><strong class="text-blue-400">Reference</strong><p><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/individual-distribution-identification/perform-the-analysis/specify-a-johnson-transformation" class="text-blue-400 underline" target="_blank" rel="noopener">Minitab – Johnson transformation</a></p></div></div>`,
+  },
+  cap_taylor: {
+    title: "Taylor STAT-18 High Capability Acceptance",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">What it is</strong><p>From Wayne Taylor’s <em>Statistical Procedures for the Medical Device Industry</em>, STAT-18 Appendix I: when estimated <strong>Ppk exceeds a sample-size multiplier × your acceptance Ppk</strong> and <strong>skewness is between −2 and 2</strong>, the normality test may be waived for variables sampling plans and normal tolerance intervals. Rationale: Chebyshev-style limits on tail risk when capability is very high.</p></div><div><strong class="text-blue-400">What this tool does</strong><p>Displays standard parametric Ppk with a pass/fail against the interpolated 95% confidence multiplier table. It does <em>not</em> change the formula — it documents that parametric indices may still be defensible.</p></div><div><strong class="text-blue-400">Cautions</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li>Process must be stable; high between-lot variation reduces effective n (STAT-03).</li><li>99% confidence plans require higher multipliers than 95%.</li><li>Do not use to bypass multimodal or mixed-cavity data — filter populations first.</li></ul></div><div><strong class="text-blue-400">Reference</strong><p><a href="https://variation.com/stat-18-statistical-techniques-for-normality-testing-and-transformations/" class="text-blue-400 underline" target="_blank" rel="noopener">Taylor Enterprises – STAT-18</a></p></div></div>`,
+  },
+  cap_method_panel: {
+    title: "Capability Method Panel",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">Purpose</strong><p>When <strong>Anderson–Darling</strong> rejects normality on raw data (P &lt; 0.05), this panel lets you choose how <strong>overall Pp/Ppk</strong> are calculated. Cp/Cpk (within) always use raw subgroups. Control charts stay on raw data per Minitab practice.</p></div><div><strong class="text-blue-400">Decision flow (STAT-18 / Minitab)</strong><ol class="list-decimal list-inside mt-1 ml-1 text-xs text-slate-400"><li>Fix mixed cavities / drift / outliers first.</li><li>If capability is very high, check Taylor criteria.</li><li>Try Box-Cox (positive data) or Johnson transforms; prefer transformed AD P ≥ 0.10.</li><li>If transforms fail, use percentile (nonparametric) for lot acceptance.</li></ol></div><div><strong class="text-blue-400">Recommended badge</strong><p>The app ranks methods from your data shape (boundary GD&T, transform AD results, Taylor table). You still choose the method — the badge is guidance, not an automatic switch.</p></div></div>`,
+  },
+  normality_tests: {
+    title: "Tests for Normality",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">Two roles in this app</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Program review (Anderson–Darling)</strong> — always shown at the top. Gates the Capability Method panel, warnings, and transform screening.</li><li><strong>Display test</strong> — the radio you select (AD, Ryan–Joiner, or K–S). Updates the second P-value line and probability plot annotation; does not change transform λ or which methods are offered.</li></ul></div><div><strong class="text-blue-400">Anderson–Darling (default)</strong><p>Sensitive in the <em>tails</em> where defect-rate estimates live. Minitab uses AD for Individual Distribution Identification and Box-Cox/Johnson selection. Statistic A²; higher A² → smaller P. Use for audits and lot acceptance decisions.</p></div><div><strong class="text-blue-400">Ryan–Joiner</strong><p>Correlation of sorted data with normal scores (Minitab; similar to Shapiro–Wilk). Emphasizes the <em>middle</em> of the distribution. On borderline data, RJ may fail while AD passes (heavy tails) or pass while AD fails (mild center non-normality).</p></div><div><strong class="text-blue-400">Kolmogorov–Smirnov</strong><p>Maximum CDF gap (Lilliefors with sample μ, σ). Often <em>less sensitive in the tails</em> than AD — do not treat a KS pass as permission to ignore an AD fail for Ppk.</p></div><div><strong class="text-blue-400">When tests disagree</strong><p>Read the normal probability plot shape (S-curve, banana, flat bottom) before changing tests. See <strong>Test vs transform</strong> for how this differs from Box-Cox, Johnson, or percentile capability.</p></div></div>`,
+  },
+  normality_recommendations: {
+    title: "Normality Test vs. Capability Transformation",
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">Normality test (goodness-of-fit)</strong><p>Answers: <em>Does this sample look like a bell curve on the scale we are viewing?</em> It does <strong>not</strong> change your measurements — only whether parametric formulas are appropriate on <strong>raw</strong> data.</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Change the display test</strong> when you want a second opinion on borderline data or to match another software’s reported test.</li><li><strong>Do not change tests</strong> to “force” normality for lot acceptance — use a capability method instead.</li></ul></div><div><strong class="text-blue-400">Capability transformation / method</strong><p>Answers: <em>How should overall Pp/Ppk be computed when raw data are not normal?</em> This <strong>does</strong> change the math (and sometimes the scale shown on the histogram).</p><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>Percentile</strong> — no transform; uses empirical 0.135th / 99.865th percentiles (Minitab nonparametric path).</li><li><strong>Box-Cox</strong> — power transform; all values must be &gt; 0; λ chosen to maximize AD P on transformed data (target P ≥ 0.10).</li><li><strong>Johnson</strong> — Sb / Sl / Su families; for zeros, negatives, or when Box-Cox cannot normalize.</li><li><strong>Taylor STAT-18</strong> — documents normality waiver when Ppk is very high and skew is mild; still parametric on raw data.</li><li><strong>Parametric (raw)</strong> — reference when AD fails; can overstate Ppk unless Taylor applies.</li></ul></div><div><strong class="text-blue-400">Practical order</strong><ol class="list-decimal list-inside mt-1 ml-1 text-xs text-slate-400"><li>AD review fails → read recommendations under Tests for Normality.</li><li>Fix mixed cavities, drift, or outliers if indicated.</li><li>Pick a capability method (recommended badge) — not a different normality test.</li><li>Change normality test only for interpretation; change capability method for acceptance indices.</li></ol></div></div>`,
   },
   spc_verdict: {
     title: "Run-Level Verdict",
@@ -860,107 +1941,6 @@ const CHART_TARGET_H_INCHES = 4.6;
 const CHART_TARGET_W_INCHES = 12.15;
 const BRAND_DARK_BLUE = "033063";
 const BRAND_ORANGE = "FF9900";
-
-/* global jStat */
-
-function calculateSkewness(data, mean, std) {
-  if (data.length < 3 || std === 0) return 0;
-  let sum = 0;
-  data.forEach((v) => {
-    sum += Math.pow((v - mean) / std, 3);
-  });
-  return (sum * data.length) / ((data.length - 1) * (data.length - 2));
-}
-
-function getNormalitySuggestion(analysis) {
-  const { isMultimodal, hasTrend, featureName } = analysis;
-  const name = featureName ? featureName.toLowerCase() : "";
-  if (isMultimodal) {
-    return "⚠️ <strong>Mixed populations detected.</strong> You are analyzing multiple cavities or series together, which creates a non-normal (bimodal) distribution. Filter to a single cavity before interpreting Cpk/Ppk — combined data inflates sigma and hides which cavity is actually failing.";
-  }
-  if (hasTrend) {
-    return "⚠️ <strong>Process drift detected.</strong> The mean is moving over time, most commonly because the machine or mold has not reached thermal equilibrium. Allow 30–60 minutes of soak after start-up, then re-sample. Do not adjust parameters based on early-run data.";
-  }
-  if (
-    name.includes("flatness") ||
-    name.includes("position") ||
-    name.includes("runout") ||
-    name.includes("profile") ||
-    name.includes("concentricity")
-  ) {
-    return "ℹ️ <strong>Expected non-normality.</strong> Zero-bounded GD&T (flatness, position, runout, etc.) cannot go below zero, so the distribution is naturally skewed. This is not a process defect. Use the Non-Parametric (Percentile) Ppk for lot acceptance — do not attempt to center the data.";
-  }
-  return "⚠️ <strong>Unstable or non-normal process.</strong> The distribution shape is not a bell curve. Check the Run Chart for outliers (flyers, short shots) or stratification (mixed lots/cavities). Inspect flagged parts physically before removing data. Use percentile Ppk if normality cannot be achieved.";
-}
-
-function calculateTrend(values) {
-  const n = values.length;
-  if (n < 2) return 0;
-  const x = Array.from({ length: n }, (_, i) => i);
-  const meanX = (n - 1) / 2;
-  const meanY = jStat.mean(values);
-  let num = 0,
-    den1 = 0,
-    den2 = 0;
-  for (let i = 0; i < n; i++) {
-    const dx = x[i] - meanX;
-    const dy = values[i] - meanY;
-    num += dx * dy;
-    den1 += dx * dx;
-    den2 += dy * dy;
-  }
-  return den1 === 0 || den2 === 0 ? 0 : num / Math.sqrt(den1 * den2);
-}
-
-function getQuantile(arr, q) {
-  const sorted = [...arr].sort((a, b) => a - b);
-  const pos = (sorted.length - 1) * q;
-  const base = Math.floor(pos);
-  const rest = pos - base;
-  if (sorted[base + 1] !== undefined) return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
-  return sorted[base];
-}
-
-function calculateAndersonDarling(data) {
-  const Y = [...data].sort((a, b) => a - b);
-  const n = Y.length;
-  const mean = jStat.mean(Y);
-  const s = jStat.stdev(Y, true);
-  let sum = 0;
-  for (let i = 0; i < n; i++) {
-    const Z = (Y[i] - mean) / s;
-    const p = jStat.normal.cdf(Z, 0, 1);
-    const pClamped = Math.max(1e-10, Math.min(1 - 1e-10, p));
-    const term1 = Math.log(pClamped);
-    const Z_rev = (Y[n - 1 - i] - mean) / s;
-    const p_rev = jStat.normal.cdf(Z_rev, 0, 1);
-    const pRevClamped = Math.max(1e-10, Math.min(1 - 1e-10, p_rev));
-    const term2 = Math.log(1 - pRevClamped);
-    sum += (2 * (i + 1) - 1) * (term1 + term2);
-  }
-  const A2 = -n - sum / n;
-  const A2_adj = A2 * (1 + 0.75 / n + 2.25 / (n * n));
-  let pVal = 0;
-  if (A2_adj >= 0.6) pVal = Math.exp(1.2937 - 5.709 * A2_adj + 0.0186 * Math.pow(A2_adj, 2));
-  else if (A2_adj >= 0.34) pVal = Math.exp(0.9177 - 4.279 * A2_adj - 1.38 * Math.pow(A2_adj, 2));
-  else if (A2_adj > 0.2) pVal = 1 - Math.exp(-8.318 + 42.796 * A2_adj - 59.938 * Math.pow(A2_adj, 2));
-  else pVal = 1 - Math.exp(-13.436 + 101.14 * A2_adj - 223.73 * Math.pow(A2_adj, 2));
-  return { A2: A2_adj, p: pVal };
-}
-
-function checkRangeControl(subgroups, subSize) {
-  if (subgroups.length < 2) return { isStable: true, hasZeros: false };
-  const ranges = subgroups.map((g) => (g.mr !== undefined ? g.mr : g.range));
-  if (subSize === 1) ranges.shift();
-  const rBar = jStat.mean(ranges);
-  const D4_MAP = { 2: 3.267, 3: 2.574, 4: 2.282, 5: 2.114 };
-  let d4 = D4_MAP[subSize] || 2.114;
-  if (subSize === 1) d4 = 3.267;
-  const ucl = rBar * d4;
-  const violations = ranges.filter((r) => r > ucl).length;
-  const zeros = ranges.filter((r) => r === 0).length;
-  return { isStable: violations === 0, hasZeros: zeros > ranges.length * 0.2 };
-}
 
 /** Shared with DOE SUITE — same localStorage key for light/dark across apps. */
 const DOE_THEME_KEY = 'doe-theme';
@@ -1023,117 +2003,330 @@ function getBaseLayout() {
     };
 }
 
+/* global Plotly */
 
+const SIX_PACK_CHART_IDS = [
+  "spChart1",
+  "spChart2",
+  "spChart3",
+  "spChart4",
+  "spChart5",
+  "spChart6",
+];
+
+const DEFAULT_CONFIG = { responsive: true, displayModeBar: false };
+
+function plotWhenSized(el, plotFn) {
+  const run = () => {
+    if (el.clientWidth > 0 && el.clientHeight > 0) return plotFn();
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => resolve(plotFn()));
+      });
+    });
+  };
+  return run();
+}
+
+function plotSixPackChart(id, traces, layout, config = DEFAULT_CONFIG) {
+  const el = document.getElementById(id);
+  if (!el) return Promise.resolve();
+  const h = el.clientHeight || 300;
+  const w = el.clientWidth || undefined;
+  layout = {
+    ...layout,
+    autosize: true,
+    height: h,
+    ...(w ? { width: w } : {}),
+  };
+  return plotWhenSized(el, () => {
+    if (el.data) Plotly.purge(id);
+    return Plotly.newPlot(id, traces, layout, config).then(() => Plotly.Plots.resize(id));
+  });
+}
+
+function resizeSixPackCharts() {
+  SIX_PACK_CHART_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el?.layout) Plotly.Plots.resize(id);
+  });
+}
+
+function scheduleSixPackResize() {
+  requestAnimationFrame(() => {
+    resizeSixPackCharts();
+    setTimeout(resizeSixPackCharts, 50);
+  });
+}
+
+
+
+function sixPackPlotMargin(base, extra = {}) {
+  return { ...base.margin, t: 12, ...extra };
+}
+
+function updateSpChartTitle(chartNum, text) {
+  const el = document.getElementById(`spChart${chartNum}-title`);
+  if (el) el.textContent = text;
+}
 
 function chartColors() {
-    const ref = getChartRefColors(isLightMode);
+  const ref = getChartRefColors(isLightMode);
+  return {
+    primary: getThemeVar('--accent-primary', '#3b82f6'),
+    limit: ref.limit,
+    nominal: ref.nominal,
+    accent: getThemeVar('--accent-purple', '#a855f7'),
+  };
+}
+
+function methodBadgeHtml(meta) {
+  if (!meta || (meta.methodId === METHOD_IDS.PARAMETRIC && !meta.showReferenceNorm && !meta.nonNormalWarning))
+    return { ppkDisplay: null, ppTag: "", helpKey: "cap", headerButton: "" };
+  if (meta.methodId === METHOD_IDS.PARAMETRIC && meta.nonNormalWarning) {
     return {
-        primary: getThemeVar('--accent-primary', '#3b82f6'),
-        limit: ref.limit,
-        nominal: ref.nominal,
-        accent: getThemeVar('--accent-purple', '#a855f7'),
+      helpKey: "cap_parametric",
+      ppTag: "",
+      headerButton: "",
+      ppkDisplay: (Ppk, colorClass) => `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold ${colorClass}">${Ppk.toFixed(2)}</span><span class="text-[10px] text-amber-400 border border-amber-500/50 px-1 rounded">NON-NORMAL</span></div><div class="text-[10px] text-slate-500">Select a method in the panel above.</div></div>`,
     };
+  }
+  const targetCpk = parseFloat(document.getElementById('targetCpkInput')?.value) || 1.33;
+  const helpKey = meta.helpKey || "cap";
+  let badge = "";
+  if (meta.methodId === METHOD_IDS.PERCENTILE) badge = "PERCENTILE";
+  else if (meta.methodId === METHOD_IDS.BOXCOX) badge = "BOX-COX";
+  else if (meta.methodId === METHOD_IDS.JOHNSON) badge = "JOHNSON";
+  else if (meta.methodId === METHOD_IDS.TAYLOR) badge = meta.taylor?.met ? "TAYLOR OK" : "TAYLOR";
+  else if (meta.isTransformed) badge = "TRANSFORMED";
+
+  const refLine =
+    meta.showReferenceNorm && meta.Ppk_Norm != null
+      ? `<div class="text-[10px] text-slate-500">(Parametric: Ppk ${meta.Ppk_Norm.toFixed(2)}, Pp ${meta.Pp_Norm.toFixed(2)})</div>`
+      : "";
+  const rawLine =
+    meta.rawAdP != null && meta.isTransformed
+      ? `<div class="text-[10px] text-slate-500">Raw AD P: ${meta.rawAdP.toFixed(3)} · Transformed: ${(meta.transformedAdP ?? 0).toFixed(3)}</div>`
+      : "";
+
+  return {
+    helpKey,
+    ppTag:
+      meta.showReferenceNorm && meta.Pp_Norm != null
+        ? `<span class="text-[10px] text-slate-500 ml-1">(Param: ${meta.Pp_Norm.toFixed(2)})</span>`
+        : "",
+    headerButton: "",
+    ppkDisplay: (Ppk, colorClass) => `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold ${colorClass}">${Ppk.toFixed(2)}</span>${badge ? `<span class="text-[10px] text-blue-300 border border-blue-500 px-1 rounded">${badge}</span>` : ""}</div>${refLine}${rawLine}${meta.transformLabel ? `<div class="text-[10px] text-slate-500">${meta.transformLabel}</div>` : ""}</div>`,
+  };
 }
 
 function renderControlCharts(type, groups, grandMean, sigma, subSize, outlierSet) { 
-    const c = chartColors();
-    const labels = groups.map(g => g.id); 
-    const xData = groups.map(g => g.mean); 
-    
-    const pointColors = groups.map(g => {
-        if(subSize === 1 && g.ids && g.ids.length > 0) {
-            return outlierSet.has(g.ids[0]) ? c.limit : c.primary;
-        }
-        return c.primary;
-    });
-
-    let ucl, lcl, uclR, rData, rBar;
-    if (subSize > 1) { 
-        const limits = 3 * (sigma / Math.sqrt(subSize));
-        ucl = grandMean + limits; lcl = grandMean - limits;
-        const d2 = D2_CONSTANTS[Math.min(subSize, 16)] || Math.sqrt(subSize);
-        const d4 = {2:3.267, 3:2.574, 4:2.282, 5:2.114}[subSize] || 2.114;
-        rBar = sigma * d2; rData = groups.map(g => g.range); uclR = rBar * d4;
-    } else { 
-        ucl = grandMean + 3 * sigma; lcl = grandMean - 3 * sigma;
-        const d2 = 1.128; const mrBar = sigma * d2;
-        rData = groups.map(g => g.mr || 0);
-        rBar = mrBar; uclR = 3.267 * mrBar;
+  const c = chartColors();
+  const labels = groups.map(g => g.id); 
+  const xData = groups.map(g => g.mean); 
+  
+  const pointColors = groups.map(g => {
+    if(subSize === 1 && g.ids && g.ids.length > 0) {
+      return outlierSet.has(g.ids[0]) ? c.limit : c.primary;
     }
+    return c.primary;
+  });
 
-    const trace1 = { x: labels, y: xData, type: 'scatter', mode: 'lines+markers', line: {color: c.primary, width: 1}, marker: {color: pointColors, size: 6} };
-    const shapeUCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: ucl, y1: ucl, line: {color: c.limit, dash:'dash', width:1} }; 
-    const shapeLCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: lcl, y1: lcl, line: {color: c.limit, dash:'dash', width:1} }; 
-    const shapeCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: grandMean, y1: grandMean, line: {color: c.nominal, width:1} }; 
-    
-    const base = getBaseLayout();
-    Plotly.newPlot('spChart1', [trace1], { ...base, title: { text: type === 'XbarR' ? 'Xbar Chart' : 'I Chart', font: {color: base.titleFontColor} }, shapes: [shapeUCL, shapeLCL, shapeCL] }, {responsive: true, displayModeBar:false});
-    
-    const trace2 = { x: labels, y: rData, type: 'scatter', mode: 'lines+markers', marker: {color:'#f59e0b', size:4}, line: {width:1} }; 
-    const rShapeUCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: uclR, y1: uclR, line: {color: c.limit, dash:'dash', width:1} }; 
-    const rShapeCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: rBar, y1: rBar, line: {color: c.nominal, width:1} }; 
-    Plotly.newPlot('spChart2', [trace2], { ...base, title: { text: type === 'XbarR' ? 'R Chart' : 'MR Chart', font: {color: base.titleFontColor} }, shapes: [rShapeUCL, rShapeCL] }, {responsive: true, displayModeBar:false}); 
+  let ucl, lcl, uclR, rData, rBar;
+  if (subSize > 1) { 
+    const limits = 3 * (sigma / Math.sqrt(subSize));
+    ucl = grandMean + limits; lcl = grandMean - limits;
+    const d2 = D2_CONSTANTS[Math.min(subSize, 16)] || Math.sqrt(subSize);
+    const d4 = {2:3.267, 3:2.574, 4:2.282, 5:2.114}[subSize] || 2.114;
+    rBar = sigma * d2; rData = groups.map(g => g.range); uclR = rBar * d4;
+  } else { 
+    ucl = grandMean + 3 * sigma; lcl = grandMean - 3 * sigma;
+    const d2 = 1.128; const mrBar = sigma * d2;
+    rData = groups.map(g => g.mr || 0);
+    rBar = mrBar; uclR = 3.267 * mrBar;
+  }
+
+  const trace1 = { x: labels, y: xData, type: 'scatter', mode: 'lines+markers', line: {color: c.primary, width: 1}, marker: {color: pointColors, size: 6} };
+  const shapeUCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: ucl, y1: ucl, line: {color: c.limit, dash:'dash', width:1} }; 
+  const shapeLCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: lcl, y1: lcl, line: {color: c.limit, dash:'dash', width:1} }; 
+  const shapeCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: grandMean, y1: grandMean, line: {color: c.nominal, width:1} }; 
+  
+  const base = getBaseLayout();
+  const title1 = type === 'XbarR' ? 'Xbar Chart' : 'I Chart';
+  const title2 = type === 'XbarR' ? 'R Chart' : 'MR Chart';
+  updateSpChartTitle(1, title1);
+  updateSpChartTitle(2, title2);
+  const p1 = plotSixPackChart('spChart1', [trace1], { ...base, margin: sixPackPlotMargin(base), shapes: [shapeUCL, shapeLCL, shapeCL] });
+  
+  const trace2 = { x: labels, y: rData, type: 'scatter', mode: 'lines+markers', marker: {color:'#f59e0b', size:4}, line: {width:1} }; 
+  const rShapeUCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: uclR, y1: uclR, line: {color: c.limit, dash:'dash', width:1} }; 
+  const rShapeCL = { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: rBar, y1: rBar, line: {color: c.nominal, width:1} }; 
+  const p2 = plotSixPackChart('spChart2', [trace2], { ...base, margin: sixPackPlotMargin(base), shapes: [rShapeUCL, rShapeCL] });
+  return Promise.all([p1, p2]);
 }
 
 function renderRunChart(groups, mean, usl, lsl, outlierSet) { 
-    const c = chartColors();
-    let flatY = []; let flatColors = [];
-    groups.forEach(g => { 
-        const values = Array.isArray(g.values) ? g.values : [g.mean];
-        const ids = Array.isArray(g.ids) ? g.ids : [];
-        values.forEach((v, i) => {
-            flatY.push(v);
-            const id = ids[i];
-            if (id !== undefined && outlierSet && outlierSet.has(id)) { flatColors.push(c.limit); } 
-            else { flatColors.push(c.accent); }
-        });
-    }); 
-    
-    const trace = { y: flatY, type: 'scatter', mode: 'lines+markers', line: {color: c.accent, width: 1}, marker: {color: flatColors, size: 5} }; 
-    const shapes = [ 
-        { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: mean, y1: mean, line: {color: c.nominal, width:1} }, 
-        { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: usl, y1: usl, line: {color: c.limit, width: 2, dash: 'dash'} }, 
-        { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: lsl, y1: lsl, line: {color: c.limit, width: 2, dash: 'dash'} } 
-    ]; 
-    const allY = [...flatY, usl, lsl]; 
-    const minY = Math.min(...allY); const maxY = Math.max(...allY); const padding = (maxY - minY) * 0.1; 
-    
-    const base = getBaseLayout();
-    Plotly.newPlot('spChart3', [trace], { ...base, title: { text: 'Run Chart (All Obs)', font: {color: base.titleFontColor} }, shapes: shapes, yaxis: { gridcolor: base.xaxis.gridcolor, range: [minY - padding, maxY + padding] } }, {responsive: true, displayModeBar:false}); 
+  const c = chartColors();
+  let flatY = []; let flatColors = [];
+  groups.forEach(g => { 
+    const values = Array.isArray(g.values) ? g.values : [g.mean];
+    const ids = Array.isArray(g.ids) ? g.ids : [];
+    values.forEach((v, i) => {
+      flatY.push(v);
+      const id = ids[i];
+      if (id !== undefined && outlierSet && outlierSet.has(id)) { flatColors.push(c.limit); } 
+      else { flatColors.push(c.accent); }
+    });
+  }); 
+  
+  const trace = { y: flatY, type: 'scatter', mode: 'lines+markers', line: {color: c.accent, width: 1}, marker: {color: flatColors, size: 5} }; 
+  const shapes = [ 
+    { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: mean, y1: mean, line: {color: c.nominal, width:1} }, 
+    { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: usl, y1: usl, line: {color: c.limit, width: 2, dash: 'dash'} }, 
+    { type: 'line', x0: 0, x1: 1, xref: 'paper', y0: lsl, y1: lsl, line: {color: c.limit, width: 2, dash: 'dash'} } 
+  ]; 
+  const allY = [...flatY, usl, lsl]; 
+  const minY = Math.min(...allY); const maxY = Math.max(...allY); const padding = (maxY - minY) * 0.1; 
+  
+  const base = getBaseLayout();
+  return plotSixPackChart('spChart3', [trace], { ...base, margin: sixPackPlotMargin(base), shapes: shapes, yaxis: { gridcolor: base.xaxis.gridcolor, range: [minY - padding, maxY + padding] } });
 }
 
-function renderHistogram(data, mean, stdevOverall, stdevWithin, lsl, usl) { 
-    const c = chartColors();
-    const traceHist = { x: data, type: 'histogram', opacity: 0.6, marker: {color: c.primary}, name: 'Data', histnorm: 'probability density' }; 
-    const allValues = [...data, lsl, usl]; 
-    const minVal = Math.min(...allValues); const maxVal = Math.max(...allValues); 
-    const range = maxVal - minVal; const xMin = minVal - (range * 0.1); const xMax = maxVal + (range * 0.1); 
-    const xGrid = jStat.seq(xMin, xMax, 200); 
-    
-    let yWithin = []; if(stdevWithin > 0) yWithin = xGrid.map(x => jStat.normal.pdf(x, mean, stdevWithin)); 
-    const traceWithin = { x: xGrid, y: yWithin, type: 'scatter', mode: 'lines', line: {color: c.limit, width:2}, name: 'Within' }; 
-    
-    let yOverall = []; if(stdevOverall > 0) yOverall = xGrid.map(x => jStat.normal.pdf(x, mean, stdevOverall)); 
-    const traceOverall = { x: xGrid, y: yOverall, type: 'scatter', mode: 'lines', line: {color: c.primary, width:2, dash:'dot'}, name: 'Overall' }; 
-    
-    const shapes = [ { type: 'line', y0: 0, y1: 1, yref: 'paper', x0: lsl, x1: lsl, line: {color: c.limit, width: 2, dash: 'dash'} }, { type: 'line', y0: 0, y1: 1, yref: 'paper', x0: usl, x1: usl, line: {color: c.limit, width: 2, dash: 'dash'} } ]; 
-    
-    const base = getBaseLayout();
-    Plotly.newPlot('spChart4', [traceHist, traceWithin, traceOverall], { ...base, title: { text: 'Capability Histogram', font: {color: base.titleFontColor} }, showlegend: true, legend: {x:0, y:1, font:{size:8, color: base.titleFontColor}}, shapes: shapes, xaxis: { gridcolor: base.xaxis.gridcolor, range: [xMin, xMax] } }, {responsive: true, displayModeBar:false}); 
+function renderHistogram(data, mean, stdevOverall, stdevWithin, lsl, usl, methodMeta = null) { 
+  const c = chartColors();
+  const title = methodMeta?.isTransformed
+    ? `Histogram (${methodMeta.transformLabel || "Transformed"})`
+    : "Capability Histogram";
+  updateSpChartTitle(4, title);
+
+  const allValues = [...data, lsl, usl];
+  const minVal = Math.min(...allValues);
+  const maxVal = Math.max(...allValues);
+  const range = maxVal - minVal;
+  const xMin = minVal - range * 0.1;
+  const xMax = maxVal + range * 0.1;
+  const xGrid = jStat.seq(xMin, xMax, 200);
+
+  const binCount = Math.min(30, Math.max(8, Math.ceil(Math.sqrt(data.length))));
+  const span = xMax - xMin;
+  const binW = span > 0 ? span / binCount : 1;
+
+  const traceHist = {
+    x: data,
+    type: 'histogram',
+    opacity: 0.6,
+    marker: { color: c.primary },
+    name: 'Data',
+    histnorm: 'probability density',
+    xbins: { start: xMin, end: xMax, size: binW },
+  };
+
+  let yWithin = [];
+  if (stdevWithin > 0) yWithin = xGrid.map((x) => jStat.normal.pdf(x, mean, stdevWithin));
+  const traceWithin = { x: xGrid, y: yWithin, type: 'scatter', mode: 'lines', line: { color: c.limit, width: 2 }, name: 'Within' };
+
+  let yOverall = [];
+  if (stdevOverall > 0) yOverall = xGrid.map((x) => jStat.normal.pdf(x, mean, stdevOverall));
+  const traceOverall = {
+    x: xGrid,
+    y: yOverall,
+    type: 'scatter',
+    mode: 'lines',
+    line: { color: c.primary, width: 2, dash: 'dot' },
+    name: 'Overall',
+  };
+
+  let yMax = 0.01;
+  for (const y of yWithin) if (y > yMax) yMax = y;
+  for (const y of yOverall) if (y > yMax) yMax = y;
+  if (stdevOverall > 0) {
+    yMax = Math.max(yMax, jStat.normal.pdf(mean, mean, stdevOverall));
+  }
+  if (stdevWithin > 0) {
+    yMax = Math.max(yMax, jStat.normal.pdf(mean, mean, stdevWithin));
+  }
+  if (span > 0 && data.length > 0) {
+    for (let b = 0; b < binCount; b++) {
+      const lo = xMin + b * binW;
+      const hi = lo + binW;
+      const count = data.filter((v) => v >= lo && (b === binCount - 1 ? v <= hi : v < hi)).length;
+      const dens = count / (data.length * binW);
+      if (dens > yMax) yMax = dens;
+    }
+  }
+  const yTop = yMax * 1.28;
+
+  const shapes = [
+    { type: 'line', y0: 0, y1: 1, yref: 'paper', x0: lsl, x1: lsl, line: { color: c.limit, width: 2, dash: 'dash' } },
+    { type: 'line', y0: 0, y1: 1, yref: 'paper', x0: usl, x1: usl, line: { color: c.limit, width: 2, dash: 'dash' } },
+  ];
+
+  const base = getBaseLayout();
+  const legendColor = base.titleFontColor;
+  return plotSixPackChart('spChart4', [traceHist, traceWithin, traceOverall], {
+    ...base,
+    margin: sixPackPlotMargin(base, { t: 6, b: 28, l: 48, r: 12 }),
+    showlegend: true,
+    legend: {
+      orientation: 'h',
+      x: 1,
+      y: 1,
+      xanchor: 'right',
+      yanchor: 'top',
+      font: { size: 8, color: legendColor },
+      bgcolor: 'rgba(0,0,0,0)',
+      borderwidth: 0,
+    },
+    shapes,
+    xaxis: {
+      domain: [0, 1],
+      anchor: 'y',
+      gridcolor: base.xaxis.gridcolor,
+      range: [xMin, xMax],
+      automargin: true,
+    },
+    yaxis: {
+      domain: [0, 1],
+      gridcolor: base.yaxis.gridcolor,
+      rangemode: 'tozero',
+      range: [0, yTop],
+      automargin: true,
+      fixedrange: false,
+    },
+  });
 }
 
-function renderProbPlot(data, adStats) {
-    const c = chartColors();
-    const sorted = [...data].sort((a,b)=>a-b); const n = sorted.length; 
-    const mean = jStat.mean(data); const sd = jStat.stdev(data, true); 
-    const lineX = [mean - 3*sd, mean + 3*sd]; const lineY = [-3, 3]; 
-    const Zscores = sorted.map((_, i) => jStat.normal.inv((i+0.375)/(n+0.25), 0, 1)); 
-    
-    const tracePoints = { x: sorted, y: Zscores, type: 'scatter', mode: 'markers', marker: {color: c.primary, size:4} }; 
-    const traceLine = { x: lineX, y: lineY, type: 'scatter', mode: 'lines', line: {color: c.limit, width:1} }; 
-    
-    const base = getBaseLayout();
-    Plotly.newPlot('spChart5', [tracePoints, traceLine], { ...base, title: { text: 'Normal Prob Plot (AD)', font: {color: base.titleFontColor} }, yaxis: { title: 'Z-Score', gridcolor: base.xaxis.gridcolor }, annotations: [ { x: 0.05, y: 0.95, xref: 'paper', yref: 'paper', text: `AD: ${adStats.A2.toFixed(3)}`, showarrow: false, font:{size:9, color: base.titleFontColor}, xanchor:'left' }, { x: 0.05, y: 0.88, xref: 'paper', yref: 'paper', text: `P-Val: ${adStats.p.toFixed(3)}`, showarrow: false, font:{size:9, color: base.titleFontColor}, xanchor:'left' } ] }, {responsive: true, displayModeBar:false}); 
+function renderProbPlot(data, normStats, methodMeta = null) {
+  const c = chartColors();
+  const testLabel = normStats?.testLabel || "Anderson-Darling";
+  const testTag = normStats?.statLabel || "AD";
+  const title = methodMeta?.isTransformed
+    ? `Normal Prob Plot (${methodMeta.transformLabel || "Transformed"})`
+    : `Normal Prob Plot (${testTag})`;
+  updateSpChartTitle(5, title);
+
+  const sorted = [...data].sort((a,b)=>a-b); const n = sorted.length; 
+  const mean = jStat.mean(data); const sd = jStat.stdev(data, true); 
+  const lineX = [mean - 3*sd, mean + 3*sd]; const lineY = [-3, 3]; 
+  const Zscores = sorted.map((_, i) => jStat.normal.inv((i+0.375)/(n+0.25), 0, 1)); 
+  const pass = normStats?.p != null && normStats.p >= 0.05;
+  const statVal = (normStats?.statistic ?? normStats?.A2 ?? 0).toFixed(3);
+  const pText = normStats?.p != null ? normStats.p.toFixed(3) : "—";
+  
+  const tracePoints = { x: sorted, y: Zscores, type: 'scatter', mode: 'markers', marker: {color: c.primary, size:4} }; 
+  const traceLine = { x: lineX, y: lineY, type: 'scatter', mode: 'lines', line: {color: c.limit, width:1} }; 
+  
+  const base = getBaseLayout();
+  return plotSixPackChart('spChart5', [tracePoints, traceLine], {
+    ...base,
+    margin: sixPackPlotMargin(base, { t: 28, b: 28, l: 52, r: 12 }),
+    yaxis: { title: 'Z-Score', gridcolor: base.xaxis.gridcolor, automargin: true },
+    annotations: [
+      { x: 0.05, y: 0.95, xref: 'paper', yref: 'paper', text: `${testLabel} · ${testTag}: ${statVal}`, showarrow: false, font: { size: 9, color: base.titleFontColor }, xanchor: 'left' },
+      { x: 0.05, y: 0.88, xref: 'paper', yref: 'paper', text: `P = ${pText} (${pass ? "pass" : "fail"} @ 0.05)`, showarrow: false, font: { size: 9, color: pass ? '#22c55e' : base.titleFontColor }, xanchor: 'left' },
+      { x: 0.05, y: 0.81, xref: 'paper', yref: 'paper', text: 'Points unchanged; test updates P-value only', showarrow: false, font: { size: 8, color: base.titleFontColor }, xanchor: 'left' },
+    ],
+  });
 }
 
 function renderStatsPanel(
@@ -1144,35 +2337,44 @@ function renderStatsPanel(
   mean,
   overallSd,
   withinSd,
-  adStats,
+  normStats,
   N,
   lsl,
   usl,
   nominal,
-  ppkIsPercentile = false,
-  Pp_Norm,
-  Ppk_Norm
+  methodMeta = null,
+  rawAdStats = null
 ) { 
     const div = document.getElementById('spStats'); 
     const targetCpk = parseFloat(document.getElementById('targetCpkInput').value) || 1.33; 
-    const cpkColor = Cpk >= targetCpk ? "text-accent-success" : "text-accent-danger"; 
-    const helpKey = ppkIsPercentile ? 'ppk_percentile' : 'cap';
-    let ppkDisplay = "", ppTag = "", headerButton = ""; 
-    if (ppkIsPercentile) {
-        ppkDisplay = `<div class="flex flex-col"><div class="flex items-center gap-2"><span class="text-2xl font-bold text-blue-400">${Ppk.toFixed(2)}</span><span class="text-[10px] text-blue-300 border border-blue-500 px-1 rounded">PERCENTILE</span><button onclick="showChartHelp('${helpKey}')" class="text-orange-500 hover:text-orange-400 focus:outline-none animate-pulse" title="Why Percentile?"><i class="fa-solid fa-circle-question text-lg"></i></button></div><div class="text-[10px] text-slate-500">(Normal: ${Ppk_Norm.toFixed(2)})</div></div>`;
-        ppTag = `<span class="text-[10px] text-slate-500 ml-1">(Norm: ${Pp_Norm.toFixed(2)})</span>`;
-        headerButton = "";
+    const cpkColor = Cpk >= targetCpk ? "text-accent-success" : "text-accent-danger";
+    const ppkColor = Ppk >= targetCpk ? "text-blue-400" : "text-accent-danger";
+    const badge = methodBadgeHtml(methodMeta);
+    let ppkDisplay;
+    if (badge.ppkDisplay) {
+      ppkDisplay = badge.ppkDisplay(Ppk, ppkColor);
     } else {
-        ppkDisplay = `<span class="text-2xl font-bold ${Ppk >= targetCpk ? 'text-accent-success' : 'text-accent-danger'}">${Ppk.toFixed(2)}</span>`;
-        headerButton = `<button onclick="showChartHelp('${helpKey}')" class="text-slate-500 hover:text-blue-400 transition-colors focus:outline-none" title="Show Explanation"><i class="fa-solid fa-circle-question text-sm"></i></button>`;
+      ppkDisplay = `<span class="text-2xl font-bold ${ppkColor}">${Ppk.toFixed(2)}</span>`;
     }
-    div.innerHTML = `<div class="grid grid-cols-2 gap-x-2 text-xs text-slate-300"><div class="col-span-2 grid grid-cols-4 gap-2 mb-2"><span>LSL: ${lsl.toFixed(3)}</span><span>USL: ${usl.toFixed(3)}</span><span>Mean: ${mean.toFixed(3)}</span><span>N: ${N}</span></div><hr class="col-span-2 border-slate-700 mb-2"><div class="flex flex-col space-y-1"><span class="text-blue-400 font-semibold underline">Within (Potential)</span><span>StDev: ${withinSd.toFixed(4)}</span><span>Cp: ${Cp.toFixed(2)}</span><div class="mt-2"><span class="text-xs font-bold text-slate-500">Cpk</span><div class="text-3xl font-bold ${cpkColor}">${Cpk.toFixed(2)}</div></div></div><div class="flex flex-col space-y-1"><span class="text-blue-400 font-semibold underline">Overall (Actual)</span><span>StDev: ${overallSd.toFixed(4)}</span><span class="flex items-center">Pp: ${Pp.toFixed(2)} ${ppTag}</span><div class="mt-2"><div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-500">Ppk</span>${headerButton}</div>${ppkDisplay}</div><div class="mt-2 border-t border-slate-700 pt-1"><span class="text-xs font-bold text-slate-500">AD Normality Test</span><div class="flex items-baseline gap-2"><div class="text-xl font-bold ${adStats.p < 0.05 ? 'text-accent-danger' : 'text-accent-success'}">P: ${adStats.p.toFixed(3)}</div><span class="text-[10px] text-slate-500">AD: ${adStats.A2.toFixed(2)}</span></div></div></div></div>`; 
+    const ppTag = badge.ppTag || "";
+    const methodLine = methodMeta?.methodLabel
+      ? `<div class="col-span-2 text-[10px] text-slate-500 mb-1">Overall method: <span class="text-slate-300">${methodMeta.methodLabel}</span></div>`
+      : "";
+    const rawAdLine =
+      rawAdStats && methodMeta?.isTransformed
+        ? `<span class="text-[10px] text-slate-500 block">Raw AD P: ${rawAdStats.p.toFixed(3)}</span>`
+        : "";
+
+    const testLabel = normStats?.testLabel || "Anderson-Darling";
+    const statLabel = normStats?.statLabel || "AD";
+    const statVal = normStats?.statistic ?? normStats?.A2 ?? 0;
+    div.innerHTML = `<div class="grid grid-cols-2 gap-x-2 text-xs text-slate-300">${methodLine}<div class="col-span-2 grid grid-cols-4 gap-2 mb-2"><span>LSL: ${lsl.toFixed(3)}</span><span>USL: ${usl.toFixed(3)}</span><span>Mean: ${mean.toFixed(3)}</span><span>N: ${N}</span></div><hr class="col-span-2 border-slate-700 mb-2"><div class="flex flex-col space-y-1"><span class="text-blue-400 font-semibold underline">Within (Potential)</span><span>StDev: ${withinSd.toFixed(4)}</span><span>Cp: ${Cp.toFixed(2)}</span><div class="mt-2"><span class="text-xs font-bold text-slate-500">Cpk</span><div class="text-3xl font-bold ${cpkColor}">${Cpk.toFixed(2)}</div></div></div><div class="flex flex-col space-y-1"><span class="text-blue-400 font-semibold underline">Overall (Actual)</span><span>StDev: ${overallSd.toFixed(4)}</span><span class="flex items-center">Pp: ${Pp.toFixed(2)} ${ppTag}</span><div class="mt-2"><span class="text-xs font-bold text-slate-500">Ppk</span>${ppkDisplay}</div><div class="mt-2 border-t border-slate-700 pt-1"><span class="text-xs font-bold text-slate-500">${testLabel}</span><div class="flex items-baseline gap-2"><div class="text-xl font-bold ${normStats.p < 0.05 ? 'text-accent-danger' : 'text-accent-success'}">P: ${normStats.p.toFixed(3)}</div><span class="text-[10px] text-slate-500">${statLabel}: ${statVal.toFixed(3)}</span></div>${rawAdLine}</div></div></div>`; 
     const c6 = chartColors();
     const traceSpec = { x: [lsl, usl], y: [1, 1], type: 'scatter', mode: 'lines+markers', name: 'Specs', line: {color: c6.limit, width:4}, marker:{symbol:'line-ns-open', size:10, color: c6.limit} }; 
     const traceProcess = { x: [mean - 3*withinSd, mean + 3*withinSd], y: [0.5, 0.5], type: 'scatter', mode: 'lines+markers', name: 'Process', line: {color: c6.primary, width:4}, marker:{symbol:'line-ns-open', size:10, color: c6.primary} }; 
     const traceNom = { x: [nominal], y: [1], type:'scatter', mode:'markers', marker:{color: c6.nominal, symbol:'cross', size:8} }; 
     const base = getBaseLayout();
-    Plotly.newPlot('spChart6', [traceSpec, traceProcess, traceNom], { margin: { t: 30, r: 20, l: 40, b: 30 }, font: { size: 10, family: 'Segoe UI', color: base.font.color }, showlegend: false, plot_bgcolor: base.plot_bgcolor, paper_bgcolor: base.paper_bgcolor, xaxis: { gridcolor: base.xaxis.gridcolor }, yaxis: { showticklabels: false, range: [0, 2], gridcolor: base.yaxis.gridcolor }, title: { text: 'Capability Interval', font: {color: base.titleFontColor} } }, {responsive: true, displayModeBar:false});
+    return plotSixPackChart('spChart6', [traceSpec, traceProcess, traceNom], { margin: { t: 30, r: 20, l: 40, b: 30 }, font: { size: 10, family: 'Segoe UI', color: base.font.color }, showlegend: false, plot_bgcolor: base.plot_bgcolor, paper_bgcolor: base.paper_bgcolor, xaxis: { gridcolor: base.xaxis.gridcolor }, yaxis: { showticklabels: false, range: [0, 2], gridcolor: base.yaxis.gridcolor }, title: { text: 'Capability Interval', font: {color: base.titleFontColor} } });
 }
 
 function getSeriesLabel(d) {
@@ -1522,10 +2724,16 @@ window.currentInsights = {};
 function addBulb(chartId, title, observation, tips) {
   const safeTips = Array.isArray(tips) ? tips : [tips];
   window.currentInsights[chartId] = { title, observation, tips: safeTips };
+}
 
-  const bulb = document.getElementById(`bulb-${chartId}`);
-  if (bulb) {
-    bulb.classList.remove("hidden");
+function applySixPackBulbs() {
+  const insights = window.currentInsights || {};
+  if (insights.spChart6 && !insights.spStats) {
+    insights.spStats = insights.spChart6;
+  }
+  document.querySelectorAll(".pulsing-bulb").forEach((el) => el.classList.add("hidden"));
+  for (const chartId of Object.keys(insights)) {
+    document.getElementById(`bulb-${chartId}`)?.classList.remove("hidden");
   }
 }
 
@@ -1540,6 +2748,7 @@ function runExpertAnalysis(ctx, dimName) {
     withinStDev,
     trend,
     isNormal,
+    normalityTestLabel,
     tolerance,
     subSize,
     subgroups,
@@ -1690,32 +2899,56 @@ function runExpertAnalysis(ctx, dimName) {
   }
 
   if (currentAiState.isBoundary) {
+    const boundaryTips = [
+      "<strong>Why you cannot 'center' this:</strong> There is no negative flatness or runout. Attempting to shift the process mean toward nominal on a zero-bounded feature is physically meaningless and will mislead your corrective action.",
+      "<strong>Choose a capability method:</strong> Open the Capability Method panel and select Non-Parametric (Percentile) — recommended for zero-bounded GD&T per Minitab/AIAG.",
+      "<strong>Normality test will fail — that is OK:</strong> Anderson-Darling P < 0.05 is expected for zero-bounded GD&T. Do not treat a failed normality test as a process problem.",
+      "<strong>Evaluate against USL only:</strong> Focus on how close the 99.865th percentile is to the upper spec limit, not on symmetry.",
+      "<strong>Document in your quality plan:</strong> Note that percentile-based indices are the correct acceptance method for this feature type per ISO/AIAG guidance.",
+    ];
     addBulb(
       "spChart4",
       "Physically Bounded (Truncated) Distribution",
       "Data is piled up near zero because this GD&T characteristic (Flatness, Profile, Position, Runout, etc.) cannot have negative values. The distribution is naturally right-skewed — this is expected physics, not a process defect.",
-      [
-        "<strong>Why you cannot 'center' this:</strong> There is no negative flatness or runout. Attempting to shift the process mean toward nominal on a zero-bounded feature is physically meaningless and will mislead your corrective action.",
-        "<strong>Use percentile Ppk:</strong> Switch to the Non-Parametric (Percentile) Ppk shown in the capability panel. This method does not assume a bell curve.",
-        "<strong>Normality test will fail — that is OK:</strong> Anderson-Darling P < 0.05 is expected for zero-bounded GD&T. Do not treat a failed normality test as a process problem.",
-        "<strong>Evaluate against USL only:</strong> Focus on how close the 99.865th percentile is to the upper spec limit, not on symmetry.",
-        "<strong>Document in your quality plan:</strong> Note that percentile-based indices are the correct acceptance method for this feature type per ISO/AIAG guidance.",
-      ],
+      boundaryTips,
+    );
+    addBulb(
+      "spChart5",
+      "Probability Plot — Zero-Bounded Feature",
+      "The flat bottom on this plot is expected: the measurement cannot go below zero (flatness, profile, position, runout, etc.). Do not interpret the failed normality test as poor process control.",
+      boundaryTips,
     );
   }
 
-  if (!isNormal && !currentAiState.isBoundary) {
+  const failedAD = ctx.isNormalByAD === false;
+  if (failedAD && !currentAiState.isBoundary) {
+    const adP = ctx.adStats?.p?.toFixed?.(3) ?? "—";
+    const displayNote =
+      ctx.normStats && ctx.adStats && ctx.normStats.p >= 0.05
+        ? `<strong>Display test passes, AD fails:</strong> ${ctx.normalityTestLabel} P ≥ 0.05 but Anderson–Darling P = ${adP}. Lot acceptance should not rely on parametric raw Ppk until you pick a method below.`
+        : "";
+    const rec = ctx.normalityReview?.recommendedMethod;
+    const recTip = rec
+      ? `<strong>Recommended method:</strong> ${rec.title} — ${rec.short}`
+      : "<strong>Capability Method panel:</strong> Compare percentile, Box-Cox, Johnson, Taylor STAT-18, and parametric (reference).";
+    const taylorTip = ctx.taylor?.met
+      ? "<strong>Taylor STAT-18:</strong> High Capability criteria are met — parametric Ppk may be documented with a normality waiver (see Taylor method)."
+      : "";
     addBulb(
       "spChart5",
-      "Non-Normal Distribution Detected",
-      "The Anderson-Darling normality test failed (P < 0.05). The data does not follow a bell curve, which means standard Cpk/Ppk calculations may not accurately predict the defect rate.",
+      "Non-Normal Distribution (Anderson–Darling Review)",
+      `Anderson–Darling failed on raw data (P = ${adP}, α = 0.05). This is the program default review — transform fitting and capability recommendations always use AD, regardless of the display test selected above. Standard overall Ppk on untransformed data can overstate protection when tails are heavy or skewed.`,
       [
-        "<strong>Read the probability plot shape:</strong> An S-curve (bends at both ends) = mixed populations (cavities or lots). A banana curve (one tail bends) = outliers or skew. A flat bottom = physical boundary.",
-        "<strong>S-curve action:</strong> Filter to a single cavity or lot and re-analyze. Do not proceed with combined data.",
-        "<strong>Outlier action:</strong> Check the Run Chart for isolated points far from the cluster. Inspect those physical parts before removing from the dataset.",
-        "<strong>Switch to percentile Ppk:</strong> Use the Non-Parametric Ppk value for lot acceptance decisions when normality fails.",
-        "<strong>Do not ignore this flag:</strong> Reporting a high Cpk on non-normal data can overstate capability by 30–50% or more, depending on the distribution shape.",
-      ],
+        displayNote,
+        "<strong>Normality test vs. transformation:</strong> Changing Ryan–Joiner or K–S only changes what you <em>see</em> in the Tests panel. Changing Box-Cox, Johnson, or Percentile changes <em>how Pp/Ppk are calculated</em>. Open <strong>Test vs transform</strong> in that panel for the full decision guide.",
+        "<strong>When to change the display test:</strong> Keep AD for audits and Minitab alignment. Try Ryan–Joiner if the prob plot looks straight but AD fails (center-weighted). K–S is exploratory — a KS pass with AD fail still leaves tail risk.",
+        "<strong>When to change capability method:</strong> Percentile = no transform, empirical tails (best for zero-bounded GD&T). Box-Cox = all-positive skew. Johnson = zeros/negatives or Box-Cox failure. Use transform only if transformed AD P ≥ 0.10.",
+        "<strong>Probability plot shapes:</strong> S-curve = mixed cavities/lots. Banana tail = skew/outliers. Flat bottom = physical lower bound.",
+        "<strong>Fix data first:</strong> Filter mixed cavities and stabilize drift before trusting any transform.",
+        recTip,
+        taylorTip,
+        "<strong>Do not ignore AD failure:</strong> Parametric Ppk on raw skewed data can overstate capability by 30–50% or more.",
+      ].filter(Boolean),
     );
   }
 
@@ -1786,6 +3019,292 @@ function runExpertAnalysis(ctx, dimName) {
       ],
     );
   }
+
+  if (!window.currentInsights.spStats) {
+    if (window.currentInsights.spChart6) {
+      window.currentInsights.spStats = window.currentInsights.spChart6;
+    } else {
+      addBulb(
+        "spStats",
+        "Capability Statistics",
+        `Within Cpk is ${Cpk?.toFixed?.(2) ?? Cpk} (short-term potential). Overall Ppk is ${Ppk?.toFixed?.(2) ?? Ppk} (long-term actual). ${Math.abs(Cpk - Ppk) > 0.5 ? "A large Cpk − Ppk gap suggests drift or mixed data — filter cavities/runs before centering." : "Cpk and Ppk are aligned — focus on maintaining stability on the Range chart."}`,
+        [
+          "<strong>Cpk (within):</strong> Uses within-subgroup variation. Improve by reducing shot-to-shot spread (Range/MR chart).",
+          "<strong>Ppk (overall):</strong> Uses total variation. Sensitive to drift, outliers, and mixing cavities or lots.",
+          "<strong>Normality:</strong> Overall Pp/Ppk assume normality unless you select another method in the Capability Method panel.",
+          "<strong>Target:</strong> Compare indices to your Target Cpk from the setup bar.",
+        ],
+      );
+    }
+  }
+}
+
+
+
+const TEST_ORDER = [
+  NORMALITY_TEST_IDS.ANDERSON_DARLING,
+  NORMALITY_TEST_IDS.RYAN_JOINER,
+  NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV,
+];
+
+const TEST_LABELS = {
+  [NORMALITY_TEST_IDS.ANDERSON_DARLING]: "Anderson–Darling",
+  [NORMALITY_TEST_IDS.RYAN_JOINER]: "Ryan–Joiner",
+  [NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV]: "Kolmogorov–Smirnov",
+};
+
+/** Program default: Anderson–Darling gates recommendations, transforms, and capability panel. */
+function runAllNormalityTests(values) {
+  const data = values || [];
+  return {
+    [NORMALITY_TEST_IDS.ANDERSON_DARLING]: calculateAndersonDarling(data),
+    [NORMALITY_TEST_IDS.RYAN_JOINER]: calculateRyanJoiner(data),
+    [NORMALITY_TEST_IDS.KOLMOGOROV_SMIRNOV]: calculateKolmogorovSmirnov(data),
+  };
+}
+
+function formatTestLine(stats) {
+  const pass = stats.p >= NORMALITY_ALPHA;
+  const stat = stats.statistic ?? stats.A2 ?? 0;
+  return {
+    pass,
+    line: `${stats.testLabel} P = ${stats.p.toFixed(3)} (${stats.statLabel} = ${stat.toFixed(3)})`,
+  };
+}
+
+function getRootCauseGuidance(analysis) {
+  const { isMultimodal, hasTrend, featureName } = analysis;
+  const name = featureName ? featureName.toLowerCase() : "";
+  if (isMultimodal) {
+    return {
+      priority: "data",
+      headline: "Mixed populations (multiple cavities or series combined)",
+      actions: [
+        "Filter to a single cavity or lot before interpreting Ppk or choosing a capability method.",
+        "An S-curve on the probability plot usually confirms bimodal data — do not merge populations for lot acceptance.",
+      ],
+    };
+  }
+  if (hasTrend) {
+    return {
+      priority: "data",
+      headline: "Process drift over the sampling window",
+      actions: [
+        "Stabilize the process (thermal soak, consistent setup) and re-sample before normality or capability decisions.",
+        "Parametric and transformed Ppk both assume a stable population — drift invalidates any single distribution fit.",
+      ],
+    };
+  }
+  if (
+    name.includes("flatness") ||
+    name.includes("position") ||
+    name.includes("runout") ||
+    name.includes("profile") ||
+    name.includes("concentricity")
+  ) {
+    return {
+      priority: "boundary",
+      headline: "Expected non-normality for zero-bounded GD&T",
+      actions: [
+        "Use <strong>Non-Parametric (Percentile)</strong> for lot acceptance — do not try to center toward nominal.",
+        "A failed Anderson–Darling test here reflects physics (cannot be negative), not necessarily poor control.",
+      ],
+    };
+  }
+  return {
+    priority: "shape",
+    headline: "Distribution shape is not a bell curve on raw data",
+    actions: [
+      "Read the probability plot: S-curve = mixed data; banana tail = skew/outliers; flat bottom = physical bound.",
+      "Inspect Run Chart outliers physically before removing points.",
+    ],
+  };
+}
+
+function buildTestComparison(allTests, selectedId, adStats) {
+  const adPass = adStats.p >= NORMALITY_ALPHA;
+  const selected = allTests[selectedId];
+  const selectedPass = selected?.p >= NORMALITY_ALPHA;
+  const lines = [];
+
+  if (selectedId !== NORMALITY_TEST_IDS.ANDERSON_DARLING) {
+    if (adPass && !selectedPass) {
+      lines.push({
+        type: "caution",
+        text: `<strong>Display test vs. program review:</strong> ${TEST_LABELS[selectedId]} rejects normality (P = ${selected.p.toFixed(3)}), but <strong>Anderson–Darling passes</strong> (P = ${adStats.p.toFixed(3)}). This app still treats the data as <strong>normal for capability</strong> because AD is the default review method. You may switch the display test to Anderson–Darling to align the panel with recommendations, or keep ${TEST_LABELS[selectedId]} for sensitivity in the center of the distribution.`,
+      });
+    } else if (!adPass && selectedPass) {
+      lines.push({
+        type: "warn",
+        text: `<strong>Display test vs. program review:</strong> ${TEST_LABELS[selectedId]} passes (P = ${selected.p.toFixed(3)}), but <strong>Anderson–Darling fails</strong> (P = ${adStats.p.toFixed(3)}). Capability recommendations, transforms, and the method panel follow <strong>AD only</strong> (Minitab IDI / tail-sensitive practice). Do not report parametric Ppk as lot acceptance without addressing AD failure or selecting an alternate method below.`,
+      });
+    }
+  }
+
+  const others = TEST_ORDER.filter((id) => id !== selectedId && id !== NORMALITY_TEST_IDS.ANDERSON_DARLING);
+  const disagree = others.filter((id) => {
+    const t = allTests[id];
+    return t && (t.p >= NORMALITY_ALPHA) !== adPass;
+  });
+  if (disagree.length > 0 && selectedId === NORMALITY_TEST_IDS.ANDERSON_DARLING) {
+    const names = disagree.map((id) => `${TEST_LABELS[id]} (P = ${allTests[id].p.toFixed(3)})`).join(", ");
+    lines.push({
+      type: "info",
+      text: `<strong>Borderline disagreement:</strong> AD ${adPass ? "passes" : "fails"} while ${names} ${disagree.length === 1 ? "disagrees" : "disagree"}. On borderline data, Ryan–Joiner is often stricter in the body of the distribution; Kolmogorov–Smirnov is often more lenient in the tails than AD. Use the probability plot shape as the tie-breaker — not P-values alone.`,
+    });
+  }
+
+  return lines;
+}
+
+function pickRecommendedMethod(options) {
+  const rec = options?.find((o) => o.recommended && o.applicable !== false);
+  return rec || options?.find((o) => o.applicable !== false && o.id === METHOD_IDS.PERCENTILE) || null;
+}
+
+/**
+ * @param {object} params
+ * @returns {object} Review payload for UI and expert analysis
+ */
+function buildNormalityReview(params) {
+  const {
+    values,
+    selectedTestId,
+    analysis,
+    capabilityOptions,
+  } = params;
+
+  const allTests = runAllNormalityTests(values);
+  const adStats = allTests[NORMALITY_TEST_IDS.ANDERSON_DARLING];
+  const selectedStats = allTests[selectedTestId] || adStats;
+  const isNormalByAD = adStats.p >= NORMALITY_ALPHA;
+  const rootCause = getRootCauseGuidance(analysis);
+  const comparison = buildTestComparison(allTests, selectedTestId, adStats);
+  const recommendedMethod = pickRecommendedMethod(capabilityOptions);
+
+  const transformNotes = [];
+  const box = capabilityOptions?.find((o) => o.id === METHOD_IDS.BOXCOX);
+  const johnson = capabilityOptions?.find((o) => o.id === METHOD_IDS.JOHNSON);
+  if (box?.applicable) {
+    transformNotes.push(
+      `Box-Cox achieved transformed AD P = ${box.adP?.toFixed(3)} (≥ ${AD_TRANSFORM_MIN_P.toFixed(2)}). Suitable for right-skewed <strong>strictly positive</strong> dimensions when not zero-bounded.`,
+    );
+  } else if (box && box.adP != null) {
+    transformNotes.push(
+      `Box-Cox fit attempted; transformed AD P = ${box.adP.toFixed(3)} (need ≥ ${AD_TRANSFORM_MIN_P.toFixed(2)}). ${box.blockedReason || "Not recommended for this dataset."}`,
+    );
+  }
+  if (johnson?.applicable) {
+    transformNotes.push(
+      `Johnson (${johnson.detail || "fitted"}) — use when data include zero/negative values or Box-Cox cannot normalize.`,
+    );
+  } else if (johnson && johnson.adP != null) {
+    transformNotes.push(
+      `Johnson fit attempted; transformed AD P = ${johnson.adP.toFixed(3)}. ${johnson.blockedReason || ""}`,
+    );
+  }
+
+  const whyChangeTest = [
+    "<strong>Keep Anderson–Darling (default)</strong> for capability decisions, transform selection, and audit alignment with Minitab. AD weights the tails where defect rates are estimated.",
+    "<strong>Try Ryan–Joiner</strong> when the probability plot looks fairly straight but AD fails — RJ correlates with normal scores (similar to Shapiro–Wilk) and can flag non-normality in the <em>center</em> of the distribution that AD understates on small n.",
+    "<strong>Try Kolmogorov–Smirnov</strong> only for exploratory comparison — it is often less sensitive in the tails than AD, so a KS pass with AD fail still means tail risk for Ppk may be understated.",
+    "<strong>Changing the display test does not change</strong> Box-Cox/Johnson λ selection or which capability methods are offered — those always use AD on raw and transformed data.",
+  ];
+
+  const whyChangeTransform = [
+    "<strong>Capability method ≠ normality test.</strong> The normality test judges raw (or display) data shape. A <em>transformation</em> (Box-Cox / Johnson) is chosen to make data approximately normal so <strong>parametric Pp/Ppk on a transformed scale</strong> are defensible — only when transformed AD P ≥ 0.10 (Minitab IDI).",
+    "<strong>Percentile (nonparametric)</strong> — no transform; uses empirical 0.135th / 99.865th percentiles. Best default for zero-bounded GD&T, heavy skew, or when transforms cannot reach AD P ≥ 0.10.",
+    "<strong>Box-Cox</strong> — power transform for all-positive, right-skewed data (e.g., weight, positive deviations). Not for features physically bounded at zero.",
+    "<strong>Johnson</strong> — when zeros/negatives exist or Box-Cox fails; maps bounded/unbounded families toward normality.",
+    "<strong>Taylor STAT-18</strong> — waives normality for <em>variables sampling</em> when Ppk is very high and skew is mild; does not change the formula, documents acceptance rationale.",
+    "<strong>Parametric on raw data</strong> — reference only when AD fails unless Taylor criteria apply; can overstate Ppk on skewed data.",
+  ];
+
+  const sections = [];
+
+  if (!isNormalByAD) {
+    sections.push({
+      title: "Program review (Anderson–Darling)",
+      html: `<p class="normality-review-msg-fail">Raw data <strong>failed</strong> Anderson–Darling (P = ${adStats.p.toFixed(3)}, α = ${NORMALITY_ALPHA}). Overall parametric Pp/Ppk on untransformed data are not assumed valid for lot acceptance unless you select another capability method.</p>`,
+    });
+    sections.push({
+      title: "Likely cause",
+      html: `<p><strong>${rootCause.headline}</strong></p><ul class="list-disc list-inside ml-1 text-slate-400">${rootCause.actions.map((a) => `<li>${a}</li>`).join("")}</ul>`,
+    });
+    if (recommendedMethod) {
+      sections.push({
+        title: "Recommended capability method",
+        html: `<p><strong>${recommendedMethod.title}</strong> — ${recommendedMethod.short}</p><p class="text-slate-500 text-[11px] mt-1">${recommendedMethod.detail || ""}</p>`,
+      });
+    }
+    if (transformNotes.length) {
+      sections.push({
+        title: "Transformation screening (always uses AD)",
+        html: `<ul class="list-disc list-inside ml-1 text-slate-400">${transformNotes.map((t) => `<li>${t}</li>`).join("")}</ul>`,
+      });
+    }
+    sections.push({
+      title: "When to change the normality test (display only)",
+      html: `<ul class="list-disc list-inside ml-1 text-slate-400">${whyChangeTest.map((t) => `<li>${t}</li>`).join("")}</ul>`,
+    });
+    sections.push({
+      title: "When to change capability method / transformation",
+      html: `<ul class="list-disc list-inside ml-1 text-slate-400">${whyChangeTransform.map((t) => `<li>${t}</li>`).join("")}</ul>`,
+    });
+  } else if (selectedTestId !== NORMALITY_TEST_IDS.ANDERSON_DARLING && selectedStats.p < NORMALITY_ALPHA) {
+    sections.push({
+      title: "Display test note",
+      html: `<p class="text-slate-400">Anderson–Darling <strong>passes</strong> (P = ${adStats.p.toFixed(3)}). Your selected ${TEST_LABELS[selectedTestId]} test fails (P = ${selectedStats.p.toFixed(3)}) — capability still uses AD. Switch the display test to Anderson–Darling to align the panel, or keep ${TEST_LABELS[selectedTestId]} for a center-weighted second opinion.</p>`,
+    });
+  }
+
+  const adLine = formatTestLine(adStats);
+  const selectedLine = formatTestLine(selectedStats);
+
+  return {
+    isNormalByAD,
+    adStats,
+    selectedStats,
+    allTests,
+    adLine,
+    selectedLine,
+    comparison,
+    rootCause,
+    recommendedMethod,
+    sections,
+    whyChangeTest,
+    whyChangeTransform,
+    summaryWarning: !isNormalByAD
+      ? `Anderson–Darling P = ${adStats.p.toFixed(3)} (non-normal). ${rootCause.headline}.`
+      : null,
+    shortSuggestion: !isNormalByAD
+      ? getShortSuggestion(analysis, recommendedMethod)
+      : null,
+  };
+}
+
+function getShortSuggestion(analysis, recommendedMethod) {
+  const rc = getRootCauseGuidance(analysis);
+  const methodHint = recommendedMethod
+    ? ` Recommended: <strong>${recommendedMethod.title}</strong>.`
+    : " Open the Capability Method panel to compare options.";
+  if (rc.priority === "boundary") {
+    return `AD failed as expected for this GD&T type — not a defect.${methodHint}`;
+  }
+  if (rc.priority === "data") {
+    return `Fix mixed populations or drift first.${methodHint}`;
+  }
+  return `Standard Ppk may overstate protection.${methodHint}`;
+}
+
+function renderNormalityReviewHtml(review) {
+  if (!review?.sections?.length) return "";
+  return review.sections
+    .map(
+      (s) =>
+        `<div class="mt-3 pt-3 border-t border-slate-700/80 first:mt-0 first:pt-0 first:border-0"><h4 class="text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">${s.title}</h4>${s.html}</div>`,
+    )
+    .join("");
 }
 
 /** Late-bound callbacks so data/* modules avoid circular imports with application.mjs */
@@ -2611,6 +4130,18 @@ function updateDrawingPopupImage(page = "std") {
     }
 }
 
+function toggleSpDrawingPanel() {
+    const body = document.getElementById("sp-drawing-body");
+    const icon = document.getElementById("sp-drawing-toggle-icon");
+    if (!body) return;
+    body.classList.toggle("hidden");
+    body.classList.toggle("flex");
+    if (icon) {
+        icon.classList.toggle("fa-chevron-down", body.classList.contains("hidden"));
+        icon.classList.toggle("fa-chevron-up", !body.classList.contains("hidden"));
+    }
+}
+
 function updateDrawingButtonVisibility() {
     const dimStd = document.getElementById('dimSelect')?.value;
     const containerStd = document.getElementById('inline-drawing-container-std');
@@ -2654,6 +4185,82 @@ function closeAiHelper() {
     if (sidebar) sidebar.classList.remove('open');
 }
 
+/** Resolve chart id when capability stats bulb mirrors spChart6 insights. */
+function resolveInsightChartId(chartId) {
+  const insights = window.currentInsights || {};
+  if (insights[chartId]) return chartId;
+  if (chartId === "spStats" && insights.spChart6) return "spChart6";
+  return chartId;
+}
+
+function showInsight(chartId) {
+  try {
+    const resolvedId = resolveInsightChartId(chartId);
+    const insight = window.currentInsights?.[resolvedId];
+
+    if (!insight) {
+      if (chartId === "spStats" && typeof globalThis.showChartHelp === "function") {
+        globalThis.showChartHelp("cap");
+        return;
+      }
+      console.warn("No insight mapped for:", chartId, resolvedId !== chartId ? `(resolved: ${resolvedId})` : "");
+      return;
+    }
+
+    const sidebar = document.getElementById("ai-helper-sidebar");
+    const content = document.getElementById("ai-content-area");
+    if (!sidebar || !content) return;
+
+    const safeTips = Array.isArray(insight.tips) ? insight.tips : [];
+
+    content.innerHTML = `
+            <div class="ai-helper-content">
+                <h3 class="text-white border-b border-slate-700 pb-2 mb-4">
+                    <i class="fa-solid fa-lightbulb text-blue-400 mr-2"></i>Expert Help
+                </h3>
+                <p class="font-bold text-amber-400 mb-2">${insight.title}</p>
+                
+                <div class="bg-slate-800 p-4 rounded border border-amber-600/30 mb-4">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Observation</h4>
+                    <p class="text-sm text-slate-200">${insight.observation}</p>
+                </div>
+
+                <div class="bg-blue-900/20 p-4 rounded border border-blue-600/30">
+                    <h4 class="text-xs font-bold text-blue-300 uppercase mb-2">
+                        <i class="fa-solid fa-wrench mr-2"></i>Troubleshooting Tips
+                    </h4>
+                    <ul class="list-disc list-outside ml-4 space-y-2 text-sm text-slate-200">
+                        ${safeTips.map((tip) => `<li>${tip}</li>`).join("")}
+                    </ul>
+                </div>
+            </div>
+        `;
+
+    sidebar.classList.add("open");
+  } catch (err) {
+    console.error("Error opening insight sidebar:", err);
+  }
+}
+
+let sixPackInsightBound = false;
+
+/** Delegated clicks so module load order cannot break inline onclick handlers. */
+function bindSixPackInsightButtons() {
+  if (sixPackInsightBound) return;
+  const view = document.getElementById("viewSixPack");
+  if (!view) return;
+  sixPackInsightBound = true;
+  view.addEventListener("click", (e) => {
+    const btn = e.target.closest(".chart-insight-btn.pulsing-bulb");
+    if (!btn || btn.classList.contains("hidden")) return;
+    const chartId = btn.id?.startsWith("bulb-") ? btn.id.slice(5) : null;
+    if (!chartId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showInsight(chartId);
+  });
+}
+
 /* global Plotly */
 
 function showChartHelp(key) {
@@ -2689,6 +4296,40 @@ function toggleChartFullscreen(containerId) {
     }
 }
 
+/**
+ * Six-Pack expandable cards (normality + capability method).
+ * Collapsed by default; summary stays in the header.
+ */
+
+const COLLAPSIBLE_IDS = ["spNormalityTest", "spCapabilityMethod"];
+
+function toggleSpCollapsible(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const body = panel.querySelector(".sp-collapsible-body");
+  const toggle = panel.querySelector(".sp-collapsible-toggle");
+  if (!body) return;
+
+  const expand = body.classList.contains("hidden");
+  body.classList.toggle("hidden", !expand);
+  panel.classList.toggle("is-expanded", expand);
+  if (toggle) toggle.setAttribute("aria-expanded", expand ? "true" : "false");
+}
+
+function collapseSpPanel(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const body = panel.querySelector(".sp-collapsible-body");
+  const toggle = panel.querySelector(".sp-collapsible-toggle");
+  if (body) body.classList.add("hidden");
+  panel.classList.remove("is-expanded");
+  if (toggle) toggle.setAttribute("aria-expanded", "false");
+}
+
+function initSpCollapsiblePanels() {
+  COLLAPSIBLE_IDS.forEach(collapseSpPanel);
+}
+
 /* global Plotly */
 
 function switchTab(tab) {
@@ -2713,13 +4354,10 @@ function switchTab(tab) {
     document.getElementById("viewSixPack").classList.remove("hidden");
     const dim = document.getElementById("spDimSelect").value;
     if (dim) globalThis.initRunFilter?.("sixpack", dim, true);
-    globalThis.updateSixPack?.();
-
-    setTimeout(() => {
-      ["spChart1", "spChart2", "spChart3", "spChart4", "spChart5"].forEach((id) => {
-        if (document.getElementById(id)) Plotly.Plots.resize(id);
-      });
-    }, 50);
+    requestAnimationFrame(() => {
+      globalThis.updateSixPack?.();
+      setTimeout(scheduleSixPackResize, 50);
+    });
   } else if (tab === "spc") {
     document.getElementById("viewSPC").classList.remove("hidden");
     globalThis.updateSPC?.();
@@ -3088,11 +4726,142 @@ function refreshPdfDimList() {
 
 
 
+function updateNormalityTestPanel(normStats, testId, review) {
+  const panel = document.getElementById("spNormalityTest");
+  const pEl = document.getElementById("spNormalityTestP");
+  const adEl = document.getElementById("spNormalityAdReview");
+  const recBlock = document.getElementById("spNormalityRecommendations");
+  if (!panel) return;
+  if (!normStats || normStats.p == null) {
+    panel.classList.add("hidden");
+    if (recBlock) {
+      recBlock.classList.add("hidden");
+      recBlock.innerHTML = "";
+    }
+    return;
+  }
+  panel.classList.remove("hidden");
+  if (adEl && review?.adLine) {
+    adEl.className = `font-mono normality-review-value ${review.adLine.pass ? "is-pass" : "is-fail"}`;
+    adEl.textContent = review.adLine.line;
+  }
+  if (pEl && review?.selectedLine) {
+    pEl.className = `font-mono normality-review-value ${review.selectedLine.pass ? "is-pass" : "is-fail"}`;
+    pEl.textContent = review.selectedLine.line;
+  } else if (pEl) {
+    const pass = normStats.p >= 0.05;
+    pEl.className = `font-mono normality-review-value ${pass ? "is-pass" : "is-fail"}`;
+    const stat = normStats.statistic ?? normStats.A2 ?? 0;
+    pEl.textContent = `${normStats.testLabel} P = ${normStats.p.toFixed(3)} (${normStats.statLabel} = ${stat.toFixed(3)})`;
+  }
+  if (recBlock) {
+    const showRec = review && (!review.isNormalByAD || (review.comparison?.length > 0));
+    if (!showRec) {
+      recBlock.classList.add("hidden");
+      recBlock.innerHTML = "";
+    } else {
+      const comparisonHtml = (review.comparison || [])
+        .map((c) => `<p class="mb-2 ${c.type === "warn" ? "normality-compare-warn" : c.type === "caution" ? "normality-compare-caution" : "normality-compare-info"}">${c.text}</p>`)
+        .join("");
+      const body = renderNormalityReviewHtml(review);
+      const html = comparisonHtml + body;
+      recBlock.innerHTML = html;
+      recBlock.classList.remove("hidden");
+    }
+  }
+  document.querySelectorAll('input[name="normalityTest"]').forEach((el) => {
+    el.checked = el.value === testId;
+  });
+}
+
+function setNormalityTest(id) {
+  setNormalityTestId(id);
+  updateSixPack();
+}
+
+function renderCapabilityMethodPanel(options, normP, selectedId, review) {
+  const panel = document.getElementById("spCapabilityMethod");
+  const list = document.getElementById("spCapabilityMethodList");
+  const adEl = document.getElementById("spCapabilityMethodAdP");
+  const recEl = document.getElementById("spCapabilityMethodRec");
+  if (!panel || !list) return;
+  if (!options || options.length === 0) {
+    panel.classList.add("hidden");
+    if (recEl) recEl.classList.add("hidden");
+    return;
+  }
+  panel.classList.remove("hidden");
+  if (adEl) {
+    adEl.textContent = normP.toFixed(3);
+    adEl.className = "font-mono normality-review-value is-fail";
+  }
+  if (recEl) {
+    const rec = review?.recommendedMethod || options.find((o) => o.recommended && o.applicable !== false);
+    if (rec) {
+      recEl.textContent = `Recommended: ${rec.title} — ${rec.short}`;
+      recEl.classList.remove("hidden");
+    } else {
+      recEl.classList.add("hidden");
+    }
+  }
+  const effectiveSelected = options.some((o) => o.id === selectedId && o.applicable !== false)
+    ? selectedId
+    : METHOD_IDS.PARAMETRIC;
+
+  list.innerHTML = options
+    .map((o) => {
+      const disabled = o.applicable === false;
+      const rec = o.recommended && !disabled;
+      const checked = !disabled && effectiveSelected === o.id;
+      const adLine =
+        o.adP != null ? `AD P: ${o.adP.toFixed(3)}` : o.id === "percentile" ? "AD: n/a" : "";
+      const blocked = o.blockedReason
+        ? `<span class="text-[10px] text-slate-500 block mt-0.5"><i class="fa-solid fa-ban mr-1 text-slate-500"></i>${o.blockedReason}</span>`
+        : "";
+      const rowClass = `flex items-start gap-3 p-2 rounded border transition-colors ${
+        disabled
+          ? "opacity-55 border-slate-700/80 bg-slate-900/30 cursor-not-allowed"
+          : checked
+            ? "border-blue-500 bg-blue-900/20 cursor-pointer"
+            : "border-slate-700 hover:border-slate-500 cursor-pointer"
+      }`;
+      const inner = `
+        <input type="radio" name="capabilityMethod" value="${o.id}" class="mt-1 shrink-0" ${
+          checked ? "checked" : ""
+        } ${disabled ? "disabled" : ""} ${disabled ? "" : 'onchange="setCapabilityMethod(this.value)"'} />
+        <div class="flex-grow min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-sm font-semibold ${disabled ? "text-slate-500" : "text-slate-200"}">${o.title}</span>
+            ${rec ? '<span class="text-[9px] uppercase tracking-wide text-emerald-400 border border-emerald-500/50 px-1 rounded">Recommended</span>' : ""}
+            ${disabled ? '<span class="text-[9px] uppercase tracking-wide text-slate-500 border border-slate-600 px-1 rounded">Not available</span>' : ""}
+            <button type="button" onclick="event.stopPropagation(); showChartHelp('${o.helpKey}')" class="text-slate-500 hover:text-orange-400 ml-auto" title="Method details"><i class="fa-solid fa-circle-question text-xs"></i></button>
+          </div>
+          <p class="text-[11px] ${disabled ? "text-slate-500" : "text-slate-400"} mt-0.5">${o.short}</p>
+          ${o.detail ? `<p class="text-[10px] text-slate-500 mt-0.5">${o.detail}</p>` : ""}
+          ${blocked}
+          ${adLine ? `<span class="text-[10px] text-slate-500 font-mono block">${adLine}</span>` : ""}
+        </div>`;
+      return disabled
+        ? `<div class="${rowClass}" aria-disabled="true">${inner}</div>`
+        : `<label class="${rowClass}">${inner}</label>`;
+    })
+    .join("");
+}
+
+function setCapabilityMethod(id) {
+  const opt = capabilityOptions.find((o) => o.id === id);
+  if (opt && opt.applicable === false) return;
+  setCapabilityMethodState(id);
+  updateSixPack();
+}
+
 // ==========================================
 // 4. NAVIGATION & INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     initThemeFromStorage();
+    initSpCollapsiblePanels();
+    bindSixPackInsightButtons();
     document.getElementById('fileUpload').addEventListener('change', handleFile, false);
     document.getElementById('projectUpload').addEventListener('change', handleLoadProject, false);
     document.getElementById('dimSelect').addEventListener('change', handleDimensionChange, false);
@@ -3153,6 +4922,7 @@ function initUI() {
 }
 
 function initSixPackUI() {
+            bindSixPackInsightButtons();
             const spSelect = document.getElementById('spDimSelect');
             if(!spSelect) return;
             spSelect.innerHTML = "";
@@ -3456,7 +5226,7 @@ function updateSixPack() {
     const resetBtn = document.getElementById('btn-reset-outliers');
     
     window.currentInsights = {};
-    document.querySelectorAll('.pulsing-bulb').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.pulsing-bulb').forEach((el) => el.classList.add('hidden'));
     warningDiv.classList.add('hidden');
     if(aiBtn) aiBtn.classList.remove('hidden'); 
     remBtn.classList.add('hidden');
@@ -3488,6 +5258,8 @@ function updateSixPack() {
             }
         });
         document.getElementById('spStats').innerHTML = '<div class="text-slate-500 text-sm">No Data Selected</div>';
+        document.getElementById('spCapabilityMethod')?.classList.add('hidden');
+        document.getElementById('spNormalityTest')?.classList.add('hidden');
         return;
     }
 
@@ -3551,15 +5323,21 @@ function updateSixPack() {
     let Pp = Pp_Norm; 
     let Ppk = Ppk_Norm;
 
+    const normStats = runNormalityTest(allValues, normalityTestId);
     const adStats = calculateAndersonDarling(allValues);
-    let isNormal = adStats.p >= 0.05;
-    let ppkIsPercentile = false;
+    const isNormalByAD = adStats.p >= 0.05;
+    let isNormal = isNormalByAD;
     const trend = calculateTrend(allValues);
     if (Math.abs(trend) > 0.5) currentAiState.hasTrend = true;
 
-    if (!isNormal) {
+    const minVal = Math.min(...allValues);
+    const tolerance = usl - lsl;
+    let evalOptions = null;
+    let capFits = { boxcox: null, johnson: null };
+    let normalityReview = null;
+
+    if (!isNormalByAD) {
         const uniqueVals = new Set(allValues).size;
-        const tolerance = usl - lsl;
         const sortedVals = [...allValues].sort((a,b)=>a-b);
         let minStep = Infinity;
         for(let i=1; i<sortedVals.length; i++){ 
@@ -3568,7 +5346,6 @@ function updateSixPack() {
         }
         const stepsInTol = tolerance / minStep;
         if (uniqueVals < 5 || stepsInTol < 10) { currentAiState.isLowRes = true; }
-        const minVal = Math.min(...allValues);
         if (minVal >= 0 && minVal < (tolerance * 0.1) && jStat.mean(allValues) < (tolerance * 0.25)) { 
             currentAiState.isBoundary = true; 
         }
@@ -3576,32 +5353,94 @@ function updateSixPack() {
         const q1 = getQuantile(allValues, 0.25); const q3 = getQuantile(allValues, 0.75);
         const iqr = q3 - q1; const lowThreshold = q1 - 1.5 * iqr; const highThreshold = q3 + 1.5 * iqr;
         data.forEach(d => { if (d.valAdj < lowThreshold || d.valAdj > highThreshold) { currentOutliers.push(d._id); } });
-        
-        const median = jStat.median(allValues);
-        const p99865 = getQuantile(allValues, 0.99865); const p00135 = getQuantile(allValues, 0.00135);
-        if (p99865 > p00135) { 
-            Pp = (usl - lsl) / (p99865 - p00135); 
-            const PpkU = (usl - median) / (p99865 - median); 
-            const PpkL = (median - lsl) / (median - p00135); 
-            Ppk = Math.min(PpkU, PpkL); 
-            ppkIsPercentile = true; 
-        }
-    }
 
-    const statsContext = { chartType, overallMean, overallStDev, withinStDev, Cp, Cpk, Pp, Ppk, adStats, trend, isNormal, tolerance: usl - lsl, subSize, subgroups, targetCpk, lsl, usl };
+        const isMultimodal = cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1;
+        evalOptions = evaluateCapabilityOptions({
+            values: allValues,
+            lsl, usl,
+            adStats,
+            Ppk_Norm,
+            targetCpk,
+            isMultimodal,
+            hasTrend: currentAiState.hasTrend,
+            isBoundary: currentAiState.isBoundary,
+            isLowRes: currentAiState.isLowRes,
+            minVal,
+        });
+        setCapabilityOptions(evalOptions.options);
+        capFits = evalOptions.fits;
+        normalityReview = buildNormalityReview({
+            values: allValues,
+            selectedTestId: normalityTestId,
+            analysis: {
+                isMultimodal: cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1,
+                hasTrend: currentAiState.hasTrend,
+                featureName: dim,
+                isBoundary: currentAiState.isBoundary,
+            },
+            capabilityOptions: evalOptions.options,
+        });
+        if (!isMethodApplicable(capabilityMethod, evalOptions.options)) {
+            const recId = normalityReview.recommendedMethod?.id;
+            setCapabilityMethodState(
+                recId && isMethodApplicable(recId, evalOptions.options) ? recId : METHOD_IDS.PARAMETRIC
+            );
+        }
+        renderCapabilityMethodPanel(evalOptions.options, adStats.p, capabilityMethod, normalityReview);
+    } else {
+        document.getElementById('spCapabilityMethod')?.classList.add('hidden');
+        setCapabilityMethodState(METHOD_IDS.PARAMETRIC);
+        setCapabilityOptions([]);
+        normalityReview = buildNormalityReview({
+            values: allValues,
+            selectedTestId: normalityTestId,
+            analysis: {
+                isMultimodal: false,
+                hasTrend: currentAiState.hasTrend,
+                featureName: dim,
+                isBoundary: currentAiState.isBoundary,
+            },
+            capabilityOptions: [],
+        });
+    }
+    updateNormalityTestPanel(normStats, normalityTestId, normalityReview);
+
+    const capResult = computeCapabilityIndices(capabilityMethod, {
+        values: allValues,
+        lsl, usl,
+        Pp_Norm, Ppk_Norm,
+        adStatsRaw: adStats,
+        fits: capFits,
+        targetCpk,
+    });
+    Pp = capResult.Pp;
+    Ppk = capResult.Ppk;
+    const displayValues = capResult.displayValues;
+    const displayAdStats = capResult.adStats;
+    const displayMean = capResult.mean ?? overallMean;
+    const displayOverallSd = capResult.overallSd ?? overallStDev;
+    setCapabilityMethodMeta(capResult.meta);
+
+    const statsContext = {
+        chartType, overallMean, overallStDev, withinStDev, Cp, Cpk, Pp, Ppk,
+        adStats, normStats, normalityTestLabel: normStats.testLabel, trend, isNormal, isNormalByAD,
+        normalityReview, tolerance: usl - lsl, subSize, subgroups, targetCpk, lsl, usl,
+        capabilityMethod, capabilityMethodMeta, taylor: evalOptions?.taylor,
+    };
     runExpertAnalysis(statsContext, dim);
 
     let warnings = [];
     if (Cpk < targetCpk) { warnings.push(`<strong>Low Capability:</strong> Cpk is ${Cpk.toFixed(2)} (Target > ${targetCpk}).`); }
-    if (!isNormal) {
-        const analysisObj = { 
-            isMultimodal: (cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1), 
-            hasTrend: currentAiState.hasTrend, 
-            featureName: dim, 
-            cavityCount: (cavMode === 'all' ? 2 : 1) 
-        };
-        const specificSuggestion = getNormalitySuggestion(analysisObj);
-        warnings.push(`<strong>Non-Normal Data:</strong> P-Value ${adStats.p.toFixed(3)}. ${specificSuggestion}`);
+    if (!isNormalByAD) {
+        const shortHint = normalityReview?.shortSuggestion || getNormalitySuggestion({
+            isMultimodal: (cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1),
+            hasTrend: currentAiState.hasTrend,
+            featureName: dim,
+        });
+        warnings.push(`<strong>Non-Normal (Anderson–Darling):</strong> P = ${adStats.p.toFixed(3)}. ${shortHint} See <strong>Tests for Normality</strong> for full guidance.`);
+        if (normalityTestId !== NORMALITY_TEST_IDS.ANDERSON_DARLING && normStats.p >= 0.05) {
+            warnings.push(`<strong>Note:</strong> Your display test (${normStats.testLabel}) passes (P = ${normStats.p.toFixed(3)}), but this app follows AD for capability — select a method in the panel below.`);
+        }
         if (currentOutliers.length > 0) { 
             remBtn.textContent = `Review ${currentOutliers.length} Outliers`; 
             remBtn.classList.remove('hidden'); 
@@ -3610,15 +5449,34 @@ function updateSixPack() {
     if (warnings.length > 0 || ignoredIds.size > 0) { warningText.innerHTML = warnings.join('<br>'); warningDiv.classList.remove('hidden'); }
 
     const outlierSet = new Set(currentOutliers);
-    renderControlCharts(chartType, subgroups, overallMean, withinStDev, subSize, outlierSet);
-    renderRunChart(subgroups, overallMean, usl, lsl, outlierSet);
-    renderHistogram(allValues, overallMean, overallStDev, withinStDev, lsl, usl);
-    renderProbPlot(allValues, adStats);
-    renderStatsPanel(Cp, Cpk, Pp, Ppk, overallMean, overallStDev, withinStDev, adStats, allValues.length, lsl, usl, nominal, ppkIsPercentile, Pp_Norm, Ppk_Norm);
-    
-if(typeof updateDrawingButtonVisibility === 'function') updateDrawingButtonVisibility();
-    if(isLightMode) setTimeout(applyThemeToCharts, 50);
-    }
+    Promise.all([
+        renderControlCharts(chartType, subgroups, overallMean, withinStDev, subSize, outlierSet),
+        renderRunChart(subgroups, overallMean, usl, lsl, outlierSet),
+        renderHistogram(
+            displayValues,
+            displayMean,
+            displayOverallSd,
+            withinStDev,
+            capabilityMethodMeta?.displayLsl ?? lsl,
+            capabilityMethodMeta?.displayUsl ?? usl,
+            capabilityMethodMeta
+        ),
+        renderProbPlot(displayValues, normStats, capabilityMethodMeta),
+        renderStatsPanel(Cp, Cpk, Pp, Ppk, displayMean, displayOverallSd, withinStDev, normStats, allValues.length, lsl, usl, nominal, capabilityMethodMeta, adStats),
+    ]).catch((err) => {
+        console.error("Six-Pack chart render failed:", err);
+    }).then(() => {
+        scheduleSixPackResize();
+        applySixPackBulbs();
+        if (typeof updateDrawingButtonVisibility === 'function') updateDrawingButtonVisibility();
+        if (isLightMode) {
+            setTimeout(() => {
+                applyThemeToCharts();
+                scheduleSixPackResize();
+            }, 50);
+        }
+    });
+}
 
 function updateSPC() {
     const uniqueDims = [...new Set(globalData.map(d => d.element))];
@@ -3931,7 +5789,12 @@ window.confirmOutlierRemoval = function() {
 };
 
 function resetAndUpdateSixPack() { 
-    ignoredIds.clear(); 
+    ignoredIds.clear();
+    setCapabilityMethodState(METHOD_IDS.PARAMETRIC);
+    setNormalityTestId(NORMALITY_TEST_IDS.ANDERSON_DARLING);
+    document.querySelectorAll('input[name="normalityTest"]').forEach((el) => {
+      el.checked = el.value === NORMALITY_TEST_IDS.ANDERSON_DARLING;
+    });
     updateSixPack(); 
 }
 
@@ -4047,56 +5910,10 @@ function showView(viewId) {
 // INSIGHT & SIDEBAR LOGIC
 // ==========================================
 
-window.showInsight = function(chartId) {
-    try {
-        // Read safely from the new global state
-        const insight = window.currentInsights[chartId];
-        
-        if(!insight) {
-            console.warn("No insight mapped for: " + chartId);
-            return;
-        }
-        
-        const sidebar = document.getElementById('ai-helper-sidebar');
-        const content = document.getElementById('ai-content-area');
-        
-        if (!sidebar || !content) return;
+globalThis.showInsight = showInsight;
 
-        // Ensure tips array doesn't crash the .map() function
-        const safeTips = Array.isArray(insight.tips) ? insight.tips : [];
-
-        let html = `
-            <div class="ai-helper-content">
-                <h3 class="text-white border-b border-slate-700 pb-2 mb-4">
-                    <i class="fa-solid fa-microscope text-blue-400 mr-2"></i>Expert Analysis
-                </h3>
-                <p class="font-bold text-amber-400 mb-2">${insight.title}</p>
-                
-                <div class="bg-slate-800 p-4 rounded border border-amber-600/30 mb-4">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Observation</h4>
-                    <p class="text-sm text-slate-200">${insight.observation}</p>
-                </div>
-
-                <div class="bg-blue-900/20 p-4 rounded border border-blue-600/30">
-                    <h4 class="text-xs font-bold text-blue-300 uppercase mb-2">
-                        <i class="fa-solid fa-wrench mr-2"></i>Troubleshooting Tips
-                    </h4>
-                    <ul class="list-disc list-outside ml-4 space-y-2 text-sm text-slate-200">
-                        ${safeTips.map(tip => `<li>${tip}</li>`).join('')}
-                    </ul>
-                </div>
-            </div>
-        `;
-
-        content.innerHTML = html;
-        sidebar.classList.add('open');
-        
-    } catch (err) {
-        console.error("Error opening insight sidebar:", err);
-    }
-};
-
-Object.assign(window, {
+const windowExports = {
+  showInsight,
   generateTemplate,
   updateRunNameInputs,
   showMainApp,
@@ -4124,12 +5941,17 @@ Object.assign(window, {
   handleTypeFilterChange,
   handleDimensionChange,
   resetAndUpdateSixPack,
+  toggleSpDrawingPanel,
+  toggleSpCollapsible,
   resetOutliers,
   removeOutliers,
   updateSummary,
   updateSPC,
   toggleGroup,
-});
+};
+
+Object.assign(window, windowExports);
+Object.assign(globalThis, windowExports);
 
 deferred.initUI = initUI;
 deferred.showMainApp = showMainApp;
@@ -4144,10 +5966,74 @@ globalThis.updateDashboard = updateDashboard;
 globalThis.updateSixPack = updateSixPack;
 globalThis.updateSPC = updateSPC;
 globalThis.updateSummary = updateSummary;
+globalThis.setCapabilityMethod = setCapabilityMethod;
+globalThis.setNormalityTest = setNormalityTest;
+globalThis.toggleSpCollapsible = toggleSpCollapsible;
+
+/* global Plotly */
+
+let debounceTimer = null;
+
+function debouncedResize() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    if (currentTab === "sixpack" && !document.getElementById("viewSixPack")?.classList.contains("hidden")) {
+      scheduleSixPackResize();
+    }
+    const chartEl = document.getElementById("chart");
+    if (
+      currentTab === "standard" &&
+      !document.getElementById("viewStandard")?.classList.contains("hidden") &&
+      chartEl?.layout
+    ) {
+      Plotly.Plots.resize("chart");
+    }
+  }, 100);
+}
+
+function initChartResizeObservers() {
+  const sixPackGrid = document.querySelector("#viewSixPack .flex-grow.grid");
+  const chartParent = document.getElementById("chart")?.parentElement;
+
+  if (typeof ResizeObserver !== "undefined") {
+    const observer = new ResizeObserver(debouncedResize);
+    if (sixPackGrid) observer.observe(sixPackGrid);
+    if (chartParent) observer.observe(chartParent);
+  }
+
+  window.addEventListener("resize", debouncedResize);
+}
 
 /**
  * Entry: loads the full app (side effects: DOM listeners, window onclick handlers).
+ * Stubs apply only when loading js/main.js as an external ES module (npm run dev).
+ * The single-file bundle inlines application first and must not clobber window exports.
  */
+const ONCLICK_STUBS = [
+  "showMainApp",
+  "generateTemplate",
+  "handleFileSelect",
+  "skipPdfImport",
+  "startPdfWizard",
+];
+
+const isExternalModuleEntry =
+  typeof document !== "undefined" &&
+  document.querySelector('script[type="module"][src*="main.js"]');
+
+if (isExternalModuleEntry) {
+  for (const name of ONCLICK_STUBS) {
+    globalThis[name] = function onclickStub() {
+      console.warn(`${name}: application module is still loading or failed to load.`);
+    };
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initChartResizeObservers);
+} else {
+  initChartResizeObservers();
+}
 
     </script>
 </body>

@@ -18,7 +18,19 @@ import {
   currentAiState,
   currentOutliers,
   targetCaptureDim,
+  capabilityMethod,
+  normalityTestId,
+  setCapabilityMethod as setCapabilityMethodState,
+  setCapabilityMethodMeta,
+  setCapabilityOptions,
+  setNormalityTestId,
 } from "./state.js";
+import {
+  evaluateCapabilityOptions,
+  computeCapabilityIndices,
+  isMethodApplicable,
+  METHOD_IDS,
+} from "./analysis/capability-methods.js";
 import {
   D2_CONSTANTS,
   chartExplanations,
@@ -33,6 +45,8 @@ import {
   calculateTrend,
   getQuantile,
   calculateAndersonDarling,
+  runNormalityTest,
+  NORMALITY_TEST_IDS,
   checkRangeControl,
 } from "./math/stats.js";
 import { getBaseLayout } from "./charts/plotly-layout.js";
@@ -43,6 +57,7 @@ import {
   renderProbPlot,
   renderStatsPanel,
 } from "./charts/plotly-sixpack.js";
+import { scheduleSixPackResize } from "./charts/plotly-sixpack-utils.js";
 import {
   updateDashboard,
   renderCustomLegend,
@@ -51,7 +66,11 @@ import {
   applyThemeToCharts,
   initThemeFromStorage,
 } from "./charts/plotly-dashboard.js";
-import { addBulb, runExpertAnalysis } from "./analysis/expert.js";
+import { addBulb, runExpertAnalysis, applySixPackBulbs } from "./analysis/expert.js";
+import {
+  buildNormalityReview,
+  renderNormalityReviewHtml,
+} from "./analysis/normality-review.js";
 import {
   compressForExcel,
   generateTemplate,
@@ -72,9 +91,12 @@ import {
 import {
   updateDrawingPopupImage,
   updateDrawingButtonVisibility,
+  toggleSpDrawingPanel,
 } from "./ui/drawing-popup.js";
 import { openAiHelper, closeAiHelper } from "./ui/ai-sidebar.js";
+import { showInsight, bindSixPackInsightButtons } from "./ui/show-insight.js";
 import { showChartHelp, toggleChartFullscreen } from "./ui/chart-controls.js";
+import { initSpCollapsiblePanels, toggleSpCollapsible } from "./ui/collapsible-panel.js";
 import { switchTab } from "./ui/tabs.js";
 import { getSeriesLabel, getFullDimensionName } from "./utils/labels.js";
 import { deferred } from "./app-delegates.js";
@@ -97,11 +119,142 @@ import {
   refreshPdfDimList,
 } from "./pdf/wizard.js";
 
+function updateNormalityTestPanel(normStats, testId, review) {
+  const panel = document.getElementById("spNormalityTest");
+  const pEl = document.getElementById("spNormalityTestP");
+  const adEl = document.getElementById("spNormalityAdReview");
+  const recBlock = document.getElementById("spNormalityRecommendations");
+  if (!panel) return;
+  if (!normStats || normStats.p == null) {
+    panel.classList.add("hidden");
+    if (recBlock) {
+      recBlock.classList.add("hidden");
+      recBlock.innerHTML = "";
+    }
+    return;
+  }
+  panel.classList.remove("hidden");
+  if (adEl && review?.adLine) {
+    adEl.className = `font-mono normality-review-value ${review.adLine.pass ? "is-pass" : "is-fail"}`;
+    adEl.textContent = review.adLine.line;
+  }
+  if (pEl && review?.selectedLine) {
+    pEl.className = `font-mono normality-review-value ${review.selectedLine.pass ? "is-pass" : "is-fail"}`;
+    pEl.textContent = review.selectedLine.line;
+  } else if (pEl) {
+    const pass = normStats.p >= 0.05;
+    pEl.className = `font-mono normality-review-value ${pass ? "is-pass" : "is-fail"}`;
+    const stat = normStats.statistic ?? normStats.A2 ?? 0;
+    pEl.textContent = `${normStats.testLabel} P = ${normStats.p.toFixed(3)} (${normStats.statLabel} = ${stat.toFixed(3)})`;
+  }
+  if (recBlock) {
+    const showRec = review && (!review.isNormalByAD || (review.comparison?.length > 0));
+    if (!showRec) {
+      recBlock.classList.add("hidden");
+      recBlock.innerHTML = "";
+    } else {
+      const comparisonHtml = (review.comparison || [])
+        .map((c) => `<p class="mb-2 ${c.type === "warn" ? "normality-compare-warn" : c.type === "caution" ? "normality-compare-caution" : "normality-compare-info"}">${c.text}</p>`)
+        .join("");
+      const body = renderNormalityReviewHtml(review);
+      const html = comparisonHtml + body;
+      recBlock.innerHTML = html;
+      recBlock.classList.remove("hidden");
+    }
+  }
+  document.querySelectorAll('input[name="normalityTest"]').forEach((el) => {
+    el.checked = el.value === testId;
+  });
+}
+
+function setNormalityTest(id) {
+  setNormalityTestId(id);
+  updateSixPack();
+}
+
+function renderCapabilityMethodPanel(options, normP, selectedId, review) {
+  const panel = document.getElementById("spCapabilityMethod");
+  const list = document.getElementById("spCapabilityMethodList");
+  const adEl = document.getElementById("spCapabilityMethodAdP");
+  const recEl = document.getElementById("spCapabilityMethodRec");
+  if (!panel || !list) return;
+  if (!options || options.length === 0) {
+    panel.classList.add("hidden");
+    if (recEl) recEl.classList.add("hidden");
+    return;
+  }
+  panel.classList.remove("hidden");
+  if (adEl) {
+    adEl.textContent = normP.toFixed(3);
+    adEl.className = "font-mono normality-review-value is-fail";
+  }
+  if (recEl) {
+    const rec = review?.recommendedMethod || options.find((o) => o.recommended && o.applicable !== false);
+    if (rec) {
+      recEl.textContent = `Recommended: ${rec.title} — ${rec.short}`;
+      recEl.classList.remove("hidden");
+    } else {
+      recEl.classList.add("hidden");
+    }
+  }
+  const effectiveSelected = options.some((o) => o.id === selectedId && o.applicable !== false)
+    ? selectedId
+    : METHOD_IDS.PARAMETRIC;
+
+  list.innerHTML = options
+    .map((o) => {
+      const disabled = o.applicable === false;
+      const rec = o.recommended && !disabled;
+      const checked = !disabled && effectiveSelected === o.id;
+      const adLine =
+        o.adP != null ? `AD P: ${o.adP.toFixed(3)}` : o.id === "percentile" ? "AD: n/a" : "";
+      const blocked = o.blockedReason
+        ? `<span class="text-[10px] text-slate-500 block mt-0.5"><i class="fa-solid fa-ban mr-1 text-slate-500"></i>${o.blockedReason}</span>`
+        : "";
+      const rowClass = `flex items-start gap-3 p-2 rounded border transition-colors ${
+        disabled
+          ? "opacity-55 border-slate-700/80 bg-slate-900/30 cursor-not-allowed"
+          : checked
+            ? "border-blue-500 bg-blue-900/20 cursor-pointer"
+            : "border-slate-700 hover:border-slate-500 cursor-pointer"
+      }`;
+      const inner = `
+        <input type="radio" name="capabilityMethod" value="${o.id}" class="mt-1 shrink-0" ${
+          checked ? "checked" : ""
+        } ${disabled ? "disabled" : ""} ${disabled ? "" : 'onchange="setCapabilityMethod(this.value)"'} />
+        <div class="flex-grow min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-sm font-semibold ${disabled ? "text-slate-500" : "text-slate-200"}">${o.title}</span>
+            ${rec ? '<span class="text-[9px] uppercase tracking-wide text-emerald-400 border border-emerald-500/50 px-1 rounded">Recommended</span>' : ""}
+            ${disabled ? '<span class="text-[9px] uppercase tracking-wide text-slate-500 border border-slate-600 px-1 rounded">Not available</span>' : ""}
+            <button type="button" onclick="event.stopPropagation(); showChartHelp('${o.helpKey}')" class="text-slate-500 hover:text-orange-400 ml-auto" title="Method details"><i class="fa-solid fa-circle-question text-xs"></i></button>
+          </div>
+          <p class="text-[11px] ${disabled ? "text-slate-500" : "text-slate-400"} mt-0.5">${o.short}</p>
+          ${o.detail ? `<p class="text-[10px] text-slate-500 mt-0.5">${o.detail}</p>` : ""}
+          ${blocked}
+          ${adLine ? `<span class="text-[10px] text-slate-500 font-mono block">${adLine}</span>` : ""}
+        </div>`;
+      return disabled
+        ? `<div class="${rowClass}" aria-disabled="true">${inner}</div>`
+        : `<label class="${rowClass}">${inner}</label>`;
+    })
+    .join("");
+}
+
+function setCapabilityMethod(id) {
+  const opt = capabilityOptions.find((o) => o.id === id);
+  if (opt && opt.applicable === false) return;
+  setCapabilityMethodState(id);
+  updateSixPack();
+}
+
 // ==========================================
 // 4. NAVIGATION & INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     initThemeFromStorage();
+    initSpCollapsiblePanels();
+    bindSixPackInsightButtons();
     document.getElementById('fileUpload').addEventListener('change', handleFile, false);
     document.getElementById('projectUpload').addEventListener('change', handleLoadProject, false);
     document.getElementById('dimSelect').addEventListener('change', handleDimensionChange, false);
@@ -162,6 +315,7 @@ function initUI() {
 }
 
 function initSixPackUI() {
+            bindSixPackInsightButtons();
             const spSelect = document.getElementById('spDimSelect');
             if(!spSelect) return;
             spSelect.innerHTML = "";
@@ -465,7 +619,7 @@ function updateSixPack() {
     const resetBtn = document.getElementById('btn-reset-outliers');
     
     window.currentInsights = {};
-    document.querySelectorAll('.pulsing-bulb').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.pulsing-bulb').forEach((el) => el.classList.add('hidden'));
     warningDiv.classList.add('hidden');
     if(aiBtn) aiBtn.classList.remove('hidden'); 
     remBtn.classList.add('hidden');
@@ -497,6 +651,8 @@ function updateSixPack() {
             }
         });
         document.getElementById('spStats').innerHTML = '<div class="text-slate-500 text-sm">No Data Selected</div>';
+        document.getElementById('spCapabilityMethod')?.classList.add('hidden');
+        document.getElementById('spNormalityTest')?.classList.add('hidden');
         return;
     }
 
@@ -560,15 +716,21 @@ function updateSixPack() {
     let Pp = Pp_Norm; 
     let Ppk = Ppk_Norm;
 
+    const normStats = runNormalityTest(allValues, normalityTestId);
     const adStats = calculateAndersonDarling(allValues);
-    let isNormal = adStats.p >= 0.05;
-    let ppkIsPercentile = false;
+    const isNormalByAD = adStats.p >= 0.05;
+    let isNormal = isNormalByAD;
     const trend = calculateTrend(allValues);
     if (Math.abs(trend) > 0.5) currentAiState.hasTrend = true;
 
-    if (!isNormal) {
+    const minVal = Math.min(...allValues);
+    const tolerance = usl - lsl;
+    let evalOptions = null;
+    let capFits = { boxcox: null, johnson: null };
+    let normalityReview = null;
+
+    if (!isNormalByAD) {
         const uniqueVals = new Set(allValues).size;
-        const tolerance = usl - lsl;
         const sortedVals = [...allValues].sort((a,b)=>a-b);
         let minStep = Infinity;
         for(let i=1; i<sortedVals.length; i++){ 
@@ -577,7 +739,6 @@ function updateSixPack() {
         }
         const stepsInTol = tolerance / minStep;
         if (uniqueVals < 5 || stepsInTol < 10) { currentAiState.isLowRes = true; }
-        const minVal = Math.min(...allValues);
         if (minVal >= 0 && minVal < (tolerance * 0.1) && jStat.mean(allValues) < (tolerance * 0.25)) { 
             currentAiState.isBoundary = true; 
         }
@@ -585,32 +746,94 @@ function updateSixPack() {
         const q1 = getQuantile(allValues, 0.25); const q3 = getQuantile(allValues, 0.75);
         const iqr = q3 - q1; const lowThreshold = q1 - 1.5 * iqr; const highThreshold = q3 + 1.5 * iqr;
         data.forEach(d => { if (d.valAdj < lowThreshold || d.valAdj > highThreshold) { currentOutliers.push(d._id); } });
-        
-        const median = jStat.median(allValues);
-        const p99865 = getQuantile(allValues, 0.99865); const p00135 = getQuantile(allValues, 0.00135);
-        if (p99865 > p00135) { 
-            Pp = (usl - lsl) / (p99865 - p00135); 
-            const PpkU = (usl - median) / (p99865 - median); 
-            const PpkL = (median - lsl) / (median - p00135); 
-            Ppk = Math.min(PpkU, PpkL); 
-            ppkIsPercentile = true; 
-        }
-    }
 
-    const statsContext = { chartType, overallMean, overallStDev, withinStDev, Cp, Cpk, Pp, Ppk, adStats, trend, isNormal, tolerance: usl - lsl, subSize, subgroups, targetCpk, lsl, usl };
+        const isMultimodal = cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1;
+        evalOptions = evaluateCapabilityOptions({
+            values: allValues,
+            lsl, usl,
+            adStats,
+            Ppk_Norm,
+            targetCpk,
+            isMultimodal,
+            hasTrend: currentAiState.hasTrend,
+            isBoundary: currentAiState.isBoundary,
+            isLowRes: currentAiState.isLowRes,
+            minVal,
+        });
+        setCapabilityOptions(evalOptions.options);
+        capFits = evalOptions.fits;
+        normalityReview = buildNormalityReview({
+            values: allValues,
+            selectedTestId: normalityTestId,
+            analysis: {
+                isMultimodal: cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1,
+                hasTrend: currentAiState.hasTrend,
+                featureName: dim,
+                isBoundary: currentAiState.isBoundary,
+            },
+            capabilityOptions: evalOptions.options,
+        });
+        if (!isMethodApplicable(capabilityMethod, evalOptions.options)) {
+            const recId = normalityReview.recommendedMethod?.id;
+            setCapabilityMethodState(
+                recId && isMethodApplicable(recId, evalOptions.options) ? recId : METHOD_IDS.PARAMETRIC
+            );
+        }
+        renderCapabilityMethodPanel(evalOptions.options, adStats.p, capabilityMethod, normalityReview);
+    } else {
+        document.getElementById('spCapabilityMethod')?.classList.add('hidden');
+        setCapabilityMethodState(METHOD_IDS.PARAMETRIC);
+        setCapabilityOptions([]);
+        normalityReview = buildNormalityReview({
+            values: allValues,
+            selectedTestId: normalityTestId,
+            analysis: {
+                isMultimodal: false,
+                hasTrend: currentAiState.hasTrend,
+                featureName: dim,
+                isBoundary: currentAiState.isBoundary,
+            },
+            capabilityOptions: [],
+        });
+    }
+    updateNormalityTestPanel(normStats, normalityTestId, normalityReview);
+
+    const capResult = computeCapabilityIndices(capabilityMethod, {
+        values: allValues,
+        lsl, usl,
+        Pp_Norm, Ppk_Norm,
+        adStatsRaw: adStats,
+        fits: capFits,
+        targetCpk,
+    });
+    Pp = capResult.Pp;
+    Ppk = capResult.Ppk;
+    const displayValues = capResult.displayValues;
+    const displayAdStats = capResult.adStats;
+    const displayMean = capResult.mean ?? overallMean;
+    const displayOverallSd = capResult.overallSd ?? overallStDev;
+    setCapabilityMethodMeta(capResult.meta);
+
+    const statsContext = {
+        chartType, overallMean, overallStDev, withinStDev, Cp, Cpk, Pp, Ppk,
+        adStats, normStats, normalityTestLabel: normStats.testLabel, trend, isNormal, isNormalByAD,
+        normalityReview, tolerance: usl - lsl, subSize, subgroups, targetCpk, lsl, usl,
+        capabilityMethod, capabilityMethodMeta, taylor: evalOptions?.taylor,
+    };
     runExpertAnalysis(statsContext, dim);
 
     let warnings = [];
     if (Cpk < targetCpk) { warnings.push(`<strong>Low Capability:</strong> Cpk is ${Cpk.toFixed(2)} (Target > ${targetCpk}).`); }
-    if (!isNormal) {
-        const analysisObj = { 
-            isMultimodal: (cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1), 
-            hasTrend: currentAiState.hasTrend, 
-            featureName: dim, 
-            cavityCount: (cavMode === 'all' ? 2 : 1) 
-        };
-        const specificSuggestion = getNormalitySuggestion(analysisObj);
-        warnings.push(`<strong>Non-Normal Data:</strong> P-Value ${adStats.p.toFixed(3)}. ${specificSuggestion}`);
+    if (!isNormalByAD) {
+        const shortHint = normalityReview?.shortSuggestion || getNormalitySuggestion({
+            isMultimodal: (cavMode === 'all' && [...new Set(data.map(d=>d.cavity))].length > 1),
+            hasTrend: currentAiState.hasTrend,
+            featureName: dim,
+        });
+        warnings.push(`<strong>Non-Normal (Anderson–Darling):</strong> P = ${adStats.p.toFixed(3)}. ${shortHint} See <strong>Tests for Normality</strong> for full guidance.`);
+        if (normalityTestId !== NORMALITY_TEST_IDS.ANDERSON_DARLING && normStats.p >= 0.05) {
+            warnings.push(`<strong>Note:</strong> Your display test (${normStats.testLabel}) passes (P = ${normStats.p.toFixed(3)}), but this app follows AD for capability — select a method in the panel below.`);
+        }
         if (currentOutliers.length > 0) { 
             remBtn.textContent = `Review ${currentOutliers.length} Outliers`; 
             remBtn.classList.remove('hidden'); 
@@ -619,15 +842,34 @@ function updateSixPack() {
     if (warnings.length > 0 || ignoredIds.size > 0) { warningText.innerHTML = warnings.join('<br>'); warningDiv.classList.remove('hidden'); }
 
     const outlierSet = new Set(currentOutliers);
-    renderControlCharts(chartType, subgroups, overallMean, withinStDev, subSize, outlierSet);
-    renderRunChart(subgroups, overallMean, usl, lsl, outlierSet);
-    renderHistogram(allValues, overallMean, overallStDev, withinStDev, lsl, usl);
-    renderProbPlot(allValues, adStats);
-    renderStatsPanel(Cp, Cpk, Pp, Ppk, overallMean, overallStDev, withinStDev, adStats, allValues.length, lsl, usl, nominal, ppkIsPercentile, Pp_Norm, Ppk_Norm);
-    
-if(typeof updateDrawingButtonVisibility === 'function') updateDrawingButtonVisibility();
-    if(isLightMode) setTimeout(applyThemeToCharts, 50);
-    }
+    Promise.all([
+        renderControlCharts(chartType, subgroups, overallMean, withinStDev, subSize, outlierSet),
+        renderRunChart(subgroups, overallMean, usl, lsl, outlierSet),
+        renderHistogram(
+            displayValues,
+            displayMean,
+            displayOverallSd,
+            withinStDev,
+            capabilityMethodMeta?.displayLsl ?? lsl,
+            capabilityMethodMeta?.displayUsl ?? usl,
+            capabilityMethodMeta
+        ),
+        renderProbPlot(displayValues, normStats, capabilityMethodMeta),
+        renderStatsPanel(Cp, Cpk, Pp, Ppk, displayMean, displayOverallSd, withinStDev, normStats, allValues.length, lsl, usl, nominal, capabilityMethodMeta, adStats),
+    ]).catch((err) => {
+        console.error("Six-Pack chart render failed:", err);
+    }).then(() => {
+        scheduleSixPackResize();
+        applySixPackBulbs();
+        if (typeof updateDrawingButtonVisibility === 'function') updateDrawingButtonVisibility();
+        if (isLightMode) {
+            setTimeout(() => {
+                applyThemeToCharts();
+                scheduleSixPackResize();
+            }, 50);
+        }
+    });
+}
 
 function updateSPC() {
     const uniqueDims = [...new Set(globalData.map(d => d.element))];
@@ -942,7 +1184,12 @@ window.confirmOutlierRemoval = function() {
 };
 
 function resetAndUpdateSixPack() { 
-    ignoredIds.clear(); 
+    ignoredIds.clear();
+    setCapabilityMethodState(METHOD_IDS.PARAMETRIC);
+    setNormalityTestId(NORMALITY_TEST_IDS.ANDERSON_DARLING);
+    document.querySelectorAll('input[name="normalityTest"]').forEach((el) => {
+      el.checked = el.value === NORMALITY_TEST_IDS.ANDERSON_DARLING;
+    });
     updateSixPack(); 
 }
 
@@ -1059,56 +1306,10 @@ function showView(viewId) {
 // INSIGHT & SIDEBAR LOGIC
 // ==========================================
 
-window.showInsight = function(chartId) {
-    try {
-        // Read safely from the new global state
-        const insight = window.currentInsights[chartId];
-        
-        if(!insight) {
-            console.warn("No insight mapped for: " + chartId);
-            return;
-        }
-        
-        const sidebar = document.getElementById('ai-helper-sidebar');
-        const content = document.getElementById('ai-content-area');
-        
-        if (!sidebar || !content) return;
+globalThis.showInsight = showInsight;
 
-        // Ensure tips array doesn't crash the .map() function
-        const safeTips = Array.isArray(insight.tips) ? insight.tips : [];
-
-        let html = `
-            <div class="ai-helper-content">
-                <h3 class="text-white border-b border-slate-700 pb-2 mb-4">
-                    <i class="fa-solid fa-microscope text-blue-400 mr-2"></i>Expert Analysis
-                </h3>
-                <p class="font-bold text-amber-400 mb-2">${insight.title}</p>
-                
-                <div class="bg-slate-800 p-4 rounded border border-amber-600/30 mb-4">
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Observation</h4>
-                    <p class="text-sm text-slate-200">${insight.observation}</p>
-                </div>
-
-                <div class="bg-blue-900/20 p-4 rounded border border-blue-600/30">
-                    <h4 class="text-xs font-bold text-blue-300 uppercase mb-2">
-                        <i class="fa-solid fa-wrench mr-2"></i>Troubleshooting Tips
-                    </h4>
-                    <ul class="list-disc list-outside ml-4 space-y-2 text-sm text-slate-200">
-                        ${safeTips.map(tip => `<li>${tip}</li>`).join('')}
-                    </ul>
-                </div>
-            </div>
-        `;
-
-        content.innerHTML = html;
-        sidebar.classList.add('open');
-        
-    } catch (err) {
-        console.error("Error opening insight sidebar:", err);
-    }
-};
-
-Object.assign(window, {
+const windowExports = {
+  showInsight,
   generateTemplate,
   updateRunNameInputs,
   showMainApp,
@@ -1136,12 +1337,17 @@ Object.assign(window, {
   handleTypeFilterChange,
   handleDimensionChange,
   resetAndUpdateSixPack,
+  toggleSpDrawingPanel,
+  toggleSpCollapsible,
   resetOutliers,
   removeOutliers,
   updateSummary,
   updateSPC,
   toggleGroup,
-});
+};
+
+Object.assign(window, windowExports);
+Object.assign(globalThis, windowExports);
 
 deferred.initUI = initUI;
 deferred.showMainApp = showMainApp;
@@ -1156,3 +1362,6 @@ globalThis.updateDashboard = updateDashboard;
 globalThis.updateSixPack = updateSixPack;
 globalThis.updateSPC = updateSPC;
 globalThis.updateSummary = updateSummary;
+globalThis.setCapabilityMethod = setCapabilityMethod;
+globalThis.setNormalityTest = setNormalityTest;
+globalThis.toggleSpCollapsible = toggleSpCollapsible;
