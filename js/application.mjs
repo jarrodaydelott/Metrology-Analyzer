@@ -113,6 +113,8 @@ import { showInsight, bindSixPackInsightButtons } from "./ui/show-insight.js";
 import { showChartHelp, toggleChartFullscreen } from "./ui/chart-controls.js";
 import { initSpCollapsiblePanels, toggleSpCollapsible } from "./ui/collapsible-panel.js";
 import { switchTab } from "./ui/tabs.js";
+import { updateFileUploadPulse } from "./ui/file-upload-prompt.js";
+import { initChangelogModal, openChangelogModal, closeChangelogModal } from "./ui/changelog-modal.js";
 import { getSeriesLabel, getFullDimensionName } from "./utils/labels.js";
 import { deferred } from "./app-delegates.js";
 import {
@@ -269,6 +271,7 @@ function setCapabilityMethod(id) {
 document.addEventListener('DOMContentLoaded', () => {
     initThemeFromStorage();
     initSpCollapsiblePanels();
+    initChangelogModal();
     bindSixPackInsightButtons();
     document.getElementById('fileUpload').addEventListener('change', handleFile, false);
     document.getElementById('projectUpload').addEventListener('change', handleLoadProject, false);
@@ -279,11 +282,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('targetCpkInput').addEventListener('change', handleTargetCpkChange, false);
     document.getElementById('spDimSelect').addEventListener('change', resetAndUpdateSixPack, false);
     document.getElementById('spCavSelect').addEventListener('change', resetAndUpdateSixPack, false);
+    updateFileUploadPulse();
 });
 
 function showMainApp() {
     document.getElementById('startPage').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
+    updateFileUploadPulse();
+}
+
+function showStartPage() {
+    closeAiHelper();
+    document.getElementById('mainApp').classList.add('hidden');
+    document.getElementById('startPage').classList.remove('hidden');
 }
 
 function initUI() {
@@ -327,6 +338,7 @@ function initUI() {
     if (pdfBtn) pdfBtn.classList.remove('hidden');
     
     if (typeof switchTab === 'function') switchTab('standard');
+    updateFileUploadPulse();
 }
 
 function initSixPackUI() {
@@ -581,28 +593,54 @@ function handleTypeFilterChange() {
     handleDimensionChange();
 }
 
+function syncSteelAdjInputs() {
+    const stdDim = document.getElementById('dimSelect')?.value;
+    const spDim = document.getElementById('spDimSelect')?.value;
+    const stdInput = document.getElementById('steelAdjStd');
+    const spInput = document.getElementById('steelAdjSp');
+    if (stdInput && stdDim && !stdDim.includes('No Dimensions') && document.activeElement !== stdInput) {
+        stdInput.value = ((adjustments[stdDim]) ?? 0).toFixed(4);
+    }
+    if (spInput && spDim && !spDim.includes('No Critical') && document.activeElement !== spInput) {
+        spInput.value = ((adjustments[spDim]) ?? 0).toFixed(4);
+    }
+}
+
 function handleDimensionChange() {
     const dim = document.getElementById('dimSelect').value;
     
     // RE-ADDED: Build the dropdown lists based on the newly selected dimension
     initRunFilter('std', dim, true);
     initSeriesFilter(dim, true);
-    const steelAdjStd = document.getElementById('steelAdjStd');
-    if (steelAdjStd) steelAdjStd.value = ((dim && adjustments[dim]) || 0).toFixed(4);
+    syncSteelAdjInputs();
     
     updateDrawingPopupImage('std');  // Ensure standard popup image is updated if it was open
     updateDashboard();               // Redraws charts AND the legend
     updateDrawingButtonVisibility(); // Hook to update the visibility of the filter-row button
 }
 
-function handleAdjustmentChange(e) { 
-    const val = parseFloat(e.target.value) || 0; 
-    let dim = (currentTab === 'standard') ? document.getElementById('dimSelect').value : document.getElementById('spDimSelect').value; 
-    if(dim) { 
-        adjustments[dim] = val; 
-        if (currentTab === 'standard') updateDashboard(); 
-        else if (currentTab === 'sixpack') updateSixPack(); 
-    } 
+function handleAdjustmentChange(e) {
+    const val = parseFloat(e.target.value) || 0;
+    const isStd = e.target.id === 'steelAdjStd';
+    const dim = isStd
+        ? document.getElementById('dimSelect')?.value
+        : document.getElementById('spDimSelect')?.value;
+    if (!dim || dim.includes('No Critical') || dim.includes('No Dimensions')) return;
+
+    adjustments[dim] = val;
+
+    const peerId = isStd ? 'steelAdjSp' : 'steelAdjStd';
+    const peerDimId = isStd ? 'spDimSelect' : 'dimSelect';
+    const peerInput = document.getElementById(peerId);
+    const peerDim = document.getElementById(peerDimId)?.value;
+    if (peerInput && peerDim === dim && document.activeElement !== peerInput) {
+        peerInput.value = e.target.value;
+    }
+
+    const stdDim = document.getElementById('dimSelect')?.value;
+    const spDim = document.getElementById('spDimSelect')?.value;
+    if (stdDim === dim) updateDashboard();
+    if (spDim === dim) updateSixPack();
 }
 
 function handleTargetCpkChange(e) { 
@@ -653,7 +691,6 @@ function updateSixPack() {
 
     let data = globalData.filter(d => d.element === dim && !ignoredIds.has(d._id));
     const adj = adjustments[dim] || 0;
-    document.getElementById('steelAdjSp').value = adj.toFixed(4);
     
     data = data.filter(d => activeRunFilter.has(d.run || "No Run"));
     if (cavMode !== 'all') { data = data.filter(d => getSeriesLabel(d) === cavMode); }
@@ -1056,11 +1093,17 @@ function updateSPC() {
     const runKeys = Object.keys(runStats);
     let verdictHTML = "";
     if (runKeys.length > 1) {
-        const metrics = runKeys.map(r => ({ run: r, avg: runStats[r].sumUsage / runStats[r].count })).sort((a,b) => a.avg - b.avg);
-        verdictHTML = `Run <strong class="text-green-400">${metrics[0].run}</strong> is more stable than Run <strong class="text-red-400">${metrics[metrics.length - 1].run}</strong>.`;
+        const metrics = runKeys.map(r => ({
+            run: r,
+            avg: runStats[r].sumUsage / runStats[r].count,
+        })).sort((a, b) => a.avg - b.avg);
+        const best = metrics[0];
+        const worst = metrics[metrics.length - 1];
+        verdictHTML = `<span class="text-green-400">Best run (most stable):</span> <strong>${best.run}</strong> — ${best.avg.toFixed(1)}% avg tolerance usage<br><span class="text-red-400">Worst run (least stable):</span> <strong>${worst.run}</strong> — ${worst.avg.toFixed(1)}% avg tolerance usage`;
     } else if (runKeys.length === 1) {
         const r = runKeys[0];
-        verdictHTML = `Run <strong>${r}</strong> consumes <strong>${(runStats[r].sumUsage / runStats[r].count).toFixed(1)}%</strong> of tolerance.`;
+        const avg = runStats[r].sumUsage / runStats[r].count;
+        verdictHTML = `Single run selected: <strong>${r}</strong> — ${avg.toFixed(1)}% avg tolerance usage (lower is more stable).`;
     } else { verdictHTML = "No runs selected."; }
     document.getElementById('spcVerdict').innerHTML = verdictHTML;
 
@@ -1121,14 +1164,14 @@ function updateSPC() {
     let interp = "";
     if (varDrivers > centerDrivers) {
         if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-red-500";
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-red-400 uppercase mb-2">Pressure / Repeatability Problem</h4>
-            <p class="text-xs text-slate-300 mt-1">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
-            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p></div></div>`;
+        interp += `<h4 class="text-xs font-bold text-red-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-compress mr-2"></i>Pressure / Repeatability Problem</h4>
+            <p class="text-xs text-slate-300">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
+            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p>`;
     } else {
-        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-orange-500";
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2">Tooling / Centering Problem</h4>
-            <p class="text-xs text-slate-300 mt-1">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
-            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p></div></div>`;
+        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-purple-500";
+        interp += `<h4 class="text-xs font-bold text-purple-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-tools mr-2"></i>Tooling / Centering Problem</h4>
+            <p class="text-xs text-slate-300">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
+            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p>`;
     }
     if (physicsInner) physicsInner.innerHTML = interp;
 }
@@ -1281,6 +1324,7 @@ function resetAndUpdateSixPack() {
     document.querySelectorAll('input[name="normalityTest"]').forEach((el) => {
       el.checked = el.value === NORMALITY_TEST_IDS.ANDERSON_DARLING;
     });
+    syncSteelAdjInputs();
     updateSixPack(); 
 }
 
@@ -1404,6 +1448,9 @@ const windowExports = {
   generateTemplate,
   updateRunNameInputs,
   showMainApp,
+  showStartPage,
+  openChangelogModal,
+  closeChangelogModal,
   openPdfWizardFromHeader,
   saveProject,
   exportStandardAnalysisSlideDeck,
@@ -1457,6 +1504,8 @@ deferred.updateDashboard = updateDashboard;
 deferred.updateSixPack = updateSixPack;
 globalThis.handleSeriesFilterChange = handleSeriesFilterChange;
 globalThis.handleTypeFilterChange = handleTypeFilterChange;
+globalThis.handleAdjustmentChange = handleAdjustmentChange;
+globalThis.syncSteelAdjInputs = syncSteelAdjInputs;
 globalThis.initRunFilter = initRunFilter;
 globalThis.updateDashboard = updateDashboard;
 globalThis.updateSixPack = updateSixPack;

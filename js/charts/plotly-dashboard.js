@@ -16,7 +16,9 @@ import {
   getChartRefColors,
   getChartSeriesPalette,
   getThemeVar,
+  runThemeTransition,
 } from "../theme.js";
+import { getPlotlyAxisTheme } from "./plotly-layout.js";
 
 // ==========================================
 // 6. DASHBOARD & ANALYSIS LOGIC
@@ -177,14 +179,13 @@ export function updateDashboard() {
     const bgColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
     const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
     const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
-    const gridColor = chartRef.grid;
+    const axisTheme = getPlotlyAxisTheme();
 
-    const axisLine = isLightMode ? {} : { showline: false };
     const layout = {
         margin: { t: 60, r: 50, l: 80, b: 50 }, 
         title: { text: `<b>${getFullDimensionName(rec)}</b>`, font: { size: 16, color: isLightMode ? '#0f172a' : '#e2e8f0' }, y: 0.95 },
-        xaxis: { title: 'Sample Sequence', gridcolor: gridColor, color: fontColor, tickmode: 'linear', dtick: 1, ...axisLine },
-        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, automargin: true, gridcolor: gridColor, color: fontColor, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)], ...axisLine },
+        xaxis: { title: 'Sample Sequence', tickmode: 'linear', dtick: 1, ...axisTheme },
+        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)], ...axisTheme },
         plot_bgcolor: plotColor, paper_bgcolor: bgColor, 
         font: { family: 'Segoe UI, sans-serif', color: fontColor },
         showlegend: false, hoverlabel: { namelength: -1, font: { size: 12 } }, 
@@ -300,31 +301,41 @@ function syncThemeToggleButtons() {
 }
 
 export function toggleLightMode() {
-    isLightMode = !isLightMode;
-    document.body.classList.toggle('light-mode', isLightMode);
-    persistThemeIsLight(isLightMode);
-    syncThemeToggleButtons();
+    if (document.body.classList.contains('is-theme-transitioning')) return;
 
-    // Force Re-Render 
+    const nextLight = !isLightMode;
+    document.body.classList.add('is-theme-transitioning');
+
+    runThemeTransition(async () => {
+        isLightMode = nextLight;
+        document.body.classList.toggle('light-mode', isLightMode);
+        persistThemeIsLight(isLightMode);
+        syncThemeToggleButtons();
+        await applyThemeToCharts();
+    }).then(() => {
+        document.body.classList.remove('is-theme-transitioning');
+        scheduleFullChartThemeRefresh();
+    });
+}
+
+const scheduleIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+
+function scheduleFullChartThemeRefresh() {
+    scheduleIdle(() => refreshChartsAfterThemeChange());
+}
+
+function refreshChartsAfterThemeChange() {
     if (currentTab === "standard") {
         globalThis.updateDashboard?.();
     } else if (currentTab === "sixpack") {
         globalThis.updateSixPack?.();
-    }
-    
-    // Apply Theme explicitly once for both light and dark states
-    setTimeout(() => {
+    } else {
         applyThemeToCharts();
-    }, 50);
+    }
 }
 
-export function applyThemeToCharts() {
-    const chartRef = getChartRefColors(isLightMode);
-    const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
-    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
-    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
-    const gridColor = chartRef.grid;
-
+function buildThemeLayoutUpdate(gd, chartRef, paperColor, plotColor, fontColor, gridColor) {
+    const axisTheme = getPlotlyAxisTheme();
     const updateObj = {
         'plot_bgcolor': plotColor,
         'paper_bgcolor': paperColor,
@@ -335,16 +346,55 @@ export function applyThemeToCharts() {
         'yaxis.gridcolor': gridColor,
         'xaxis.tickfont.color': fontColor,
         'yaxis.tickfont.color': fontColor,
-        'xaxis.showline': isLightMode,
-        'yaxis.showline': isLightMode,
+        'xaxis.color': axisTheme.color,
+        'yaxis.color': axisTheme.color,
+        'xaxis.showline': axisTheme.showline,
+        'yaxis.showline': axisTheme.showline,
+        'xaxis.zeroline': false,
+        'yaxis.zeroline': false,
+        'xaxis.mirror': false,
+        'yaxis.mirror': false,
     };
 
-    document.querySelectorAll('.js-plotly-plot').forEach(chartEl => {
-        if (chartEl.data) {
-            const updateTraces = { 'line.width': 3 }; 
-            Plotly.update(chartEl, updateTraces, updateObj).catch(() => {});
-        } else {
-            Plotly.relayout(chartEl, updateObj).catch(() => {});
+    if (axisTheme.linecolor) {
+        updateObj['xaxis.linecolor'] = axisTheme.linecolor;
+        updateObj['yaxis.linecolor'] = axisTheme.linecolor;
+        updateObj['xaxis.tickcolor'] = axisTheme.tickcolor;
+        updateObj['yaxis.tickcolor'] = axisTheme.tickcolor;
+    }
+
+    (gd.layout?.shapes || []).forEach((shape, i) => {
+        if (shape.type !== 'line' || !shape.line) return;
+        updateObj[`shapes[${i}].line.color`] = shape.line.dash === 'dash' ? chartRef.limit : chartRef.nominal;
+    });
+
+    return updateObj;
+}
+
+export function applyThemeToCharts() {
+    const chartRef = getChartRefColors(isLightMode);
+    const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
+    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
+    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
+    const gridColor = chartRef.grid;
+    const palette = getChartSeriesPalette(isLightMode);
+
+    const tasks = [];
+    document.querySelectorAll('.js-plotly-plot').forEach((gd) => {
+        if (!gd.layout) return;
+
+        const layoutUpdate = buildThemeLayoutUpdate(gd, chartRef, paperColor, plotColor, fontColor, gridColor);
+        tasks.push(Plotly.relayout(gd, layoutUpdate).catch(() => {}));
+
+        if (gd.data?.length) {
+            const lineColors = gd.data.map((trace, i) =>
+                trace.mode?.includes('lines') ? palette[i % palette.length] : null
+            );
+            if (lineColors.some(Boolean)) {
+                tasks.push(Plotly.restyle(gd, { 'line.color': lineColors }).catch(() => {}));
+            }
         }
     });
+
+    return Promise.all(tasks);
 }

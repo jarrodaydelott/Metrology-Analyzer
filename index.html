@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrology Data Analyzer</title>
-    
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('metrology-analyzer-theme') === 'dark') {
+                    document.documentElement.dataset.theme = 'dark';
+                }
+            } catch (e) {}
+        })();
+    </script>
     <link rel="icon" href="data:image/x-icon;base64,AAABAAIAEBAAAAEAIABoBAAAJgAAACAgAAABACAAqBAAAI4EAAANAQAAMQAAACaaaaa=">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,13 +47,121 @@
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body class="light-mode bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<script>
+    (function () {
+        try {
+            if (localStorage.getItem('metrology-analyzer-theme') === 'dark') {
+                document.body.classList.remove('light-mode');
+            }
+        } catch (e) {}
+    })();
+</script>
 
     <div id="startPage" class="flex-grow flex flex-col items-center justify-center p-6 bg-slate-900">
         <div class="max-w-3xl w-full bg-slate-800 rounded-xl shadow-lg border border-slate-700 p-8">
             <div class="text-center mb-8">
                 <i class="fa-solid fa-ruler-combined text-5xl text-blue-500 mb-4"></i>
-                <h1 class="text-3xl font-bold text-slate-100 mb-2">Metrology Data Analyzer <span class="text-blue-500 text-xl ml-2">Ver 1.6</span></h1>
+                <h1 class="text-3xl font-bold text-slate-100 mb-2">Metrology Data Analyzer <!-- release:version-badge -->
+<span class="text-blue-500 text-xl ml-2">Ver 1.6</span>
+            <!-- /release:version-badge --></h1>
                 <p class="text-slate-400">Project Setup & Template Generation</p>
+            </div>
+
+            <button type="button" onclick="openChangelogModal()" class="mb-8 w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-slate-700 bg-slate-900/50 hover:bg-slate-900 hover:border-blue-500/40 transition-colors text-left group">
+                <span class="text-sm font-semibold text-slate-300 group-hover:text-slate-100"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-400"></i><!-- release:changelog-button -->
+What's New in Ver 1.6
+            <!-- /release:changelog-button --></span>
+                <span class="text-xs text-slate-500 group-hover:text-blue-400 shrink-0">View changelog <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></span>
+            </button>
+
+            <div id="changelog-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="changelog-modal-title">
+                <div class="changelog-modal-panel bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[min(88vh,820px)] flex flex-col outline-none" tabindex="-1">
+                    <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-700 shrink-0">
+                        <div>
+                            <!-- release:changelog-modal-header -->
+<h2 id="changelog-modal-title" class="text-xl font-bold text-slate-100">Metrology Data Analyzer — Version 1.6</h2>
+                            <p class="text-sm text-slate-400 mt-1">May 2026 release notes</p>
+            <!-- /release:changelog-modal-header -->
+                        </div>
+                        <button type="button" onclick="closeChangelogModal()" class="text-slate-400 hover:text-white p-1 rounded transition-colors shrink-0" title="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    </div>
+                    <div class="changelog-modal-body overflow-y-auto px-6 py-5 space-y-6 text-sm">
+                        <!-- release:changelog-body -->
+<section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> UI / UX</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Home &amp; toolbar</strong> — Home button returns to the start page; toolbar grouped next to the app name (open, save, save as, PDF setup, PowerPoint export, theme toggle).</li>
+                                <li><strong>Light mode default</strong> — App opens in light mode with a smooth cross-fade theme transition; chart backgrounds update in sync with the UI.</li>
+                                <li><strong>Chart polish</strong> — Light-mode axis lines use soft slate gray instead of harsh black borders.</li>
+                                <li><strong>Choose File prompt</strong> — Data file picker button pulses orange until an Excel file is loaded.</li>
+                                <li><strong>Steel adjustment sync</strong> — Standard Analysis and Critical Six-Pack share the same per-dimension steel offset; changing one updates the other.</li>
+                                <li><strong>SPC panels</strong> — Run verdict names best/worst run by stability; Cavity Stability explains usage %; Tooling / Centering uses a distinct purple accent aligned with other cards.</li>
+                                <li><strong>Changelog modal</strong> — What's New opens a full release-notes panel organized by category.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-square-root-variable text-emerald-400"></i> Math &amp; Calculations</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Normality tests</strong> — Anderson–Darling (default), Ryan–Joiner, and Kolmogorov–Smirnov available on the Six-Pack tab. Side-by-side comparison shows pass/fail at α = 0.05 and highlights when a non-AD test passes but AD fails.</li>
+                                <li><strong>Capability methods</strong> — When data fail normality, choose Parametric (with warning), Percentile (non-parametric Pp/Ppk), Box-Cox, Johnson, or Taylor high-capability waiver (STAT-18). Methods are gated when not applicable (e.g., mixed cavities).</li>
+                                <li><strong>Transformations</strong> — Box-Cox and Johnson fits run automatically for non-normal data; transformed Anderson–Darling P-values (≥ 0.10 Minitab IDI rule) determine whether a transform is viable. Capability stats and histogram update for the selected method.</li>
+                                <li><strong>Normality review panel</strong> — Consolidated AD vs selected-test readout with recommended capability path and short triage note on the stats card.</li>
+                                <li><strong>SPC stability metrics</strong> — Run-level usage averages, cavity usage = |value − nominal| ÷ (tolerance ÷ 2) × 100, and risk drivers (Process Variation, Tooling Centering, Instability, Marginal).</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-route text-amber-400"></i> Minitab Workflow Suggestions</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Path Forward card</strong> — After Six-Pack analysis, a Minitab-style guide recommends the exact menu path (Normal vs Nonnormal Capability Analysis).</li>
+                                <li><strong>Transformation guidance</strong> — Suggests None, Box-Cox, or Johnson based on transformed AD results and explains why raw data failed.</li>
+                                <li><strong>Distribution context</strong> — Notes Johnson system family (Sb / Sl / Su) or post–Box-Cox evaluation steps so you can replicate the study in Minitab IDI.</li>
+                                <li><strong>One-click apply</strong> — “Apply recommended Box-Cox” shortcut when Box-Cox is the top viable transform.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-table-cells text-cyan-400"></i> Six-Pack &amp; Cavity Analysis</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Cavity Triage panel</strong> — Side-by-side mini box plots to compare cavities or runs without leaving the Critical Six-Pack tab.</li>
+                                <li><strong>Grouping modes</strong> — View by cavity (all runs), by run (all cavities), or cavity × run matrix with synced Y-axis for fair comparison.</li>
+                                <li><strong>Focus from triage</strong> — Click Focus on any box plot to filter the full six-pack to that cavity, run, or combination.</li>
+                                <li><strong>Fullscreen triage</strong> — Expand the triage grid for shop-floor review; Esc to exit.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-user-graduate text-purple-400"></i> Expert Help</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Six-Pack expert review</strong> — Expanded condition guide for bimodal data, drift, zero-bounded GD&amp;T, gauge resolution, and outliers with immediate and long-term actions.</li>
+                                <li><strong>SPC expert review</strong> — Dedicated common-cause vs special-cause narrative plus dashboard reading guide on the SPC tab.</li>
+                                <li><strong>Chart-level help</strong> — Pulsing insight bulbs and chart help modals for Xbar/R, capability, normality, and SPC sections with context-specific copy.</li>
+                                <li><strong>Capability &amp; normality tooltips</strong> — Method blocks include short descriptions, applicability warnings, and links to deeper reference text.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-database text-slate-400"></i> Data &amp; Export</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Excel drawing export</strong> — Finds the metrology header row, preserves hidden drawing data for reload, and adds visible thumbnail previews in the workbook.</li>
+                                <li><strong>Project save/load</strong> — JSON project files retain adjustments, excluded outliers, dimension images, and settings.</li>
+                                <li><strong>Modular build</strong> — Source split into ES modules; npm run bundle produces the single-file Metrology Data Analyzer.html.</li>
+                                <li><strong>Release workflow</strong> — Version and changelog live in release/*.json; npm run release bumps the version and npm run bundle refreshes the start page.</li>
+                                <li><strong>Series filter fix</strong> — Standard analysis “Select All” can truly deselect every series; steel adjustment reloads per dimension.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section border-t border-slate-700 pt-4">
+                            <h3 class="changelog-section-title text-slate-500"><i class="fa-solid fa-clock-rotate-left"></i> Version 1.5</h3>
+                            <p class="text-slate-500 text-xs leading-relaxed">Initial release: Standard, Six-Pack, SPC, and Action Summary workflows; PDF dimension wizard; project save/load; PPTX export; light and dark themes.</p>
+                        </section>
+            <!-- /release:changelog-body -->
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-700 shrink-0 flex justify-end">
+                        <button type="button" onclick="closeChangelogModal()" class="px-4 py-2 text-sm font-semibold text-slate-200 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">Close</button>
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-6">
@@ -112,13 +228,26 @@
     <div id="mainApp" class="hidden flex flex-col flex-grow">
         <nav class="bg-slate-950 border-b border-slate-800 shadow-lg shrink-0 z-50">
     <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-14">
-            <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="location.reload()">
-                <i class="fa-solid fa-ruler-combined text-xl text-blue-500"></i>
-                <span class="font-bold text-lg tracking-tight text-slate-100">Metrology<span class="text-blue-500">Analyzer</span></span>
+        <div class="flex items-center justify-between h-14 gap-4">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+                <div class="flex items-center gap-3 shrink-0">
+                    <i class="fa-solid fa-ruler-combined text-xl text-blue-500"></i>
+                    <span class="font-bold text-lg tracking-tight text-slate-100 hidden sm:inline">Metrology<span class="text-blue-500">Analyzer</span></span>
+                </div>
+                <div class="w-px h-5 bg-slate-800 shrink-0"></div>
+                <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                    <button type="button" onclick="showStartPage()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Home"><i class="fa-solid fa-house"></i></button>
+                    <input type="file" id="projectUpload" accept=".json" class="hidden" />
+                    <button type="button" onclick="document.getElementById('projectUpload').click()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Open Project"><i class="fa-solid fa-folder-open"></i></button>
+                    <button type="button" onclick="saveProject(false)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project"><i class="fa-solid fa-floppy-disk"></i></button>
+                    <button type="button" onclick="saveProject(true)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project As"><i class="fa-solid fa-file-export"></i></button>
+                    <button type="button" id="btn-return-pdf" onclick="openPdfWizardFromHeader()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="PDF Setup"><i class="fa-solid fa-file-pdf"></i></button>
+                    <button type="button" onclick="exportStandardAnalysisSlideDeck()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Export PPTX"><i class="fa-solid fa-file-powerpoint"></i></button>
+                    <button type="button" onclick="toggleLightMode()" class="text-slate-400 hover:text-amber-400 p-2 rounded transition-colors" title="Toggle Theme" id="themeToggleBtn"><i class="fa-solid fa-moon"></i></button>
+                </div>
             </div>
 
-            <div class="hidden md:flex items-center gap-6 mx-8 flex-grow justify-center">
+            <div class="hidden md:flex items-center gap-6 flex-grow justify-end min-w-0">
                 <div class="flex items-center gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Data</label>
                     <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded min-w-[14rem] w-96 max-w-[28rem] focus:outline-none" />
@@ -134,16 +263,6 @@
     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target Cpk</label>
     <input type="number" id="targetCpkInput" value="1.33" step="0.01" class="w-20 bg-slate-900 border-0 ring-1 ring-slate-800 rounded px-2 py-1 text-[11px] text-slate-200 font-mono outline-none text-center focus:ring-blue-500 transition-all" />
 </div>
-            </div>
-
-            <div class="flex items-center gap-1 shrink-0">
-                <button id="btn-return-pdf" onclick="openPdfWizardFromHeader()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="PDF Setup"><i class="fa-solid fa-file-pdf"></i></button>
-                <input type="file" id="projectUpload" accept=".json" class="hidden" />
-                <button onclick="document.getElementById('projectUpload').click()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Open Project"><i class="fa-solid fa-folder-open"></i></button>
-                <button onclick="saveProject(false)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project"><i class="fa-solid fa-floppy-disk"></i></button>
-                <button onclick="exportStandardAnalysisSlideDeck()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Export PPTX"><i class="fa-solid fa-file-powerpoint"></i></button>
-                <div class="w-px h-5 bg-slate-800 mx-1"></div>
-                <button onclick="toggleLightMode()" class="text-slate-400 hover:text-amber-400 p-2 rounded transition-colors" title="Toggle Theme" id="themeToggleBtn"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </div>
@@ -542,8 +661,8 @@
                                 <div id="spcSpecialCause" class="text-sm text-slate-300"></div>
                             </div>
                             <div id="spcPhysicsBody" class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden text-sm text-slate-300 flex-1 flex flex-col min-h-0">
-                                <div id="spcPhysicsAccent" class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-                                <div id="spcPhysicsInner" class="relative min-h-0"></div>
+                                <div id="spcPhysicsAccent" class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                                <div id="spcPhysicsInner" class="relative min-h-0 text-xs"></div>
                             </div>
                         </div>
                     </div>
@@ -551,6 +670,7 @@
                         <div class="relative p-4 bg-slate-900/50 border-b border-slate-700 overflow-hidden">
                             <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
                             <h3 class="font-bold text-slate-200 pl-2">Cavity Stability</h3>
+                            <p class="text-xs text-slate-400 mt-2 pl-2 leading-relaxed">Usage % = |measurement − nominal| ÷ (tolerance ÷ 2) × 100, averaged across all dimensions for each run/cavity pair. Lower usage means more stable (more margin from the spec limits).</p>
                         </div>
                         <div class="overflow-x-auto flex-1 min-h-0">
                             <table class="w-full text-sm text-left text-slate-300">
@@ -695,7 +815,7 @@
                     console.warn(name + ": app still loading…");
                 };
             }
-            ["showMainApp", "generateTemplate"].forEach(function (name) {
+            ["showMainApp", "showStartPage", "openChangelogModal", "closeChangelogModal", "generateTemplate"].forEach(function (name) {
                 if (typeof window[name] !== "function") {
                     window[name] = pending(name);
                 }

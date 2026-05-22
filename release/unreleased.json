@@ -1,0 +1,46 @@
+{
+  "sections": [
+    {
+      "id": "ui",
+      "title": "UI / UX",
+      "icon": "fa-wand-magic-sparkles",
+      "iconClass": "text-blue-400",
+      "items": []
+    },
+    {
+      "id": "math",
+      "title": "Math & Calculations",
+      "icon": "fa-square-root-variable",
+      "iconClass": "text-emerald-400",
+      "items": []
+    },
+    {
+      "id": "minitab",
+      "title": "Minitab Workflow Suggestions",
+      "icon": "fa-route",
+      "iconClass": "text-amber-400",
+      "items": []
+    },
+    {
+      "id": "sixpack",
+      "title": "Six-Pack & Cavity Analysis",
+      "icon": "fa-table-cells",
+      "iconClass": "text-cyan-400",
+      "items": []
+    },
+    {
+      "id": "expert",
+      "title": "Expert Help",
+      "icon": "fa-user-graduate",
+      "iconClass": "text-purple-400",
+      "items": []
+    },
+    {
+      "id": "data",
+      "title": "Data & Export",
+      "icon": "fa-database",
+      "iconClass": "text-slate-400",
+      "items": []
+    }
+  ]
+}

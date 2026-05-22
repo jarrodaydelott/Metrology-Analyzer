@@ -4,7 +4,9 @@
   "description": "Metrology Data Analyzer — static ES modules; use a local HTTP server (not file://).",
   "scripts": {
     "dev": "npx --yes serve .",
-    "bundle": "node scripts/bundle-html.mjs"
+    "sync-release": "node scripts/sync-release.mjs",
+    "release": "node scripts/release.mjs",
+    "bundle": "node scripts/sync-release.mjs && node scripts/bundle-html.mjs"
   },
   "devDependencies": {
     "acorn": "^8.14.0"

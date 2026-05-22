@@ -1,15 +1,76 @@
-/** Shared with DOE SUITE — same localStorage key for light/dark across apps. */
+/** Metrology Analyzer theme preference (defaults to light when unset). */
+export const METROLOGY_THEME_KEY = 'metrology-analyzer-theme';
+
+/** @deprecated Shared DOE SUITE key — no longer read on launch; kept for reference only. */
 export const DOE_THEME_KEY = 'doe-theme';
 
 export function readStoredThemeIsLight() {
-    const stored = localStorage.getItem(DOE_THEME_KEY);
+    const stored = localStorage.getItem(METROLOGY_THEME_KEY);
     if (stored === 'dark') return false;
-    if (stored === 'light') return true;
     return true;
 }
 
 export function persistThemeIsLight(isLight) {
-    localStorage.setItem(DOE_THEME_KEY, isLight ? 'light' : 'dark');
+    localStorage.setItem(METROLOGY_THEME_KEY, isLight ? 'light' : 'dark');
+}
+
+export const THEME_TRANSITION_MS = 350;
+
+export function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function getOrCreateThemeOverlay() {
+    let overlay = document.getElementById('theme-transition-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'theme-transition-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(overlay);
+    }
+    return overlay;
+}
+
+function runOverlayThemeTransition(updateDom, onComplete) {
+    const overlay = getOrCreateThemeOverlay();
+    overlay.style.backgroundColor = getThemeVar('--bg-page', '#020617');
+    overlay.classList.add('is-covering');
+    void overlay.offsetHeight;
+
+    Promise.resolve(updateDom()).then(() => {
+        requestAnimationFrame(() => {
+            overlay.classList.remove('is-covering');
+        });
+
+        let done = false;
+        const complete = () => {
+            if (done) return;
+            done = true;
+            overlay.classList.remove('is-covering');
+            onComplete();
+        };
+        overlay.addEventListener('transitionend', complete, { once: true });
+        setTimeout(complete, THEME_TRANSITION_MS + 50);
+    });
+}
+
+/** Cross-fade theme DOM updates; updateDom may return a Promise (e.g. await chart relayout). */
+export function runThemeTransition(updateDom) {
+    const run = () => Promise.resolve(updateDom());
+
+    return new Promise((resolve) => {
+        if (prefersReducedMotion()) {
+            run().then(resolve);
+            return;
+        }
+
+        if (typeof document.startViewTransition === 'function') {
+            document.startViewTransition(() => run()).finished.then(resolve).catch(resolve);
+            return;
+        }
+
+        runOverlayThemeTransition(() => run(), resolve);
+    });
 }
 
 export function getThemeVar(name, fallback = '') {

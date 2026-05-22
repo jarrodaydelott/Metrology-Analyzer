@@ -84,8 +84,12 @@ export function handleLoadProject(e) {
 
       const dim = document.getElementById("dimSelect").value;
       const spDim = document.getElementById("spDimSelect").value;
-      if (dim) document.getElementById("steelAdjStd").value = (adjustments[dim] || 0).toFixed(3);
-      if (spDim) document.getElementById("steelAdjSp").value = (adjustments[spDim] || 0).toFixed(3);
+      if (typeof globalThis.syncSteelAdjInputs === "function") {
+        globalThis.syncSteelAdjInputs();
+      } else {
+        if (dim) document.getElementById("steelAdjStd").value = (adjustments[dim] || 0).toFixed(3);
+        if (spDim) document.getElementById("steelAdjSp").value = (adjustments[spDim] || 0).toFixed(3);
+      }
 
       alert("Project loaded successfully!");
       deferred.showMainApp();

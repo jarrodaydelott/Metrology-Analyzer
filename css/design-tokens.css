@@ -51,6 +51,7 @@
     --chart-nominal: #4ade80;
     --chart-limit: #f87171;
     --chart-plot-bg: var(--sl-850);
+    --chart-axis: #475569;
 
     --alert-bg: rgba(248, 113, 113, 0.1);
     --alert-text: #fca5a5;
@@ -116,6 +117,7 @@ body.light-mode {
     --chart-nominal: #15803d;
     --chart-limit: #c53030;
     --chart-plot-bg: #eef2f8;
+    --chart-axis: #94a3b8;
 
     --alert-bg: rgba(220, 38, 38, 0.06);
     --alert-text: #b91c1c;

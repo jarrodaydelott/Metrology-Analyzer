@@ -385,10 +385,9 @@ function plotMiniBox(plotId, vals, label, yRange) {
     font: { size: 9, color: base.font.color },
     xaxis: { visible: false, fixedrange: true },
     yaxis: {
-      gridcolor: base.yaxis.gridcolor,
+      ...base.yaxis,
       tickfont: { size: 8 },
       fixedrange: true,
-      automargin: true,
       ticklabelstandoff: 2,
       ...(yRange ? { range: yRange, autorange: false } : {}),
       tickformat: tickFormatForRange(yRange),

@@ -583,3 +583,97 @@
     body:not(.light-mode) #pdf-reticle {
         filter: none !important;
     }
+
+    /* Theme toggle — cross-fade (View Transitions API + overlay fallback) */
+    @media (prefers-reduced-motion: no-preference) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation-duration: 0.35s;
+            animation-timing-function: ease-in-out;
+        }
+    }
+
+    #theme-transition-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.35s ease-in-out;
+    }
+
+    #theme-transition-overlay.is-covering {
+        opacity: 1;
+        transition: none;
+    }
+
+    /* Start page changelog modal */
+    body.changelog-modal-open {
+        overflow: hidden;
+    }
+
+    .changelog-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--sl-200);
+        margin-bottom: 0.75rem;
+    }
+
+    .changelog-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .changelog-list li {
+        position: relative;
+        padding-left: 1rem;
+        color: var(--sl-400);
+        line-height: 1.55;
+        font-size: 0.8125rem;
+    }
+
+    .changelog-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.55em;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--accent-primary);
+        opacity: 0.7;
+    }
+
+    .changelog-list li strong {
+        color: var(--sl-200);
+        font-weight: 600;
+    }
+
+    /* Data file picker — orange pulsing Choose File button until a file is loaded */
+    #fileUpload.file-upload-prompt::file-selector-button {
+        background-color: var(--accent-warning) !important;
+        border: none !important;
+    }
+
+    body:not(.light-mode) #fileUpload.file-upload-prompt::file-selector-button {
+        color: #0f172a !important;
+    }
+
+    body.light-mode #fileUpload.file-upload-prompt::file-selector-button {
+        color: #ffffff !important;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        #fileUpload.file-upload-prompt::file-selector-button {
+            animation: bulbPulse 2s infinite;
+        }
+    }

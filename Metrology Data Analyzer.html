@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrology Data Analyzer</title>
-    
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('metrology-analyzer-theme') === 'dark') {
+                    document.documentElement.dataset.theme = 'dark';
+                }
+            } catch (e) {}
+        })();
+    </script>
     <link rel="icon" href="data:image/x-icon;base64,AAABAAIAEBAAAAEAIABoBAAAJgAAACAgAAABACAAqBAAAI4EAAANAQAAMQAAACaaaaa=">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -90,6 +98,7 @@
     --chart-nominal: #4ade80;
     --chart-limit: #f87171;
     --chart-plot-bg: var(--sl-850);
+    --chart-axis: #475569;
 
     --alert-bg: rgba(248, 113, 113, 0.1);
     --alert-text: #fca5a5;
@@ -155,6 +164,7 @@ body.light-mode {
     --chart-nominal: #15803d;
     --chart-limit: #c53030;
     --chart-plot-bg: #eef2f8;
+    --chart-axis: #94a3b8;
 
     --alert-bg: rgba(220, 38, 38, 0.06);
     --alert-text: #b91c1c;
@@ -758,16 +768,217 @@ body.light-mode {
         filter: none !important;
     }
 
+    /* Theme toggle — cross-fade (View Transitions API + overlay fallback) */
+    @media (prefers-reduced-motion: no-preference) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation-duration: 0.35s;
+            animation-timing-function: ease-in-out;
+        }
+    }
+
+    #theme-transition-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.35s ease-in-out;
+    }
+
+    #theme-transition-overlay.is-covering {
+        opacity: 1;
+        transition: none;
+    }
+
+    /* Start page changelog modal */
+    body.changelog-modal-open {
+        overflow: hidden;
+    }
+
+    .changelog-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--sl-200);
+        margin-bottom: 0.75rem;
+    }
+
+    .changelog-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .changelog-list li {
+        position: relative;
+        padding-left: 1rem;
+        color: var(--sl-400);
+        line-height: 1.55;
+        font-size: 0.8125rem;
+    }
+
+    .changelog-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.55em;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--accent-primary);
+        opacity: 0.7;
+    }
+
+    .changelog-list li strong {
+        color: var(--sl-200);
+        font-weight: 600;
+    }
+
+    /* Data file picker — orange pulsing Choose File button until a file is loaded */
+    #fileUpload.file-upload-prompt::file-selector-button {
+        background-color: var(--accent-warning) !important;
+        border: none !important;
+    }
+
+    body:not(.light-mode) #fileUpload.file-upload-prompt::file-selector-button {
+        color: #0f172a !important;
+    }
+
+    body.light-mode #fileUpload.file-upload-prompt::file-selector-button {
+        color: #ffffff !important;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        #fileUpload.file-upload-prompt::file-selector-button {
+            animation: bulbPulse 2s infinite;
+        }
+    }
+
     </style>
 </head>
 <body class="light-mode bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<script>
+    (function () {
+        try {
+            if (localStorage.getItem('metrology-analyzer-theme') === 'dark') {
+                document.body.classList.remove('light-mode');
+            }
+        } catch (e) {}
+    })();
+</script>
 
     <div id="startPage" class="flex-grow flex flex-col items-center justify-center p-6 bg-slate-900">
         <div class="max-w-3xl w-full bg-slate-800 rounded-xl shadow-lg border border-slate-700 p-8">
             <div class="text-center mb-8">
                 <i class="fa-solid fa-ruler-combined text-5xl text-blue-500 mb-4"></i>
-                <h1 class="text-3xl font-bold text-slate-100 mb-2">Metrology Data Analyzer <span class="text-blue-500 text-xl ml-2">Ver 1.6</span></h1>
+                <h1 class="text-3xl font-bold text-slate-100 mb-2">Metrology Data Analyzer <!-- release:version-badge -->
+<span class="text-blue-500 text-xl ml-2">Ver 1.6</span>
+            <!-- /release:version-badge --></h1>
                 <p class="text-slate-400">Project Setup & Template Generation</p>
+            </div>
+
+            <button type="button" onclick="openChangelogModal()" class="mb-8 w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-slate-700 bg-slate-900/50 hover:bg-slate-900 hover:border-blue-500/40 transition-colors text-left group">
+                <span class="text-sm font-semibold text-slate-300 group-hover:text-slate-100"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-400"></i><!-- release:changelog-button -->
+What's New in Ver 1.6
+            <!-- /release:changelog-button --></span>
+                <span class="text-xs text-slate-500 group-hover:text-blue-400 shrink-0">View changelog <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></span>
+            </button>
+
+            <div id="changelog-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="changelog-modal-title">
+                <div class="changelog-modal-panel bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[min(88vh,820px)] flex flex-col outline-none" tabindex="-1">
+                    <div class="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-700 shrink-0">
+                        <div>
+                            <!-- release:changelog-modal-header -->
+<h2 id="changelog-modal-title" class="text-xl font-bold text-slate-100">Metrology Data Analyzer — Version 1.6</h2>
+                            <p class="text-sm text-slate-400 mt-1">May 2026 release notes</p>
+            <!-- /release:changelog-modal-header -->
+                        </div>
+                        <button type="button" onclick="closeChangelogModal()" class="text-slate-400 hover:text-white p-1 rounded transition-colors shrink-0" title="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    </div>
+                    <div class="changelog-modal-body overflow-y-auto px-6 py-5 space-y-6 text-sm">
+                        <!-- release:changelog-body -->
+<section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> UI / UX</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Home &amp; toolbar</strong> — Home button returns to the start page; toolbar grouped next to the app name (open, save, save as, PDF setup, PowerPoint export, theme toggle).</li>
+                                <li><strong>Light mode default</strong> — App opens in light mode with a smooth cross-fade theme transition; chart backgrounds update in sync with the UI.</li>
+                                <li><strong>Chart polish</strong> — Light-mode axis lines use soft slate gray instead of harsh black borders.</li>
+                                <li><strong>Choose File prompt</strong> — Data file picker button pulses orange until an Excel file is loaded.</li>
+                                <li><strong>Steel adjustment sync</strong> — Standard Analysis and Critical Six-Pack share the same per-dimension steel offset; changing one updates the other.</li>
+                                <li><strong>SPC panels</strong> — Run verdict names best/worst run by stability; Cavity Stability explains usage %; Tooling / Centering uses a distinct purple accent aligned with other cards.</li>
+                                <li><strong>Changelog modal</strong> — What's New opens a full release-notes panel organized by category.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-square-root-variable text-emerald-400"></i> Math &amp; Calculations</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Normality tests</strong> — Anderson–Darling (default), Ryan–Joiner, and Kolmogorov–Smirnov available on the Six-Pack tab. Side-by-side comparison shows pass/fail at α = 0.05 and highlights when a non-AD test passes but AD fails.</li>
+                                <li><strong>Capability methods</strong> — When data fail normality, choose Parametric (with warning), Percentile (non-parametric Pp/Ppk), Box-Cox, Johnson, or Taylor high-capability waiver (STAT-18). Methods are gated when not applicable (e.g., mixed cavities).</li>
+                                <li><strong>Transformations</strong> — Box-Cox and Johnson fits run automatically for non-normal data; transformed Anderson–Darling P-values (≥ 0.10 Minitab IDI rule) determine whether a transform is viable. Capability stats and histogram update for the selected method.</li>
+                                <li><strong>Normality review panel</strong> — Consolidated AD vs selected-test readout with recommended capability path and short triage note on the stats card.</li>
+                                <li><strong>SPC stability metrics</strong> — Run-level usage averages, cavity usage = |value − nominal| ÷ (tolerance ÷ 2) × 100, and risk drivers (Process Variation, Tooling Centering, Instability, Marginal).</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-route text-amber-400"></i> Minitab Workflow Suggestions</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Path Forward card</strong> — After Six-Pack analysis, a Minitab-style guide recommends the exact menu path (Normal vs Nonnormal Capability Analysis).</li>
+                                <li><strong>Transformation guidance</strong> — Suggests None, Box-Cox, or Johnson based on transformed AD results and explains why raw data failed.</li>
+                                <li><strong>Distribution context</strong> — Notes Johnson system family (Sb / Sl / Su) or post–Box-Cox evaluation steps so you can replicate the study in Minitab IDI.</li>
+                                <li><strong>One-click apply</strong> — “Apply recommended Box-Cox” shortcut when Box-Cox is the top viable transform.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-table-cells text-cyan-400"></i> Six-Pack &amp; Cavity Analysis</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Cavity Triage panel</strong> — Side-by-side mini box plots to compare cavities or runs without leaving the Critical Six-Pack tab.</li>
+                                <li><strong>Grouping modes</strong> — View by cavity (all runs), by run (all cavities), or cavity × run matrix with synced Y-axis for fair comparison.</li>
+                                <li><strong>Focus from triage</strong> — Click Focus on any box plot to filter the full six-pack to that cavity, run, or combination.</li>
+                                <li><strong>Fullscreen triage</strong> — Expand the triage grid for shop-floor review; Esc to exit.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-user-graduate text-purple-400"></i> Expert Help</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Six-Pack expert review</strong> — Expanded condition guide for bimodal data, drift, zero-bounded GD&amp;T, gauge resolution, and outliers with immediate and long-term actions.</li>
+                                <li><strong>SPC expert review</strong> — Dedicated common-cause vs special-cause narrative plus dashboard reading guide on the SPC tab.</li>
+                                <li><strong>Chart-level help</strong> — Pulsing insight bulbs and chart help modals for Xbar/R, capability, normality, and SPC sections with context-specific copy.</li>
+                                <li><strong>Capability &amp; normality tooltips</strong> — Method blocks include short descriptions, applicability warnings, and links to deeper reference text.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section">
+                            <h3 class="changelog-section-title"><i class="fa-solid fa-database text-slate-400"></i> Data &amp; Export</h3>
+                            <ul class="changelog-list">
+                                <li><strong>Excel drawing export</strong> — Finds the metrology header row, preserves hidden drawing data for reload, and adds visible thumbnail previews in the workbook.</li>
+                                <li><strong>Project save/load</strong> — JSON project files retain adjustments, excluded outliers, dimension images, and settings.</li>
+                                <li><strong>Modular build</strong> — Source split into ES modules; npm run bundle produces the single-file Metrology Data Analyzer.html.</li>
+                                <li><strong>Series filter fix</strong> — Standard analysis “Select All” can truly deselect every series; steel adjustment reloads per dimension.</li>
+                            </ul>
+                        </section>
+
+                        <section class="changelog-section border-t border-slate-700 pt-4">
+                            <h3 class="changelog-section-title text-slate-500"><i class="fa-solid fa-clock-rotate-left"></i> Version 1.5</h3>
+                            <p class="text-slate-500 text-xs leading-relaxed">Initial release: Standard, Six-Pack, SPC, and Action Summary workflows; PDF dimension wizard; project save/load; PPTX export; light and dark themes.</p>
+                        </section>
+            <!-- /release:changelog-body -->
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-700 shrink-0 flex justify-end">
+                        <button type="button" onclick="closeChangelogModal()" class="px-4 py-2 text-sm font-semibold text-slate-200 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">Close</button>
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-6">
@@ -834,13 +1045,26 @@ body.light-mode {
     <div id="mainApp" class="hidden flex flex-col flex-grow">
         <nav class="bg-slate-950 border-b border-slate-800 shadow-lg shrink-0 z-50">
     <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-14">
-            <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="location.reload()">
-                <i class="fa-solid fa-ruler-combined text-xl text-blue-500"></i>
-                <span class="font-bold text-lg tracking-tight text-slate-100">Metrology<span class="text-blue-500">Analyzer</span></span>
+        <div class="flex items-center justify-between h-14 gap-4">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+                <div class="flex items-center gap-3 shrink-0">
+                    <i class="fa-solid fa-ruler-combined text-xl text-blue-500"></i>
+                    <span class="font-bold text-lg tracking-tight text-slate-100 hidden sm:inline">Metrology<span class="text-blue-500">Analyzer</span></span>
+                </div>
+                <div class="w-px h-5 bg-slate-800 shrink-0"></div>
+                <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                    <button type="button" onclick="showStartPage()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Home"><i class="fa-solid fa-house"></i></button>
+                    <input type="file" id="projectUpload" accept=".json" class="hidden" />
+                    <button type="button" onclick="document.getElementById('projectUpload').click()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Open Project"><i class="fa-solid fa-folder-open"></i></button>
+                    <button type="button" onclick="saveProject(false)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project"><i class="fa-solid fa-floppy-disk"></i></button>
+                    <button type="button" onclick="saveProject(true)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project As"><i class="fa-solid fa-file-export"></i></button>
+                    <button type="button" id="btn-return-pdf" onclick="openPdfWizardFromHeader()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="PDF Setup"><i class="fa-solid fa-file-pdf"></i></button>
+                    <button type="button" onclick="exportStandardAnalysisSlideDeck()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Export PPTX"><i class="fa-solid fa-file-powerpoint"></i></button>
+                    <button type="button" onclick="toggleLightMode()" class="text-slate-400 hover:text-amber-400 p-2 rounded transition-colors" title="Toggle Theme" id="themeToggleBtn"><i class="fa-solid fa-moon"></i></button>
+                </div>
             </div>
 
-            <div class="hidden md:flex items-center gap-6 mx-8 flex-grow justify-center">
+            <div class="hidden md:flex items-center gap-6 flex-grow justify-end min-w-0">
                 <div class="flex items-center gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Data</label>
                     <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded min-w-[14rem] w-96 max-w-[28rem] focus:outline-none" />
@@ -856,16 +1080,6 @@ body.light-mode {
     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target Cpk</label>
     <input type="number" id="targetCpkInput" value="1.33" step="0.01" class="w-20 bg-slate-900 border-0 ring-1 ring-slate-800 rounded px-2 py-1 text-[11px] text-slate-200 font-mono outline-none text-center focus:ring-blue-500 transition-all" />
 </div>
-            </div>
-
-            <div class="flex items-center gap-1 shrink-0">
-                <button id="btn-return-pdf" onclick="openPdfWizardFromHeader()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="PDF Setup"><i class="fa-solid fa-file-pdf"></i></button>
-                <input type="file" id="projectUpload" accept=".json" class="hidden" />
-                <button onclick="document.getElementById('projectUpload').click()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Open Project"><i class="fa-solid fa-folder-open"></i></button>
-                <button onclick="saveProject(false)" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Save Project"><i class="fa-solid fa-floppy-disk"></i></button>
-                <button onclick="exportStandardAnalysisSlideDeck()" class="text-slate-400 hover:text-blue-400 p-2 rounded transition-colors" title="Export PPTX"><i class="fa-solid fa-file-powerpoint"></i></button>
-                <div class="w-px h-5 bg-slate-800 mx-1"></div>
-                <button onclick="toggleLightMode()" class="text-slate-400 hover:text-amber-400 p-2 rounded transition-colors" title="Toggle Theme" id="themeToggleBtn"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
     </div>
@@ -1264,8 +1478,8 @@ body.light-mode {
                                 <div id="spcSpecialCause" class="text-sm text-slate-300"></div>
                             </div>
                             <div id="spcPhysicsBody" class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden text-sm text-slate-300 flex-1 flex flex-col min-h-0">
-                                <div id="spcPhysicsAccent" class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-                                <div id="spcPhysicsInner" class="relative min-h-0"></div>
+                                <div id="spcPhysicsAccent" class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                                <div id="spcPhysicsInner" class="relative min-h-0 text-xs"></div>
                             </div>
                         </div>
                     </div>
@@ -1273,6 +1487,7 @@ body.light-mode {
                         <div class="relative p-4 bg-slate-900/50 border-b border-slate-700 overflow-hidden">
                             <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
                             <h3 class="font-bold text-slate-200 pl-2">Cavity Stability</h3>
+                            <p class="text-xs text-slate-400 mt-2 pl-2 leading-relaxed">Usage % = |measurement − nominal| ÷ (tolerance ÷ 2) × 100, averaged across all dimensions for each run/cavity pair. Lower usage means more stable (more margin from the spec limits).</p>
                         </div>
                         <div class="overflow-x-auto flex-1 min-h-0">
                             <table class="w-full text-sm text-left text-slate-300">
@@ -1417,7 +1632,7 @@ body.light-mode {
                     console.warn(name + ": app still loading…");
                 };
             }
-            ["showMainApp", "generateTemplate"].forEach(function (name) {
+            ["showMainApp", "showStartPage", "openChangelogModal", "closeChangelogModal", "generateTemplate"].forEach(function (name) {
                 if (typeof window[name] !== "function") {
                     window[name] = pending(name);
                 }
@@ -2415,11 +2630,11 @@ const chartExplanations = {
   },
   spc_verdict: {
     title: "Run-Level Verdict",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">Common Cause Variation</strong><p>The "background noise" built into the system — machine repeatability, mold precision, material lot consistency, gauge error. It is always present and can only be reduced by improving the process or equipment. High common-cause noise (low Cp) means the bell curve is too wide for the tolerance.</p></div><div><strong class="text-blue-400">Special Cause Variation</strong><p>Specific, identifiable events that spike variation temporarily — a short shot, contaminated material, tool crash, operator error. Special causes appear as individual points outside control limits or as outliers consuming a large share of tolerance. Each event should be investigated and eliminated.</p></div><div><strong class="text-blue-400">What to do</strong><p>Compare runs side-by-side. If one run is consistently worse, investigate what changed between runs (material lot, machine, maintenance, setup). Do not average runs together if they represent different process conditions.</p></div></div>`,
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">Best vs. worst run</strong><p>When multiple runs are selected, the verdict names the <strong>most stable</strong> run (lowest average tolerance usage) and the <strong>least stable</strong> run (highest average usage). Lower percentage = more margin from spec limits.</p></div><div><strong class="text-blue-400">Common Cause Variation</strong><p>The "background noise" built into the system — machine repeatability, mold precision, material lot consistency, gauge error. It is always present and can only be reduced by improving the process or equipment. High common-cause noise (low Cp) means the bell curve is too wide for the tolerance.</p></div><div><strong class="text-blue-400">Special Cause Variation</strong><p>Specific, identifiable events that spike variation temporarily — a short shot, contaminated material, tool crash, operator error. Special causes appear as individual points outside control limits or as outliers consuming a large share of tolerance. Each event should be investigated and eliminated.</p></div><div><strong class="text-blue-400">What to do</strong><p>Compare runs side-by-side. If one run is consistently worse, investigate what changed between runs (material lot, machine, maintenance, setup). Do not average runs together if they represent different process conditions.</p></div></div>`,
   },
   spc_stability: {
     title: "Cavity Stability",
-    content: `<div class="space-y-3"><div><strong class="text-blue-400">What tolerance consumption means</strong><p>Each cavity's measurements are compared to the full spec window. The percentage shows how much of the available tolerance that cavity is using. A cavity at 80% consumption has very little margin left before producing defects.</p></div><div><strong class="text-blue-400">Risk thresholds</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>&lt; 50%</strong> = Stable. Comfortable margin. Monitor only.</li><li><strong>50–75%</strong> = Watch. Process is acceptable but has limited room for drift.</li><li><strong>&gt; 75%</strong> = High Risk. Any shift in mean or increase in variation will likely produce out-of-spec parts. Prioritize corrective action.</li></ul></div><div><strong class="text-blue-400">Why it matters even when passing</strong><p>A dimension can be "in spec" today but fail tomorrow if the process drifts slightly. High consumption cavities are your early warning system — fix them before they become scrap.</p></div></div>`,
+    content: `<div class="space-y-3"><div><strong class="text-blue-400">How Usage % is calculated</strong><p>For each measurement: <strong>Usage % = |value − nominal| ÷ (tolerance ÷ 2) × 100</strong>. This expresses how far the part is from nominal as a percentage of the half-tolerance band on that side of spec. Values for all dimensions in a run/cavity are averaged to produce the table cell.</p></div><div><strong class="text-blue-400">Risk thresholds</strong><ul class="list-disc list-inside mt-1 ml-1 text-xs text-slate-400"><li><strong>&lt; 50%</strong> = Stable. Comfortable margin. Monitor only.</li><li><strong>50–75%</strong> = Watch. Process is acceptable but has limited room for drift.</li><li><strong>&gt; 75%</strong> = High Risk. Any shift in mean or increase in variation will likely produce out-of-spec parts. Prioritize corrective action.</li></ul></div><div><strong class="text-blue-400">Why it matters even when passing</strong><p>A dimension can be "in spec" today but fail tomorrow if the process drifts slightly. High consumption cavities are your early warning system — fix them before they become scrap.</p></div></div>`,
   },
   spc_interpretation: {
     title: "Interpretation",
@@ -2445,18 +2660,79 @@ const CHART_TARGET_W_INCHES = 12.15;
 const BRAND_DARK_BLUE = "033063";
 const BRAND_ORANGE = "FF9900";
 
-/** Shared with DOE SUITE — same localStorage key for light/dark across apps. */
+/** Metrology Analyzer theme preference (defaults to light when unset). */
+const METROLOGY_THEME_KEY = 'metrology-analyzer-theme';
+
+/** @deprecated Shared DOE SUITE key — no longer read on launch; kept for reference only. */
 const DOE_THEME_KEY = 'doe-theme';
 
 function readStoredThemeIsLight() {
-    const stored = localStorage.getItem(DOE_THEME_KEY);
+    const stored = localStorage.getItem(METROLOGY_THEME_KEY);
     if (stored === 'dark') return false;
-    if (stored === 'light') return true;
     return true;
 }
 
 function persistThemeIsLight(isLight) {
-    localStorage.setItem(DOE_THEME_KEY, isLight ? 'light' : 'dark');
+    localStorage.setItem(METROLOGY_THEME_KEY, isLight ? 'light' : 'dark');
+}
+
+const THEME_TRANSITION_MS = 350;
+
+function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function getOrCreateThemeOverlay() {
+    let overlay = document.getElementById('theme-transition-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'theme-transition-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(overlay);
+    }
+    return overlay;
+}
+
+function runOverlayThemeTransition(updateDom, onComplete) {
+    const overlay = getOrCreateThemeOverlay();
+    overlay.style.backgroundColor = getThemeVar('--bg-page', '#020617');
+    overlay.classList.add('is-covering');
+    void overlay.offsetHeight;
+
+    Promise.resolve(updateDom()).then(() => {
+        requestAnimationFrame(() => {
+            overlay.classList.remove('is-covering');
+        });
+
+        let done = false;
+        const complete = () => {
+            if (done) return;
+            done = true;
+            overlay.classList.remove('is-covering');
+            onComplete();
+        };
+        overlay.addEventListener('transitionend', complete, { once: true });
+        setTimeout(complete, THEME_TRANSITION_MS + 50);
+    });
+}
+
+/** Cross-fade theme DOM updates; updateDom may return a Promise (e.g. await chart relayout). */
+function runThemeTransition(updateDom) {
+    const run = () => Promise.resolve(updateDom());
+
+    return new Promise((resolve) => {
+        if (prefersReducedMotion()) {
+            run().then(resolve);
+            return;
+        }
+
+        if (typeof document.startViewTransition === 'function') {
+            document.startViewTransition(() => run()).finished.then(resolve).catch(resolve);
+            return;
+        }
+
+        runOverlayThemeTransition(() => run(), resolve);
+    });
 }
 
 function getThemeVar(name, fallback = '') {
@@ -2511,12 +2787,44 @@ const CHART_SERIES_PALETTE_DARK = SERIES_FALLBACK_DARK;
 
 
 
+/** Shared Plotly x/y axis styling — soft axis lines in light mode, hidden in dark mode. */
+function getPlotlyAxisTheme() {
+    const chartRef = getChartRefColors(isLightMode);
+    const gridColor = chartRef.grid;
+    const fontColor = getThemeVar("--sl-200", isLightMode ? "#334155" : "#e2e8f0");
+    const axisLineColor = getThemeVar("--chart-axis", isLightMode ? "#94a3b8" : "#475569");
+
+    const base = {
+        gridcolor: gridColor,
+        automargin: true,
+        color: fontColor,
+        zeroline: false,
+        mirror: false,
+    };
+
+    if (isLightMode) {
+        return {
+            ...base,
+            showline: true,
+            linecolor: axisLineColor,
+            linewidth: 1,
+            tickcolor: axisLineColor,
+            tickwidth: 1,
+        };
+    }
+
+    return {
+        ...base,
+        showline: false,
+    };
+}
+
 function getBaseLayout() {
     const chartRef = getChartRefColors(isLightMode);
     const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
     const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
     const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
-    const gridColor = chartRef.grid;
+    const axisTheme = getPlotlyAxisTheme();
 
     return { 
         autosize: true, 
@@ -2525,8 +2833,8 @@ function getBaseLayout() {
         showlegend: false, 
         plot_bgcolor: plotColor, 
         paper_bgcolor: paperColor, 
-        xaxis: { gridcolor: gridColor, automargin: true }, 
-        yaxis: { gridcolor: gridColor, automargin: true }, 
+        xaxis: { ...axisTheme }, 
+        yaxis: { ...axisTheme }, 
         titleFontColor: fontColor 
     };
 }
@@ -2881,7 +3189,7 @@ function renderRunChart(groups, mean, usl, lsl, outlierSet) {
   const minY = Math.min(...allY); const maxY = Math.max(...allY); const padding = (maxY - minY) * 0.1; 
   
   const base = getBaseLayout();
-  return plotSixPackChart('spChart3', [trace], { ...base, margin: sixPackPlotMargin(base), shapes: shapes, yaxis: { gridcolor: base.xaxis.gridcolor, range: [minY - padding, maxY + padding] } });
+  return plotSixPackChart('spChart3', [trace], { ...base, margin: sixPackPlotMargin(base), shapes: shapes, yaxis: { ...base.yaxis, range: [minY - padding, maxY + padding] } });
 }
 
 function renderHistogram(data, mean, stdevOverall, stdevWithin, lsl, usl, methodMeta = null) { 
@@ -2973,16 +3281,14 @@ function renderHistogram(data, mean, stdevOverall, stdevWithin, lsl, usl, method
     xaxis: {
       domain: [0, 1],
       anchor: 'y',
-      gridcolor: base.xaxis.gridcolor,
+      ...base.xaxis,
       range: [xMin, xMax],
-      automargin: true,
     },
     yaxis: {
       domain: [0, 1],
-      gridcolor: base.yaxis.gridcolor,
+      ...base.yaxis,
       rangemode: 'tozero',
       range: [0, yTop],
-      automargin: true,
       fixedrange: false,
     },
   });
@@ -3012,7 +3318,7 @@ function renderProbPlot(data, normStats, methodMeta = null) {
   return plotSixPackChart('spChart5', [tracePoints, traceLine], {
     ...base,
     margin: sixPackPlotMargin(base, { t: 28, b: 28, l: 52, r: 12 }),
-    yaxis: { title: 'Z-Score', gridcolor: base.xaxis.gridcolor, automargin: true },
+    yaxis: { ...base.yaxis, title: 'Z-Score' },
     annotations: [
       { x: 0.05, y: 0.95, xref: 'paper', yref: 'paper', text: `${testLabel} · ${testTag}: ${statVal}`, showarrow: false, font: { size: 9, color: base.titleFontColor }, xanchor: 'left' },
       { x: 0.05, y: 0.88, xref: 'paper', yref: 'paper', text: `P = ${pText} (${pass ? "pass" : "fail"} @ 0.05)`, showarrow: false, font: { size: 9, color: pass ? '#22c55e' : base.titleFontColor }, xanchor: 'left' },
@@ -3066,7 +3372,7 @@ function renderStatsPanel(
     const traceProcess = { x: [mean - 3*withinSd, mean + 3*withinSd], y: [0.5, 0.5], type: 'scatter', mode: 'lines+markers', name: 'Process', line: {color: c6.primary, width:4}, marker:{symbol:'line-ns-open', size:10, color: c6.primary} }; 
     const traceNom = { x: [nominal], y: [1], type:'scatter', mode:'markers', marker:{color: c6.nominal, symbol:'cross', size:8} }; 
     const base = getBaseLayout();
-    return plotSixPackChart('spChart6', [traceSpec, traceProcess, traceNom], { margin: { t: 30, r: 20, l: 40, b: 30 }, font: { size: 10, family: 'Segoe UI', color: base.font.color }, showlegend: false, plot_bgcolor: base.plot_bgcolor, paper_bgcolor: base.paper_bgcolor, xaxis: { gridcolor: base.xaxis.gridcolor }, yaxis: { showticklabels: false, range: [0, 2], gridcolor: base.yaxis.gridcolor }, title: { text: 'Capability Interval', font: {color: base.titleFontColor} } });
+    return plotSixPackChart('spChart6', [traceSpec, traceProcess, traceNom], { margin: { t: 30, r: 20, l: 40, b: 30 }, font: { size: 10, family: 'Segoe UI', color: base.font.color }, showlegend: false, plot_bgcolor: base.plot_bgcolor, paper_bgcolor: base.paper_bgcolor, xaxis: { ...base.xaxis }, yaxis: { ...base.yaxis, showticklabels: false, range: [0, 2] }, title: { text: 'Capability Interval', font: {color: base.titleFontColor} } });
 }
 
 function getSeriesLabel(d) {
@@ -3261,14 +3567,13 @@ function updateDashboard() {
     const bgColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
     const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
     const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
-    const gridColor = chartRef.grid;
+    const axisTheme = getPlotlyAxisTheme();
 
-    const axisLine = isLightMode ? {} : { showline: false };
     const layout = {
         margin: { t: 60, r: 50, l: 80, b: 50 }, 
         title: { text: `<b>${getFullDimensionName(rec)}</b>`, font: { size: 16, color: isLightMode ? '#0f172a' : '#e2e8f0' }, y: 0.95 },
-        xaxis: { title: 'Sample Sequence', gridcolor: gridColor, color: fontColor, tickmode: 'linear', dtick: 1, ...axisLine },
-        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, automargin: true, gridcolor: gridColor, color: fontColor, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)], ...axisLine },
+        xaxis: { title: 'Sample Sequence', tickmode: 'linear', dtick: 1, ...axisTheme },
+        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)], ...axisTheme },
         plot_bgcolor: plotColor, paper_bgcolor: bgColor, 
         font: { family: 'Segoe UI, sans-serif', color: fontColor },
         showlegend: false, hoverlabel: { namelength: -1, font: { size: 12 } }, 
@@ -3384,31 +3689,41 @@ function syncThemeToggleButtons() {
 }
 
 function toggleLightMode() {
-    isLightMode = !isLightMode;
-    document.body.classList.toggle('light-mode', isLightMode);
-    persistThemeIsLight(isLightMode);
-    syncThemeToggleButtons();
+    if (document.body.classList.contains('is-theme-transitioning')) return;
 
-    // Force Re-Render 
+    const nextLight = !isLightMode;
+    document.body.classList.add('is-theme-transitioning');
+
+    runThemeTransition(async () => {
+        isLightMode = nextLight;
+        document.body.classList.toggle('light-mode', isLightMode);
+        persistThemeIsLight(isLightMode);
+        syncThemeToggleButtons();
+        await applyThemeToCharts();
+    }).then(() => {
+        document.body.classList.remove('is-theme-transitioning');
+        scheduleFullChartThemeRefresh();
+    });
+}
+
+const scheduleIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+
+function scheduleFullChartThemeRefresh() {
+    scheduleIdle(() => refreshChartsAfterThemeChange());
+}
+
+function refreshChartsAfterThemeChange() {
     if (currentTab === "standard") {
         globalThis.updateDashboard?.();
     } else if (currentTab === "sixpack") {
         globalThis.updateSixPack?.();
-    }
-    
-    // Apply Theme explicitly once for both light and dark states
-    setTimeout(() => {
+    } else {
         applyThemeToCharts();
-    }, 50);
+    }
 }
 
-function applyThemeToCharts() {
-    const chartRef = getChartRefColors(isLightMode);
-    const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
-    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
-    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
-    const gridColor = chartRef.grid;
-
+function buildThemeLayoutUpdate(gd, chartRef, paperColor, plotColor, fontColor, gridColor) {
+    const axisTheme = getPlotlyAxisTheme();
     const updateObj = {
         'plot_bgcolor': plotColor,
         'paper_bgcolor': paperColor,
@@ -3419,18 +3734,57 @@ function applyThemeToCharts() {
         'yaxis.gridcolor': gridColor,
         'xaxis.tickfont.color': fontColor,
         'yaxis.tickfont.color': fontColor,
-        'xaxis.showline': isLightMode,
-        'yaxis.showline': isLightMode,
+        'xaxis.color': axisTheme.color,
+        'yaxis.color': axisTheme.color,
+        'xaxis.showline': axisTheme.showline,
+        'yaxis.showline': axisTheme.showline,
+        'xaxis.zeroline': false,
+        'yaxis.zeroline': false,
+        'xaxis.mirror': false,
+        'yaxis.mirror': false,
     };
 
-    document.querySelectorAll('.js-plotly-plot').forEach(chartEl => {
-        if (chartEl.data) {
-            const updateTraces = { 'line.width': 3 }; 
-            Plotly.update(chartEl, updateTraces, updateObj).catch(() => {});
-        } else {
-            Plotly.relayout(chartEl, updateObj).catch(() => {});
+    if (axisTheme.linecolor) {
+        updateObj['xaxis.linecolor'] = axisTheme.linecolor;
+        updateObj['yaxis.linecolor'] = axisTheme.linecolor;
+        updateObj['xaxis.tickcolor'] = axisTheme.tickcolor;
+        updateObj['yaxis.tickcolor'] = axisTheme.tickcolor;
+    }
+
+    (gd.layout?.shapes || []).forEach((shape, i) => {
+        if (shape.type !== 'line' || !shape.line) return;
+        updateObj[`shapes[${i}].line.color`] = shape.line.dash === 'dash' ? chartRef.limit : chartRef.nominal;
+    });
+
+    return updateObj;
+}
+
+function applyThemeToCharts() {
+    const chartRef = getChartRefColors(isLightMode);
+    const paperColor = getThemeVar('--sl-800', isLightMode ? '#ffffff' : '#0f172a');
+    const plotColor = isLightMode ? chartRef.plotBg : getThemeVar('--sl-850', '#1e293b');
+    const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
+    const gridColor = chartRef.grid;
+    const palette = getChartSeriesPalette(isLightMode);
+
+    const tasks = [];
+    document.querySelectorAll('.js-plotly-plot').forEach((gd) => {
+        if (!gd.layout) return;
+
+        const layoutUpdate = buildThemeLayoutUpdate(gd, chartRef, paperColor, plotColor, fontColor, gridColor);
+        tasks.push(Plotly.relayout(gd, layoutUpdate).catch(() => {}));
+
+        if (gd.data?.length) {
+            const lineColors = gd.data.map((trace, i) =>
+                trace.mode?.includes('lines') ? palette[i % palette.length] : null
+            );
+            if (lineColors.some(Boolean)) {
+                tasks.push(Plotly.restyle(gd, { 'line.color': lineColors }).catch(() => {}));
+            }
         }
     });
+
+    return Promise.all(tasks);
 }
 
 /* global jStat */
@@ -4397,10 +4751,9 @@ function plotMiniBox(plotId, vals, label, yRange) {
     font: { size: 9, color: base.font.color },
     xaxis: { visible: false, fixedrange: true },
     yaxis: {
-      gridcolor: base.yaxis.gridcolor,
+      ...base.yaxis,
       tickfont: { size: 8 },
       fixedrange: true,
-      automargin: true,
       ticklabelstandoff: 2,
       ...(yRange ? { range: yRange, autorange: false } : {}),
       tickformat: tickFormatForRange(yRange),
@@ -5069,8 +5422,12 @@ function handleLoadProject(e) {
 
       const dim = document.getElementById("dimSelect").value;
       const spDim = document.getElementById("spDimSelect").value;
-      if (dim) document.getElementById("steelAdjStd").value = (adjustments[dim] || 0).toFixed(3);
-      if (spDim) document.getElementById("steelAdjSp").value = (adjustments[spDim] || 0).toFixed(3);
+      if (typeof globalThis.syncSteelAdjInputs === "function") {
+        globalThis.syncSteelAdjInputs();
+      } else {
+        if (dim) document.getElementById("steelAdjStd").value = (adjustments[dim] || 0).toFixed(3);
+        if (spDim) document.getElementById("steelAdjSp").value = (adjustments[spDim] || 0).toFixed(3);
+      }
 
       alert("Project loaded successfully!");
       deferred.showMainApp();
@@ -5631,10 +5988,12 @@ function switchTab(tab) {
   if (tab === "standard") {
     document.getElementById("viewStandard").classList.remove("hidden");
     globalThis.handleTypeFilterChange?.();
+    globalThis.syncSteelAdjInputs?.();
   } else if (tab === "sixpack") {
     document.getElementById("viewSixPack").classList.remove("hidden");
     const dim = document.getElementById("spDimSelect").value;
     if (dim) globalThis.initRunFilter?.("sixpack", dim, true);
+    globalThis.syncSteelAdjInputs?.();
     requestAnimationFrame(() => {
       globalThis.updateSixPack?.();
       setTimeout(scheduleSixPackResize, 50);
@@ -5646,6 +6005,47 @@ function switchTab(tab) {
     document.getElementById("viewSummary").classList.remove("hidden");
     globalThis.updateSummary?.();
   }
+}
+
+
+
+/** Pulse the Data file picker when no Excel file has been loaded yet. */
+function updateFileUploadPulse() {
+    const input = document.getElementById("fileUpload");
+    if (!input) return;
+    input.classList.toggle("file-upload-prompt", globalData.length === 0);
+}
+
+const MODAL_ID = "changelog-modal";
+
+function openChangelogModal() {
+    const modal = document.getElementById(MODAL_ID);
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    document.body.classList.add("changelog-modal-open");
+    modal.querySelector(".changelog-modal-panel")?.focus();
+}
+
+function closeChangelogModal() {
+    const modal = document.getElementById(MODAL_ID);
+    if (!modal) return;
+    modal.classList.add("hidden");
+    document.body.classList.remove("changelog-modal-open");
+}
+
+function initChangelogModal() {
+    const modal = document.getElementById(MODAL_ID);
+    if (!modal) return;
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeChangelogModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+            closeChangelogModal();
+        }
+    });
 }
 
 /* global pdfjsLib */
@@ -6142,6 +6542,7 @@ function setCapabilityMethod(id) {
 document.addEventListener('DOMContentLoaded', () => {
     initThemeFromStorage();
     initSpCollapsiblePanels();
+    initChangelogModal();
     bindSixPackInsightButtons();
     document.getElementById('fileUpload').addEventListener('change', handleFile, false);
     document.getElementById('projectUpload').addEventListener('change', handleLoadProject, false);
@@ -6152,11 +6553,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('targetCpkInput').addEventListener('change', handleTargetCpkChange, false);
     document.getElementById('spDimSelect').addEventListener('change', resetAndUpdateSixPack, false);
     document.getElementById('spCavSelect').addEventListener('change', resetAndUpdateSixPack, false);
+    updateFileUploadPulse();
 });
 
 function showMainApp() {
     document.getElementById('startPage').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
+    updateFileUploadPulse();
+}
+
+function showStartPage() {
+    closeAiHelper();
+    document.getElementById('mainApp').classList.add('hidden');
+    document.getElementById('startPage').classList.remove('hidden');
 }
 
 function initUI() {
@@ -6200,6 +6609,7 @@ function initUI() {
     if (pdfBtn) pdfBtn.classList.remove('hidden');
     
     if (typeof switchTab === 'function') switchTab('standard');
+    updateFileUploadPulse();
 }
 
 function initSixPackUI() {
@@ -6454,28 +6864,54 @@ function handleTypeFilterChange() {
     handleDimensionChange();
 }
 
+function syncSteelAdjInputs() {
+    const stdDim = document.getElementById('dimSelect')?.value;
+    const spDim = document.getElementById('spDimSelect')?.value;
+    const stdInput = document.getElementById('steelAdjStd');
+    const spInput = document.getElementById('steelAdjSp');
+    if (stdInput && stdDim && !stdDim.includes('No Dimensions') && document.activeElement !== stdInput) {
+        stdInput.value = ((adjustments[stdDim]) ?? 0).toFixed(4);
+    }
+    if (spInput && spDim && !spDim.includes('No Critical') && document.activeElement !== spInput) {
+        spInput.value = ((adjustments[spDim]) ?? 0).toFixed(4);
+    }
+}
+
 function handleDimensionChange() {
     const dim = document.getElementById('dimSelect').value;
     
     // RE-ADDED: Build the dropdown lists based on the newly selected dimension
     initRunFilter('std', dim, true);
     initSeriesFilter(dim, true);
-    const steelAdjStd = document.getElementById('steelAdjStd');
-    if (steelAdjStd) steelAdjStd.value = ((dim && adjustments[dim]) || 0).toFixed(4);
+    syncSteelAdjInputs();
     
     updateDrawingPopupImage('std');  // Ensure standard popup image is updated if it was open
     updateDashboard();               // Redraws charts AND the legend
     updateDrawingButtonVisibility(); // Hook to update the visibility of the filter-row button
 }
 
-function handleAdjustmentChange(e) { 
-    const val = parseFloat(e.target.value) || 0; 
-    let dim = (currentTab === 'standard') ? document.getElementById('dimSelect').value : document.getElementById('spDimSelect').value; 
-    if(dim) { 
-        adjustments[dim] = val; 
-        if (currentTab === 'standard') updateDashboard(); 
-        else if (currentTab === 'sixpack') updateSixPack(); 
-    } 
+function handleAdjustmentChange(e) {
+    const val = parseFloat(e.target.value) || 0;
+    const isStd = e.target.id === 'steelAdjStd';
+    const dim = isStd
+        ? document.getElementById('dimSelect')?.value
+        : document.getElementById('spDimSelect')?.value;
+    if (!dim || dim.includes('No Critical') || dim.includes('No Dimensions')) return;
+
+    adjustments[dim] = val;
+
+    const peerId = isStd ? 'steelAdjSp' : 'steelAdjStd';
+    const peerDimId = isStd ? 'spDimSelect' : 'dimSelect';
+    const peerInput = document.getElementById(peerId);
+    const peerDim = document.getElementById(peerDimId)?.value;
+    if (peerInput && peerDim === dim && document.activeElement !== peerInput) {
+        peerInput.value = e.target.value;
+    }
+
+    const stdDim = document.getElementById('dimSelect')?.value;
+    const spDim = document.getElementById('spDimSelect')?.value;
+    if (stdDim === dim) updateDashboard();
+    if (spDim === dim) updateSixPack();
 }
 
 function handleTargetCpkChange(e) { 
@@ -6526,7 +6962,6 @@ function updateSixPack() {
 
     let data = globalData.filter(d => d.element === dim && !ignoredIds.has(d._id));
     const adj = adjustments[dim] || 0;
-    document.getElementById('steelAdjSp').value = adj.toFixed(4);
     
     data = data.filter(d => activeRunFilter.has(d.run || "No Run"));
     if (cavMode !== 'all') { data = data.filter(d => getSeriesLabel(d) === cavMode); }
@@ -6929,11 +7364,17 @@ function updateSPC() {
     const runKeys = Object.keys(runStats);
     let verdictHTML = "";
     if (runKeys.length > 1) {
-        const metrics = runKeys.map(r => ({ run: r, avg: runStats[r].sumUsage / runStats[r].count })).sort((a,b) => a.avg - b.avg);
-        verdictHTML = `Run <strong class="text-green-400">${metrics[0].run}</strong> is more stable than Run <strong class="text-red-400">${metrics[metrics.length - 1].run}</strong>.`;
+        const metrics = runKeys.map(r => ({
+            run: r,
+            avg: runStats[r].sumUsage / runStats[r].count,
+        })).sort((a, b) => a.avg - b.avg);
+        const best = metrics[0];
+        const worst = metrics[metrics.length - 1];
+        verdictHTML = `<span class="text-green-400">Best run (most stable):</span> <strong>${best.run}</strong> — ${best.avg.toFixed(1)}% avg tolerance usage<br><span class="text-red-400">Worst run (least stable):</span> <strong>${worst.run}</strong> — ${worst.avg.toFixed(1)}% avg tolerance usage`;
     } else if (runKeys.length === 1) {
         const r = runKeys[0];
-        verdictHTML = `Run <strong>${r}</strong> consumes <strong>${(runStats[r].sumUsage / runStats[r].count).toFixed(1)}%</strong> of tolerance.`;
+        const avg = runStats[r].sumUsage / runStats[r].count;
+        verdictHTML = `Single run selected: <strong>${r}</strong> — ${avg.toFixed(1)}% avg tolerance usage (lower is more stable).`;
     } else { verdictHTML = "No runs selected."; }
     document.getElementById('spcVerdict').innerHTML = verdictHTML;
 
@@ -6994,14 +7435,14 @@ function updateSPC() {
     let interp = "";
     if (varDrivers > centerDrivers) {
         if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-red-500";
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-red-400 uppercase mb-2">Pressure / Repeatability Problem</h4>
-            <p class="text-xs text-slate-300 mt-1">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
-            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p></div></div>`;
+        interp += `<h4 class="text-xs font-bold text-red-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-compress mr-2"></i>Pressure / Repeatability Problem</h4>
+            <p class="text-xs text-slate-300">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
+            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p>`;
     } else {
-        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-orange-500";
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2">Tooling / Centering Problem</h4>
-            <p class="text-xs text-slate-300 mt-1">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
-            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p></div></div>`;
+        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-purple-500";
+        interp += `<h4 class="text-xs font-bold text-purple-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-tools mr-2"></i>Tooling / Centering Problem</h4>
+            <p class="text-xs text-slate-300">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
+            <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p>`;
     }
     if (physicsInner) physicsInner.innerHTML = interp;
 }
@@ -7152,6 +7593,7 @@ function resetAndUpdateSixPack() {
     document.querySelectorAll('input[name="normalityTest"]').forEach((el) => {
       el.checked = el.value === NORMALITY_TEST_IDS.ANDERSON_DARLING;
     });
+    syncSteelAdjInputs();
     updateSixPack(); 
 }
 
@@ -7274,6 +7716,9 @@ const windowExports = {
   generateTemplate,
   updateRunNameInputs,
   showMainApp,
+  showStartPage,
+  openChangelogModal,
+  closeChangelogModal,
   openPdfWizardFromHeader,
   saveProject,
   exportStandardAnalysisSlideDeck,
@@ -7327,6 +7772,8 @@ deferred.updateDashboard = updateDashboard;
 deferred.updateSixPack = updateSixPack;
 globalThis.handleSeriesFilterChange = handleSeriesFilterChange;
 globalThis.handleTypeFilterChange = handleTypeFilterChange;
+globalThis.handleAdjustmentChange = handleAdjustmentChange;
+globalThis.syncSteelAdjInputs = syncSteelAdjInputs;
 globalThis.initRunFilter = initRunFilter;
 globalThis.updateDashboard = updateDashboard;
 globalThis.updateSixPack = updateSixPack;
@@ -7377,6 +7824,9 @@ function initChartResizeObservers() {
  */
 const ONCLICK_STUBS = [
   "showMainApp",
+  "showStartPage",
+  "openChangelogModal",
+  "closeChangelogModal",
   "generateTemplate",
   "handleFileSelect",
   "skipPdfImport",

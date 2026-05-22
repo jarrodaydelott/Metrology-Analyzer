@@ -1,0 +1,92 @@
+{
+  "releases": [
+    {
+      "version": "1.6",
+      "releaseDate": "May 2026",
+      "sections": [
+        {
+          "id": "ui",
+          "title": "UI / UX",
+          "icon": "fa-wand-magic-sparkles",
+          "iconClass": "text-blue-400",
+          "items": [
+            { "title": "Home & toolbar", "description": "Home button returns to the start page; toolbar grouped next to the app name (open, save, save as, PDF setup, PowerPoint export, theme toggle)." },
+            { "title": "Light mode default", "description": "App opens in light mode with a smooth cross-fade theme transition; chart backgrounds update in sync with the UI." },
+            { "title": "Chart polish", "description": "Light-mode axis lines use soft slate gray instead of harsh black borders." },
+            { "title": "Choose File prompt", "description": "Data file picker button pulses orange until an Excel file is loaded." },
+            { "title": "Steel adjustment sync", "description": "Standard Analysis and Critical Six-Pack share the same per-dimension steel offset; changing one updates the other." },
+            { "title": "SPC panels", "description": "Run verdict names best/worst run by stability; Cavity Stability explains usage %; Tooling / Centering uses a distinct purple accent aligned with other cards." },
+            { "title": "Changelog modal", "description": "What's New opens a full release-notes panel organized by category." }
+          ]
+        },
+        {
+          "id": "math",
+          "title": "Math & Calculations",
+          "icon": "fa-square-root-variable",
+          "iconClass": "text-emerald-400",
+          "items": [
+            { "title": "Normality tests", "description": "Anderson–Darling (default), Ryan–Joiner, and Kolmogorov–Smirnov available on the Six-Pack tab. Side-by-side comparison shows pass/fail at α = 0.05 and highlights when a non-AD test passes but AD fails." },
+            { "title": "Capability methods", "description": "When data fail normality, choose Parametric (with warning), Percentile (non-parametric Pp/Ppk), Box-Cox, Johnson, or Taylor high-capability waiver (STAT-18). Methods are gated when not applicable (e.g., mixed cavities)." },
+            { "title": "Transformations", "description": "Box-Cox and Johnson fits run automatically for non-normal data; transformed Anderson–Darling P-values (≥ 0.10 Minitab IDI rule) determine whether a transform is viable. Capability stats and histogram update for the selected method." },
+            { "title": "Normality review panel", "description": "Consolidated AD vs selected-test readout with recommended capability path and short triage note on the stats card." },
+            { "title": "SPC stability metrics", "description": "Run-level usage averages, cavity usage = |value − nominal| ÷ (tolerance ÷ 2) × 100, and risk drivers (Process Variation, Tooling Centering, Instability, Marginal)." }
+          ]
+        },
+        {
+          "id": "minitab",
+          "title": "Minitab Workflow Suggestions",
+          "icon": "fa-route",
+          "iconClass": "text-amber-400",
+          "items": [
+            { "title": "Path Forward card", "description": "After Six-Pack analysis, a Minitab-style guide recommends the exact menu path (Normal vs Nonnormal Capability Analysis)." },
+            { "title": "Transformation guidance", "description": "Suggests None, Box-Cox, or Johnson based on transformed AD results and explains why raw data failed." },
+            { "title": "Distribution context", "description": "Notes Johnson system family (Sb / Sl / Su) or post–Box-Cox evaluation steps so you can replicate the study in Minitab IDI." },
+            { "title": "One-click apply", "description": "“Apply recommended Box-Cox” shortcut when Box-Cox is the top viable transform." }
+          ]
+        },
+        {
+          "id": "sixpack",
+          "title": "Six-Pack & Cavity Analysis",
+          "icon": "fa-table-cells",
+          "iconClass": "text-cyan-400",
+          "items": [
+            { "title": "Cavity Triage panel", "description": "Side-by-side mini box plots to compare cavities or runs without leaving the Critical Six-Pack tab." },
+            { "title": "Grouping modes", "description": "View by cavity (all runs), by run (all cavities), or cavity × run matrix with synced Y-axis for fair comparison." },
+            { "title": "Focus from triage", "description": "Click Focus on any box plot to filter the full six-pack to that cavity, run, or combination." },
+            { "title": "Fullscreen triage", "description": "Expand the triage grid for shop-floor review; Esc to exit." }
+          ]
+        },
+        {
+          "id": "expert",
+          "title": "Expert Help",
+          "icon": "fa-user-graduate",
+          "iconClass": "text-purple-400",
+          "items": [
+            { "title": "Six-Pack expert review", "description": "Expanded condition guide for bimodal data, drift, zero-bounded GD&T, gauge resolution, and outliers with immediate and long-term actions." },
+            { "title": "SPC expert review", "description": "Dedicated common-cause vs special-cause narrative plus dashboard reading guide on the SPC tab." },
+            { "title": "Chart-level help", "description": "Pulsing insight bulbs and chart help modals for Xbar/R, capability, normality, and SPC sections with context-specific copy." },
+            { "title": "Capability & normality tooltips", "description": "Method blocks include short descriptions, applicability warnings, and links to deeper reference text." }
+          ]
+        },
+        {
+          "id": "data",
+          "title": "Data & Export",
+          "icon": "fa-database",
+          "iconClass": "text-slate-400",
+          "items": [
+            { "title": "Excel drawing export", "description": "Finds the metrology header row, preserves hidden drawing data for reload, and adds visible thumbnail previews in the workbook." },
+            { "title": "Project save/load", "description": "JSON project files retain adjustments, excluded outliers, dimension images, and settings." },
+            { "title": "Modular build", "description": "Source split into ES modules; npm run bundle produces the single-file Metrology Data Analyzer.html." },
+            { "title": "Release workflow", "description": "Version and changelog live in release/*.json; npm run release bumps the version and npm run bundle refreshes the start page." },
+            { "title": "Series filter fix", "description": "Standard analysis “Select All” can truly deselect every series; steel adjustment reloads per dimension." }
+          ]
+        }
+      ]
+    },
+    {
+      "version": "1.5",
+      "releaseDate": "",
+      "summary": "Initial release: Standard, Six-Pack, SPC, and Action Summary workflows; PDF dimension wizard; project save/load; PPTX export; light and dark themes."
+    }
+  ]
+}

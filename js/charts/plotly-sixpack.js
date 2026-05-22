@@ -135,7 +135,7 @@ export function renderRunChart(groups, mean, usl, lsl, outlierSet) {
   const minY = Math.min(...allY); const maxY = Math.max(...allY); const padding = (maxY - minY) * 0.1; 
   
   const base = getBaseLayout();
-  return plotSixPackChart('spChart3', [trace], { ...base, margin: sixPackPlotMargin(base), shapes: shapes, yaxis: { gridcolor: base.xaxis.gridcolor, range: [minY - padding, maxY + padding] } });
+  return plotSixPackChart('spChart3', [trace], { ...base, margin: sixPackPlotMargin(base), shapes: shapes, yaxis: { ...base.yaxis, range: [minY - padding, maxY + padding] } });
 }
 
 export function renderHistogram(data, mean, stdevOverall, stdevWithin, lsl, usl, methodMeta = null) { 
@@ -227,16 +227,14 @@ export function renderHistogram(data, mean, stdevOverall, stdevWithin, lsl, usl,
     xaxis: {
       domain: [0, 1],
       anchor: 'y',
-      gridcolor: base.xaxis.gridcolor,
+      ...base.xaxis,
       range: [xMin, xMax],
-      automargin: true,
     },
     yaxis: {
       domain: [0, 1],
-      gridcolor: base.yaxis.gridcolor,
+      ...base.yaxis,
       rangemode: 'tozero',
       range: [0, yTop],
-      automargin: true,
       fixedrange: false,
     },
   });
@@ -266,7 +264,7 @@ export function renderProbPlot(data, normStats, methodMeta = null) {
   return plotSixPackChart('spChart5', [tracePoints, traceLine], {
     ...base,
     margin: sixPackPlotMargin(base, { t: 28, b: 28, l: 52, r: 12 }),
-    yaxis: { title: 'Z-Score', gridcolor: base.xaxis.gridcolor, automargin: true },
+    yaxis: { ...base.yaxis, title: 'Z-Score' },
     annotations: [
       { x: 0.05, y: 0.95, xref: 'paper', yref: 'paper', text: `${testLabel} · ${testTag}: ${statVal}`, showarrow: false, font: { size: 9, color: base.titleFontColor }, xanchor: 'left' },
       { x: 0.05, y: 0.88, xref: 'paper', yref: 'paper', text: `P = ${pText} (${pass ? "pass" : "fail"} @ 0.05)`, showarrow: false, font: { size: 9, color: pass ? '#22c55e' : base.titleFontColor }, xanchor: 'left' },
@@ -320,5 +318,5 @@ export function renderStatsPanel(
     const traceProcess = { x: [mean - 3*withinSd, mean + 3*withinSd], y: [0.5, 0.5], type: 'scatter', mode: 'lines+markers', name: 'Process', line: {color: c6.primary, width:4}, marker:{symbol:'line-ns-open', size:10, color: c6.primary} }; 
     const traceNom = { x: [nominal], y: [1], type:'scatter', mode:'markers', marker:{color: c6.nominal, symbol:'cross', size:8} }; 
     const base = getBaseLayout();
-    return plotSixPackChart('spChart6', [traceSpec, traceProcess, traceNom], { margin: { t: 30, r: 20, l: 40, b: 30 }, font: { size: 10, family: 'Segoe UI', color: base.font.color }, showlegend: false, plot_bgcolor: base.plot_bgcolor, paper_bgcolor: base.paper_bgcolor, xaxis: { gridcolor: base.xaxis.gridcolor }, yaxis: { showticklabels: false, range: [0, 2], gridcolor: base.yaxis.gridcolor }, title: { text: 'Capability Interval', font: {color: base.titleFontColor} } });
+    return plotSixPackChart('spChart6', [traceSpec, traceProcess, traceNom], { margin: { t: 30, r: 20, l: 40, b: 30 }, font: { size: 10, family: 'Segoe UI', color: base.font.color }, showlegend: false, plot_bgcolor: base.plot_bgcolor, paper_bgcolor: base.paper_bgcolor, xaxis: { ...base.xaxis }, yaxis: { ...base.yaxis, showticklabels: false, range: [0, 2] }, title: { text: 'Capability Interval', font: {color: base.titleFontColor} } });
 }

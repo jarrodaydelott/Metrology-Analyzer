@@ -12,8 +12,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const jsRoot = path.join(root, "js");
 
-const VERSION = "1.6";
-const OUT_NAME = `Metrology Data Analyzer Ver ${VERSION}.html`;
+const OUT_NAME = "Metrology Data Analyzer.html";
 
 function parseModule(source) {
   return acorn.parse(source, {
@@ -135,8 +134,6 @@ function main() {
     /\s*<script\s+type="module"\s+src="js\/main\.js"\s*>\s*<\/script>\s*/i,
     `\n    ${globalsBlock}    <script>\n${js}\n    </script>\n`
   );
-
-  html = html.replace(/Ver\s+1\.\d+(?=<\/span>)/gi, `Ver ${VERSION}`);
 
   const outPath = path.join(root, OUT_NAME);
   fs.writeFileSync(outPath, html, "utf8");

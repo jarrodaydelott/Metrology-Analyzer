@@ -21,10 +21,12 @@ export function switchTab(tab) {
   if (tab === "standard") {
     document.getElementById("viewStandard").classList.remove("hidden");
     globalThis.handleTypeFilterChange?.();
+    globalThis.syncSteelAdjInputs?.();
   } else if (tab === "sixpack") {
     document.getElementById("viewSixPack").classList.remove("hidden");
     const dim = document.getElementById("spDimSelect").value;
     if (dim) globalThis.initRunFilter?.("sixpack", dim, true);
+    globalThis.syncSteelAdjInputs?.();
     requestAnimationFrame(() => {
       globalThis.updateSixPack?.();
       setTimeout(scheduleSixPackResize, 50);

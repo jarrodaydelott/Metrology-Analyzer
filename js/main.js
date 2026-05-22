@@ -5,6 +5,9 @@
  */
 const ONCLICK_STUBS = [
   "showMainApp",
+  "showStartPage",
+  "openChangelogModal",
+  "closeChangelogModal",
   "generateTemplate",
   "handleFileSelect",
   "skipPdfImport",
