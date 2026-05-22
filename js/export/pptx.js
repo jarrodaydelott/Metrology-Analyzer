@@ -10,7 +10,7 @@ import {
   BRAND_ORANGE,
 } from "../constants.js";
 import { getSeriesLabel, getFullDimensionName } from "../utils/labels.js";
-import { CHART_SERIES_PALETTE_LIGHT, getChartRefColors } from "../theme.js";
+import { getChartSeriesPalette, getChartRefColors } from "../theme.js";
 
 // --- NEW HELPER: Compresses massive PNG snippets to prevent PPTX memory crashes ---
 export function prepareSnippetForPPTX(base64Str) {
@@ -200,6 +200,7 @@ export function renderStandardChartToImage(selectedDim) {
         let allY = [];
         
         const chartRef = getChartRefColors(true);
+        const seriesPalette = getChartSeriesPalette(true);
 
         seriesList.forEach((series, idx) => {
             const seriesData = dimData.filter(d => getSeriesLabel(d) === series).sort((a,b) => a.sample - b.sample);
@@ -211,8 +212,8 @@ export function renderStandardChartToImage(selectedDim) {
                 y: values, 
                 mode: 'lines+markers', 
                 name: series, 
-                line: { color: CHART_SERIES_PALETTE_LIGHT[idx % CHART_SERIES_PALETTE_LIGHT.length], width: 2 }, 
-                marker: { color: CHART_SERIES_PALETTE_LIGHT[idx % CHART_SERIES_PALETTE_LIGHT.length], size: 6 } 
+                line: { color: seriesPalette[idx % seriesPalette.length], width: 2 }, 
+                marker: { color: seriesPalette[idx % seriesPalette.length], size: 6 } 
             });
         });
 

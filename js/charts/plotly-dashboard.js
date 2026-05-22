@@ -14,8 +14,7 @@ import {
   persistThemeIsLight,
   readStoredThemeIsLight,
   getChartRefColors,
-  CHART_SERIES_PALETTE_LIGHT,
-  CHART_SERIES_PALETTE_DARK,
+  getChartSeriesPalette,
   getThemeVar,
 } from "../theme.js";
 
@@ -69,7 +68,7 @@ export function updateDashboard() {
     const stats = [];
     const plotTraces = [];
 
-    const colors = isLightMode ? CHART_SERIES_PALETTE_LIGHT : CHART_SERIES_PALETTE_DARK;
+    const colors = getChartSeriesPalette(isLightMode);
     
     let allFilteredValues = [];
 
@@ -180,11 +179,12 @@ export function updateDashboard() {
     const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
     const gridColor = chartRef.grid;
 
+    const axisLine = isLightMode ? {} : { showline: false };
     const layout = {
         margin: { t: 60, r: 50, l: 80, b: 50 }, 
         title: { text: `<b>${getFullDimensionName(rec)}</b>`, font: { size: 16, color: isLightMode ? '#0f172a' : '#e2e8f0' }, y: 0.95 },
-        xaxis: { title: 'Sample Sequence', gridcolor: gridColor, color: fontColor, tickmode: 'linear', dtick: 1 },
-        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, automargin: true, gridcolor: gridColor, color: fontColor, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)] },
+        xaxis: { title: 'Sample Sequence', gridcolor: gridColor, color: fontColor, tickmode: 'linear', dtick: 1, ...axisLine },
+        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, automargin: true, gridcolor: gridColor, color: fontColor, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)], ...axisLine },
         plot_bgcolor: plotColor, paper_bgcolor: bgColor, 
         font: { family: 'Segoe UI, sans-serif', color: fontColor },
         showlegend: false, hoverlabel: { namelength: -1, font: { size: 12 } }, 
@@ -200,7 +200,7 @@ export function updateDashboard() {
     setTimeout(() => {
         const chartDiv = document.getElementById('chart');
         layout.width = chartDiv.parentElement.clientWidth; 
-        Plotly.newPlot('chart', plotTraces, layout, {responsive: true, displayModeBar: false}).then(() => { Plotly.Plots.resize('chart'); if(isLightMode) applyThemeToCharts(); });
+        Plotly.newPlot('chart', plotTraces, layout, {responsive: true, displayModeBar: false}).then(() => { Plotly.Plots.resize('chart'); applyThemeToCharts(); });
     }, 15); 
 }
 export function renderCustomLegend(traces, allSeriesList) {
@@ -334,7 +334,9 @@ export function applyThemeToCharts() {
         'xaxis.gridcolor': gridColor,
         'yaxis.gridcolor': gridColor,
         'xaxis.tickfont.color': fontColor,
-        'yaxis.tickfont.color': fontColor
+        'yaxis.tickfont.color': fontColor,
+        'xaxis.showline': isLightMode,
+        'yaxis.showline': isLightMode,
     };
 
     document.querySelectorAll('.js-plotly-plot').forEach(chartEl => {

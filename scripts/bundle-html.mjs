@@ -105,10 +105,14 @@ function stripModuleSyntax(source) {
 function main() {
   const indexPath = path.join(root, "index.html");
   const cssPath = path.join(root, "css", "app.css");
+  const tokensPath = path.join(root, "css", "design-tokens.css");
   const entry = path.join(root, "js", "main.js");
 
   let html = fs.readFileSync(indexPath, "utf8");
-  const css = fs.readFileSync(cssPath, "utf8");
+  let appCss = fs.readFileSync(cssPath, "utf8");
+  appCss = appCss.replace(/@import\s+['"]\.\/design-tokens\.css['"]\s*;\s*/i, "");
+  const tokensCss = fs.readFileSync(tokensPath, "utf8");
+  const css = `${tokensCss.trim()}\n\n${appCss.trim()}\n`;
 
   const files = orderModules(entry);
   const js = files.map((f) => stripModuleSyntax(fs.readFileSync(f, "utf8"))).join("\n");

@@ -121,7 +121,7 @@
             <div class="hidden md:flex items-center gap-6 mx-8 flex-grow justify-center">
                 <div class="flex items-center gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Data</label>
-                    <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded w-48 focus:outline-none" />
+                    <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded min-w-[14rem] w-96 max-w-[28rem] focus:outline-none" />
                 </div>
                 <div class="flex items-center gap-2 border-l border-slate-800 pl-4">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Units</label>
@@ -250,7 +250,7 @@
         
         <div class="flex flex-col xl:flex-row gap-6 w-full items-center">
             
-            <div class="flex-grow w-full bg-slate-900/30 rounded border border-slate-700/50 pt-2 min-w-0 self-stretch relative">
+            <div class="std-run-chart-plot flex-grow w-full bg-slate-900/30 rounded border border-slate-700/50 pt-2 min-w-0 self-stretch relative">
                 <div id="chart" class="w-full min-h-[500px] h-full"></div>
             </div>
             
@@ -307,7 +307,7 @@
 
             <div id="viewSixPack" class="hidden space-y-6">
                 
-                <div id="spWarning" class="hidden bg-slate-800 border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm ring-1 ring-slate-700/50">
+                <div id="spWarning" class="hidden border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div class="flex items-center min-w-0 flex-grow">
                             <div class="flex-shrink-0 bg-red-500/10 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i></div>
@@ -515,7 +515,7 @@
     </div>
 </div>
 
-            <div id="viewSPC" class="hidden space-y-6">
+            <div id="viewSPC" class="hidden space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                     <h2 class="text-lg font-bold text-slate-200">Process Stability Review</h2>
                     <div class="flex gap-4">
@@ -526,12 +526,64 @@
                         <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Expert Help</button>
                     </div>
                 </div>
-                <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-6"><h2 class="font-bold text-slate-200 text-lg mb-4"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2><div id="spcVerdict" class="text-lg text-slate-300 font-medium bg-slate-900/50 p-4 rounded border border-slate-600 font-mono mb-4"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div><h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4><div id="spcCommonCause" class="text-sm text-slate-300"></div></div><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4><div id="spcSpecialCause" class="text-sm text-slate-300"></div></div></div></div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700"><div class="p-4 bg-slate-900/50 border-b border-slate-700"><h3 class="font-bold text-slate-200">Cavity Stability</h3></div><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-300"><thead class="bg-slate-900 text-slate-400 uppercase text-xs"><tr><th class="px-4 py-3">Run</th><th class="px-4 py-3">Cavity</th><th class="px-4 py-3">Usage</th><th class="px-4 py-3">Status</th></tr></thead><tbody id="spcCavityBody" class="divide-y divide-slate-700"></tbody></table></div></div>
-                    <div id="spcPhysicsBody" class="bg-slate-800 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-6 text-sm"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+                    <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-4 min-w-0 flex flex-col h-full">
+                        <h2 class="font-bold text-slate-200 text-lg mb-3"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2>
+                        <div id="spcVerdict" class="text-base text-slate-300 font-medium font-mono pb-3 mb-4 border-b border-slate-700"></div>
+                        <div class="flex flex-col gap-4 flex-1 min-h-0">
+                            <div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                <h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4>
+                                <div id="spcCommonCause" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                                <h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4>
+                                <div id="spcSpecialCause" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div id="spcPhysicsBody" class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden text-sm text-slate-300 flex-1 flex flex-col min-h-0">
+                                <div id="spcPhysicsAccent" class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                                <div id="spcPhysicsInner" class="relative min-h-0"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 min-w-0 flex flex-col h-full">
+                        <div class="relative p-4 bg-slate-900/50 border-b border-slate-700 overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
+                            <h3 class="font-bold text-slate-200 pl-2">Cavity Stability</h3>
+                        </div>
+                        <div class="overflow-x-auto flex-1 min-h-0">
+                            <table class="w-full text-sm text-left text-slate-300">
+                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs sticky top-0 z-10">
+                                    <tr><th class="px-3 py-2">Run</th><th class="px-3 py-2">Cavity</th><th class="px-3 py-2">Usage</th><th class="px-3 py-2">Status</th></tr>
+                                </thead>
+                                <tbody id="spcCavityBody" class="divide-y divide-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 mt-6"><div class="p-4 bg-slate-900/50 border-b border-slate-700"><h3 class="font-bold text-slate-200">Risk Ranking</h3></div><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-300"><thead class="bg-slate-900 text-slate-400 uppercase text-xs"><tr><th class="px-6 py-3">Dimension</th><th class="px-6 py-3">Type</th><th class="px-6 py-3">Worse Run</th><th class="px-6 py-3">Max Usage</th><th class="px-6 py-3">Primary Risk</th><th class="px-6 py-3">Explanation</th></tr></thead><tbody id="spcRiskBody" class="divide-y divide-slate-700"></tbody></table></div></div>
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
+                    <div class="relative p-4 bg-slate-900/50 border-b border-slate-700 overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                        <h3 class="font-bold text-slate-200 pl-2">Risk Ranking</h3>
+                        <p class="text-xs text-slate-500 mt-1 pl-2">Click <strong class="text-slate-400">Dimension</strong> or <strong class="text-slate-400">Max Usage</strong> to sort; click again to reverse.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                <tr>
+                                    <th class="px-3 py-2"><button type="button" id="spcRiskSortDimBtn" onclick="setSpcRiskSort('dimension')" class="spc-risk-sort-btn inline-flex items-center gap-1.5 hover:text-slate-200 transition-colors" aria-sort="none">Dimension <span id="spcRiskSortDimIcon" class="text-[10px] font-normal normal-case tracking-normal opacity-80" aria-hidden="true"></span></button></th>
+                                    <th class="px-3 py-2">Type</th>
+                                    <th class="px-3 py-2">Worse Run</th>
+                                    <th class="px-3 py-2"><button type="button" id="spcRiskSortUsageBtn" onclick="setSpcRiskSort('usage')" class="spc-risk-sort-btn spc-risk-sort-active inline-flex items-center gap-1.5 hover:text-slate-200 transition-colors" aria-sort="descending">Max Usage <span id="spcRiskSortUsageIcon" class="text-[10px] font-normal normal-case tracking-normal opacity-80" aria-hidden="true">▼</span></button></th>
+                                    <th class="px-3 py-2">Primary Risk</th>
+                                    <th class="px-3 py-2">Explanation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spcRiskBody" class="divide-y divide-slate-700"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div id="viewSummary" class="hidden space-y-6">

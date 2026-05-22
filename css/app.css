@@ -1,71 +1,16 @@
-   :root {
-        /* DOE SUITE dark (theme-tokens.css html.dark) */
-        --sl-100: #e2e8f0;
-        --sl-200: #e2e8f0;
-        --sl-300: #cbd5e1;
-        --sl-400: #94a3b8;
-        --sl-500: #64748b;
-        --sl-600: #475569;
-        --sl-700: #1e293b;
-        --sl-750: #334155;
-        --sl-800: #0f172a;
-        --sl-850: #1e293b;
-        --sl-900: #020617;
-        --sl-950: #020617;
-
-        --accent-primary: #3b82f6;
-        --accent-success: #86efac;
-        --accent-danger: #fca5a5;
-        --accent-warning: #fcd34d;
-        --accent-metric-blue: #93c5fd;
-        --accent-metric-orange: #fb923c;
-        --accent-purple: #c084fc;
-        --focus-ring: var(--accent-primary);
-
-        --chart-grid: #334155;
-        --chart-nominal: #4ade80;
-        --chart-limit: #f87171;
-
-        --alert-bg: rgba(248, 113, 113, 0.1);
-        --alert-text: #fca5a5;
-    }
-
-    body.light-mode {
-        /* DOE SUITE light (theme-tokens.css html) */
-        --sl-100: #0f172a;
-        --sl-200: #1e293b;
-        --sl-300: #334155;
-        --sl-400: #475569;
-        --sl-500: #64748b;
-        --sl-600: #cbd5e1;
-        --sl-700: #cbd5e1;
-        --sl-750: #e8eef4;
-        --sl-800: #ffffff;
-        --sl-850: #f1f5f9;
-        --sl-900: #e2e8f0;
-        --sl-950: #ffffff;
-
-        --accent-primary: #2563eb;
-        --accent-success: #15803d;
-        --accent-danger: #b91c1c;
-        --accent-warning: #b45309;
-        --accent-metric-blue: #1e40af;
-        --accent-metric-orange: #c2410c;
-        --accent-purple: #6b21a8;
-        --focus-ring: var(--accent-primary);
-
-        --chart-grid: #e2e8f0;
-        --chart-nominal: #16a34a;
-        --chart-limit: #dc2626;
-
-        --alert-bg: #fef2f2;
-        --alert-text: #b91c1c;
-    }
+@import './design-tokens.css';
 
     .text-accent-success { color: var(--accent-success) !important; }
     .text-accent-danger { color: var(--accent-danger) !important; }
     .text-accent-warning { color: var(--accent-warning) !important; }
     .text-accent-primary { color: var(--accent-primary) !important; }
+
+    .text-status-success { color: var(--color-success-fg) !important; }
+    .text-status-danger { color: var(--color-danger-fg) !important; }
+    .text-status-warning { color: var(--color-warning-fg) !important; }
+    .bg-status-success { background-color: color-mix(in srgb, var(--color-success) 20%, transparent) !important; }
+    .bg-status-danger { background-color: color-mix(in srgb, var(--color-danger) 20%, transparent) !important; }
+    .bg-status-warning { background-color: color-mix(in srgb, var(--color-warning) 20%, transparent) !important; }
 
     /* Normality / capability review — readable in light and dark mode */
     .normality-review-label {
@@ -111,7 +56,7 @@
         font-weight: 500;
     }
     body.light-mode .cap-method-disabled .cap-method-blocked {
-        color: #b45309;
+        color: var(--accent-warning);
     }
 
     .minitab-guide-kv dt {
@@ -356,12 +301,17 @@
     /* =========================================
        DARK MODE POLISH (DOE slate surfaces)
        ========================================= */
-    body:not(.light-mode) .bg-slate-800,
+    body:not(.light-mode) .bg-slate-800:not(tr),
     body:not(.light-mode) .action-card,
     body:not(.light-mode) #stdStatsBanner {
         background-color: var(--sl-800) !important;
         border: 1px solid rgba(255, 255, 255, 0.06) !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    body:not(.light-mode) table tbody tr.bg-slate-800,
+    body:not(.light-mode) table tbody tr.bg-slate-750 {
+        box-shadow: none !important;
     }
 
     body:not(.light-mode) input,
@@ -393,26 +343,57 @@
         border-color: rgba(255, 255, 255, 0.06) !important;
     }
 
+    body:not(.light-mode) .std-run-chart-plot {
+        border-color: transparent !important;
+    }
+
     /* =========================================
-       LIGHT MODE POLISH
+       LIGHT MODE POLISH (soft contrast — easier on eyes)
        ========================================= */
+    body.light-mode {
+        color-scheme: light;
+    }
+
     body.light-mode input,
     body.light-mode select,
     body.light-mode button[id$="FilterBtn"] {
-        background-color: #ffffff !important;
+        background-color: var(--sl-850) !important;
         border: 1px solid var(--sl-700) !important;
         color: var(--sl-100) !important;
-        box-shadow: inset 0 1px 2px rgba(0,0,0,0.02) !important;
+        box-shadow: none !important;
     }
 
-    body.light-mode .bg-slate-800, body.light-mode #stdStatsBanner {
-        border: 1px solid rgba(0,0,0,0.04) !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+    body.light-mode .bg-slate-800,
+    body.light-mode #stdStatsBanner,
+    body.light-mode .action-card {
+        background-color: var(--sl-800) !important;
+        border: 1px solid var(--sl-700) !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     }
 
-    body.light-mode nav.bg-slate-950 {
-        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    body.light-mode nav.bg-slate-950,
+    body.light-mode nav.bg-slate-950.bg-slate-950 {
+        background-color: var(--sl-950) !important;
+        border-bottom: 1px solid var(--sl-700) !important;
+        box-shadow: none !important;
+    }
+
+    body.light-mode .std-run-chart-plot,
+    body.light-mode #inline-drawing-container-std .flex-grow {
+        background-color: var(--chart-plot-bg) !important;
+        border-color: var(--sl-700) !important;
+    }
+
+    body.light-mode #custom-legend {
+        background-color: var(--sl-850) !important;
+        border-color: var(--sl-700) !important;
+        box-shadow: none !important;
+    }
+
+    body.light-mode .bg-slate-900\/30,
+    body.light-mode .bg-slate-900\/50,
+    body.light-mode .bg-slate-900\/60 {
+        background-color: var(--sl-850) !important;
     }
 
     body.light-mode nav .text-white { color: var(--sl-100) !important; }
@@ -421,14 +402,29 @@
 
     body.light-mode thead.bg-slate-900,
     body.light-mode thead {
-        background-color: #eff6ff !important;
+        background-color: var(--sl-850) !important;
         color: var(--sl-300) !important;
     }
 
-    body.light-mode #spWarning, body.light-mode .bg-red-950\/30 {
-        background-color: var(--alert-bg) !important;
+    #spWarning:not(.hidden) {
+        background-color: var(--process-insight-bg) !important;
+        border: 1px solid var(--process-insight-border) !important;
+        border-left-width: 4px !important;
+        border-left-color: var(--chart-limit) !important;
+        box-shadow: none !important;
+    }
+
+    body:not(.light-mode) #spWarning:not(.hidden) h3 {
+        color: #fecaca !important;
+    }
+
+    body:not(.light-mode) #spWarning:not(.hidden) #spWarningText {
         color: var(--alert-text) !important;
-        border: 1px solid #fca5a5 !important;
+    }
+
+    body.light-mode #spWarning:not(.hidden),
+    body.light-mode .bg-red-950\/30 {
+        color: var(--alert-text) !important;
     }
 
     body.light-mode input[type="file"]::file-selector-button {
@@ -482,6 +478,21 @@
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--sl-900); }
     ::-webkit-scrollbar-thumb { background: var(--sl-600); border-radius: 4px; }
+
+    .spc-risk-sort-btn {
+        font: inherit;
+        text-transform: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+    .spc-risk-sort-btn.spc-risk-sort-active {
+        color: var(--accent-primary);
+        font-weight: 600;
+    }
 
     .tab-btn { color: var(--sl-400); border-bottom-width: 2px; border-color: transparent; transition: color 0.2s, border-color 0.2s; }
     .tab-btn.active { color: var(--accent-primary) !important; border-color: var(--accent-primary) !important; font-weight: 600; }

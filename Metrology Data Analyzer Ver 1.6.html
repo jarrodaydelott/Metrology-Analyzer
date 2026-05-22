@@ -37,74 +37,154 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-   :root {
-        /* DOE SUITE dark (theme-tokens.css html.dark) */
-        --sl-100: #e2e8f0;
-        --sl-200: #e2e8f0;
-        --sl-300: #cbd5e1;
-        --sl-400: #94a3b8;
-        --sl-500: #64748b;
-        --sl-600: #475569;
-        --sl-700: #1e293b;
-        --sl-750: #334155;
-        --sl-800: #0f172a;
-        --sl-850: #1e293b;
-        --sl-900: #020617;
-        --sl-950: #020617;
+/**
+ * Metrology Analyzer / DOE SUITE — design tokens (single source of truth)
+ * Dark: :root (default). Light: body.light-mode overrides.
+ * Share this file + DESIGN-SYSTEM.md to replicate the palette in other apps.
+ */
 
-        --accent-primary: #3b82f6;
-        --accent-success: #86efac;
-        --accent-danger: #fca5a5;
-        --accent-warning: #fcd34d;
-        --accent-metric-blue: #93c5fd;
-        --accent-metric-orange: #fb923c;
-        --accent-purple: #c084fc;
-        --focus-ring: var(--accent-primary);
+:root {
+    /* --- Semantic aliases (readable names; map to inverted slate scale) --- */
+    --bg-page: var(--sl-900);
+    --bg-elevated: var(--sl-850);
+    --bg-surface: var(--sl-800);
+    --bg-input: var(--sl-850);
+    --text-primary: var(--sl-200);
+    --text-secondary: var(--sl-300);
+    --text-muted: var(--sl-400);
+    --text-label: var(--sl-500);
+    --border-default: var(--sl-700);
+    --border-subtle: var(--sl-750);
 
-        --chart-grid: #334155;
-        --chart-nominal: #4ade80;
-        --chart-limit: #f87171;
+    /* DOE SUITE dark (theme-tokens.css html.dark) */
+    --sl-100: #e2e8f0;
+    --sl-200: #e2e8f0;
+    --sl-300: #cbd5e1;
+    --sl-400: #94a3b8;
+    --sl-500: #64748b;
+    --sl-600: #475569;
+    --sl-700: #1e293b;
+    --sl-750: #334155;
+    --sl-800: #0f172a;
+    --sl-850: #1e293b;
+    --sl-900: #020617;
+    --sl-950: #020617;
 
-        --alert-bg: rgba(248, 113, 113, 0.1);
-        --alert-text: #fca5a5;
-    }
+    --accent-primary: #3b82f6;
+    --accent-success: #86efac;
+    --accent-danger: #fca5a5;
+    --accent-warning: #fcd34d;
+    --accent-metric-blue: #93c5fd;
+    --accent-metric-orange: #fb923c;
+    --accent-purple: #c084fc;
+    --focus-ring: var(--accent-primary);
 
-    body.light-mode {
-        /* DOE SUITE light (theme-tokens.css html) */
-        --sl-100: #0f172a;
-        --sl-200: #1e293b;
-        --sl-300: #334155;
-        --sl-400: #475569;
-        --sl-500: #64748b;
-        --sl-600: #cbd5e1;
-        --sl-700: #cbd5e1;
-        --sl-750: #e8eef4;
-        --sl-800: #ffffff;
-        --sl-850: #f1f5f9;
-        --sl-900: #e2e8f0;
-        --sl-950: #ffffff;
+    --color-success: var(--accent-success);
+    --color-danger: var(--accent-danger);
+    --color-warning: var(--accent-warning);
+    --color-success-fg: var(--accent-success);
+    --color-danger-fg: var(--accent-danger);
+    --color-warning-fg: var(--accent-warning);
 
-        --accent-primary: #2563eb;
-        --accent-success: #15803d;
-        --accent-danger: #b91c1c;
-        --accent-warning: #b45309;
-        --accent-metric-blue: #1e40af;
-        --accent-metric-orange: #c2410c;
-        --accent-purple: #6b21a8;
-        --focus-ring: var(--accent-primary);
+    --chart-grid: #334155;
+    --chart-nominal: #4ade80;
+    --chart-limit: #f87171;
+    --chart-plot-bg: var(--sl-850);
 
-        --chart-grid: #e2e8f0;
-        --chart-nominal: #16a34a;
-        --chart-limit: #dc2626;
+    --alert-bg: rgba(248, 113, 113, 0.1);
+    --alert-text: #fca5a5;
+    --process-insight-bg: rgba(127, 29, 29, 0.4);
+    --process-insight-border: rgba(248, 113, 113, 0.35);
 
-        --alert-bg: #fef2f2;
-        --alert-text: #b91c1c;
-    }
+    /* Data series (Plotly) — dark mode */
+    --series-1: #3b82f6;
+    --series-2: #f87171;
+    --series-3: #4ade80;
+    --series-4: #eab308;
+    --series-5: #a855f7;
+    --series-6: #06b6d4;
+    --series-7: #fb7185;
+    --series-8: #fb923c;
+    --series-9: #84cc16;
+    --series-10: #5eead4;
+}
 
-    .text-accent-success { color: var(--accent-success) !important; }
+body.light-mode {
+    --bg-page: var(--sl-900);
+    --bg-elevated: var(--sl-850);
+    --bg-surface: var(--sl-800);
+    --bg-input: var(--sl-850);
+    --text-primary: var(--sl-200);
+    --text-secondary: var(--sl-300);
+    --text-muted: var(--sl-400);
+    --text-label: var(--sl-500);
+    --border-default: var(--sl-700);
+    --border-subtle: var(--sl-750);
+
+    /* Light mode — soft contrast (no pure white; reduced glare) */
+    --sl-100: #1e293b;
+    --sl-200: #334155;
+    --sl-300: #475569;
+    --sl-400: #64748b;
+    --sl-500: #94a3b8;
+    --sl-600: #b8c5d6;
+    --sl-700: #c5d0e0;
+    --sl-750: #d8e0ec;
+    --sl-800: #f4f6fa;
+    --sl-850: #eef2f8;
+    --sl-900: #dce4f0;
+    --sl-950: #e8edf5;
+
+    --accent-primary: #3b82f6;
+    --accent-success: #16a34a;
+    --accent-danger: #c53030;
+    --accent-warning: #d97706;
+    --accent-metric-blue: #2563eb;
+    --accent-metric-orange: #ea580c;
+    --accent-purple: #7c3aed;
+    --focus-ring: var(--accent-primary);
+
+    --color-success: var(--accent-success);
+    --color-danger: var(--accent-danger);
+    --color-warning: var(--accent-warning);
+    --color-success-fg: var(--accent-success);
+    --color-danger-fg: var(--accent-danger);
+    --color-warning-fg: var(--accent-warning);
+
+    --chart-grid: #c8d4e4;
+    --chart-nominal: #15803d;
+    --chart-limit: #c53030;
+    --chart-plot-bg: #eef2f8;
+
+    --alert-bg: rgba(220, 38, 38, 0.06);
+    --alert-text: #b91c1c;
+    --process-insight-bg: rgba(220, 38, 38, 0.06);
+    --process-insight-border: rgba(220, 38, 38, 0.4);
+
+    /* Data series (Plotly) — light mode, muted enterprise */
+    --series-1: #4A78B0;
+    --series-2: #B25A5A;
+    --series-3: #5E8D6B;
+    --series-4: #C09241;
+    --series-5: #8D70A3;
+    --series-6: #5C9494;
+    --series-7: #B85C74;
+    --series-8: #60699F;
+    --series-9: #A9704C;
+    --series-10: #7A8D55;
+}
+
+.text-accent-success { color: var(--accent-success) !important; }
     .text-accent-danger { color: var(--accent-danger) !important; }
     .text-accent-warning { color: var(--accent-warning) !important; }
     .text-accent-primary { color: var(--accent-primary) !important; }
+
+    .text-status-success { color: var(--color-success-fg) !important; }
+    .text-status-danger { color: var(--color-danger-fg) !important; }
+    .text-status-warning { color: var(--color-warning-fg) !important; }
+    .bg-status-success { background-color: color-mix(in srgb, var(--color-success) 20%, transparent) !important; }
+    .bg-status-danger { background-color: color-mix(in srgb, var(--color-danger) 20%, transparent) !important; }
+    .bg-status-warning { background-color: color-mix(in srgb, var(--color-warning) 20%, transparent) !important; }
 
     /* Normality / capability review — readable in light and dark mode */
     .normality-review-label {
@@ -150,7 +230,7 @@
         font-weight: 500;
     }
     body.light-mode .cap-method-disabled .cap-method-blocked {
-        color: #b45309;
+        color: var(--accent-warning);
     }
 
     .minitab-guide-kv dt {
@@ -395,12 +475,17 @@
     /* =========================================
        DARK MODE POLISH (DOE slate surfaces)
        ========================================= */
-    body:not(.light-mode) .bg-slate-800,
+    body:not(.light-mode) .bg-slate-800:not(tr),
     body:not(.light-mode) .action-card,
     body:not(.light-mode) #stdStatsBanner {
         background-color: var(--sl-800) !important;
         border: 1px solid rgba(255, 255, 255, 0.06) !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    body:not(.light-mode) table tbody tr.bg-slate-800,
+    body:not(.light-mode) table tbody tr.bg-slate-750 {
+        box-shadow: none !important;
     }
 
     body:not(.light-mode) input,
@@ -432,26 +517,57 @@
         border-color: rgba(255, 255, 255, 0.06) !important;
     }
 
+    body:not(.light-mode) .std-run-chart-plot {
+        border-color: transparent !important;
+    }
+
     /* =========================================
-       LIGHT MODE POLISH
+       LIGHT MODE POLISH (soft contrast — easier on eyes)
        ========================================= */
+    body.light-mode {
+        color-scheme: light;
+    }
+
     body.light-mode input,
     body.light-mode select,
     body.light-mode button[id$="FilterBtn"] {
-        background-color: #ffffff !important;
+        background-color: var(--sl-850) !important;
         border: 1px solid var(--sl-700) !important;
         color: var(--sl-100) !important;
-        box-shadow: inset 0 1px 2px rgba(0,0,0,0.02) !important;
+        box-shadow: none !important;
     }
 
-    body.light-mode .bg-slate-800, body.light-mode #stdStatsBanner {
-        border: 1px solid rgba(0,0,0,0.04) !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+    body.light-mode .bg-slate-800,
+    body.light-mode #stdStatsBanner,
+    body.light-mode .action-card {
+        background-color: var(--sl-800) !important;
+        border: 1px solid var(--sl-700) !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     }
 
-    body.light-mode nav.bg-slate-950 {
-        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    body.light-mode nav.bg-slate-950,
+    body.light-mode nav.bg-slate-950.bg-slate-950 {
+        background-color: var(--sl-950) !important;
+        border-bottom: 1px solid var(--sl-700) !important;
+        box-shadow: none !important;
+    }
+
+    body.light-mode .std-run-chart-plot,
+    body.light-mode #inline-drawing-container-std .flex-grow {
+        background-color: var(--chart-plot-bg) !important;
+        border-color: var(--sl-700) !important;
+    }
+
+    body.light-mode #custom-legend {
+        background-color: var(--sl-850) !important;
+        border-color: var(--sl-700) !important;
+        box-shadow: none !important;
+    }
+
+    body.light-mode .bg-slate-900\/30,
+    body.light-mode .bg-slate-900\/50,
+    body.light-mode .bg-slate-900\/60 {
+        background-color: var(--sl-850) !important;
     }
 
     body.light-mode nav .text-white { color: var(--sl-100) !important; }
@@ -460,14 +576,29 @@
 
     body.light-mode thead.bg-slate-900,
     body.light-mode thead {
-        background-color: #eff6ff !important;
+        background-color: var(--sl-850) !important;
         color: var(--sl-300) !important;
     }
 
-    body.light-mode #spWarning, body.light-mode .bg-red-950\/30 {
-        background-color: var(--alert-bg) !important;
+    #spWarning:not(.hidden) {
+        background-color: var(--process-insight-bg) !important;
+        border: 1px solid var(--process-insight-border) !important;
+        border-left-width: 4px !important;
+        border-left-color: var(--chart-limit) !important;
+        box-shadow: none !important;
+    }
+
+    body:not(.light-mode) #spWarning:not(.hidden) h3 {
+        color: #fecaca !important;
+    }
+
+    body:not(.light-mode) #spWarning:not(.hidden) #spWarningText {
         color: var(--alert-text) !important;
-        border: 1px solid #fca5a5 !important;
+    }
+
+    body.light-mode #spWarning:not(.hidden),
+    body.light-mode .bg-red-950\/30 {
+        color: var(--alert-text) !important;
     }
 
     body.light-mode input[type="file"]::file-selector-button {
@@ -521,6 +652,21 @@
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--sl-900); }
     ::-webkit-scrollbar-thumb { background: var(--sl-600); border-radius: 4px; }
+
+    .spc-risk-sort-btn {
+        font: inherit;
+        text-transform: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+    .spc-risk-sort-btn.spc-risk-sort-active {
+        color: var(--accent-primary);
+        font-weight: 600;
+    }
 
     .tab-btn { color: var(--sl-400); border-bottom-width: 2px; border-color: transparent; transition: color 0.2s, border-color 0.2s; }
     .tab-btn.active { color: var(--accent-primary) !important; border-color: var(--accent-primary) !important; font-weight: 600; }
@@ -697,7 +843,7 @@
             <div class="hidden md:flex items-center gap-6 mx-8 flex-grow justify-center">
                 <div class="flex items-center gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Data</label>
-                    <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded w-48 focus:outline-none" />
+                    <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-blue-400 hover:file:bg-slate-700 bg-slate-900/50 rounded min-w-[14rem] w-96 max-w-[28rem] focus:outline-none" />
                 </div>
                 <div class="flex items-center gap-2 border-l border-slate-800 pl-4">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Units</label>
@@ -826,7 +972,7 @@
         
         <div class="flex flex-col xl:flex-row gap-6 w-full items-center">
             
-            <div class="flex-grow w-full bg-slate-900/30 rounded border border-slate-700/50 pt-2 min-w-0 self-stretch relative">
+            <div class="std-run-chart-plot flex-grow w-full bg-slate-900/30 rounded border border-slate-700/50 pt-2 min-w-0 self-stretch relative">
                 <div id="chart" class="w-full min-h-[500px] h-full"></div>
             </div>
             
@@ -883,7 +1029,7 @@
 
             <div id="viewSixPack" class="hidden space-y-6">
                 
-                <div id="spWarning" class="hidden bg-slate-800 border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm ring-1 ring-slate-700/50">
+                <div id="spWarning" class="hidden border-0 border-l-4 border-l-red-500 p-3 rounded shadow-sm">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div class="flex items-center min-w-0 flex-grow">
                             <div class="flex-shrink-0 bg-red-500/10 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i></div>
@@ -1091,7 +1237,7 @@
     </div>
 </div>
 
-            <div id="viewSPC" class="hidden space-y-6">
+            <div id="viewSPC" class="hidden space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                     <h2 class="text-lg font-bold text-slate-200">Process Stability Review</h2>
                     <div class="flex gap-4">
@@ -1102,12 +1248,64 @@
                         <button onclick="openAiHelper()" class="text-sm bg-slate-800 border border-blue-500 text-blue-400 px-3 py-1.5 rounded flex items-center gap-2"><i class="fa-regular fa-lightbulb"></i> Expert Help</button>
                     </div>
                 </div>
-                <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-6"><h2 class="font-bold text-slate-200 text-lg mb-4"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2><div id="spcVerdict" class="text-lg text-slate-300 font-medium bg-slate-900/50 p-4 rounded border border-slate-600 font-mono mb-4"></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div><h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4><div id="spcCommonCause" class="text-sm text-slate-300"></div></div><div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4><div id="spcSpecialCause" class="text-sm text-slate-300"></div></div></div></div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700"><div class="p-4 bg-slate-900/50 border-b border-slate-700"><h3 class="font-bold text-slate-200">Cavity Stability</h3></div><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-300"><thead class="bg-slate-900 text-slate-400 uppercase text-xs"><tr><th class="px-4 py-3">Run</th><th class="px-4 py-3">Cavity</th><th class="px-4 py-3">Usage</th><th class="px-4 py-3">Status</th></tr></thead><tbody id="spcCavityBody" class="divide-y divide-slate-700"></tbody></table></div></div>
-                    <div id="spcPhysicsBody" class="bg-slate-800 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-6 text-sm"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+                    <div class="relative bg-slate-800 rounded-xl shadow-sm border border-slate-700 p-4 min-w-0 flex flex-col h-full">
+                        <h2 class="font-bold text-slate-200 text-lg mb-3"><i class="fa-solid fa-gavel text-yellow-500 mr-2"></i>Run-Level Verdict</h2>
+                        <div id="spcVerdict" class="text-base text-slate-300 font-medium font-mono pb-3 mb-4 border-b border-slate-700"></div>
+                        <div class="flex flex-col gap-4 flex-1 min-h-0">
+                            <div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                                <h4 class="text-xs font-bold text-blue-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-wave-square mr-2"></i>Common Cause Variation</h4>
+                                <div id="spcCommonCause" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                                <h4 class="text-xs font-bold text-orange-400 uppercase mb-2 flex items-center"><i class="fa-solid fa-bolt mr-2"></i>Special Cause Variation</h4>
+                                <div id="spcSpecialCause" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div id="spcPhysicsBody" class="bg-slate-900/50 p-4 rounded border border-slate-600 relative overflow-hidden text-sm text-slate-300 flex-1 flex flex-col min-h-0">
+                                <div id="spcPhysicsAccent" class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                                <div id="spcPhysicsInner" class="relative min-h-0"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 min-w-0 flex flex-col h-full">
+                        <div class="relative p-4 bg-slate-900/50 border-b border-slate-700 overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
+                            <h3 class="font-bold text-slate-200 pl-2">Cavity Stability</h3>
+                        </div>
+                        <div class="overflow-x-auto flex-1 min-h-0">
+                            <table class="w-full text-sm text-left text-slate-300">
+                                <thead class="bg-slate-900 text-slate-400 uppercase text-xs sticky top-0 z-10">
+                                    <tr><th class="px-3 py-2">Run</th><th class="px-3 py-2">Cavity</th><th class="px-3 py-2">Usage</th><th class="px-3 py-2">Status</th></tr>
+                                </thead>
+                                <tbody id="spcCavityBody" class="divide-y divide-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 mt-6"><div class="p-4 bg-slate-900/50 border-b border-slate-700"><h3 class="font-bold text-slate-200">Risk Ranking</h3></div><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-300"><thead class="bg-slate-900 text-slate-400 uppercase text-xs"><tr><th class="px-6 py-3">Dimension</th><th class="px-6 py-3">Type</th><th class="px-6 py-3">Worse Run</th><th class="px-6 py-3">Max Usage</th><th class="px-6 py-3">Primary Risk</th><th class="px-6 py-3">Explanation</th></tr></thead><tbody id="spcRiskBody" class="divide-y divide-slate-700"></tbody></table></div></div>
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
+                    <div class="relative p-4 bg-slate-900/50 border-b border-slate-700 overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                        <h3 class="font-bold text-slate-200 pl-2">Risk Ranking</h3>
+                        <p class="text-xs text-slate-500 mt-1 pl-2">Click <strong class="text-slate-400">Dimension</strong> or <strong class="text-slate-400">Max Usage</strong> to sort; click again to reverse.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+                                <tr>
+                                    <th class="px-3 py-2"><button type="button" id="spcRiskSortDimBtn" onclick="setSpcRiskSort('dimension')" class="spc-risk-sort-btn inline-flex items-center gap-1.5 hover:text-slate-200 transition-colors" aria-sort="none">Dimension <span id="spcRiskSortDimIcon" class="text-[10px] font-normal normal-case tracking-normal opacity-80" aria-hidden="true"></span></button></th>
+                                    <th class="px-3 py-2">Type</th>
+                                    <th class="px-3 py-2">Worse Run</th>
+                                    <th class="px-3 py-2"><button type="button" id="spcRiskSortUsageBtn" onclick="setSpcRiskSort('usage')" class="spc-risk-sort-btn spc-risk-sort-active inline-flex items-center gap-1.5 hover:text-slate-200 transition-colors" aria-sort="descending">Max Usage <span id="spcRiskSortUsageIcon" class="text-[10px] font-normal normal-case tracking-normal opacity-80" aria-hidden="true">▼</span></button></th>
+                                    <th class="px-3 py-2">Primary Risk</th>
+                                    <th class="px-3 py-2">Explanation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spcRiskBody" class="divide-y divide-slate-700"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div id="viewSummary" class="hidden space-y-6">
@@ -2265,26 +2463,51 @@ function getThemeVar(name, fallback = '') {
     return getComputedStyle(document.body).getPropertyValue(name).trim() || fallback;
 }
 
-/** DOE 00-uiTheme.js line / limit colors */
-function getChartRefColors(isLight) {
-    if (isLight) {
-        return {
-            grid: '#e2e8f0',
-            nominal: '#16a34a',
-            limit: '#dc2626',
-            plotBg: '#f8fafc',
-        };
+/** Temporarily apply light/dark on body so computed tokens match requested mode (e.g. PPTX export). */
+function withThemeMode(isLight, fn) {
+    const el = document.body;
+    const hadLight = el.classList.contains('light-mode');
+    if (hadLight !== isLight) el.classList.toggle('light-mode', isLight);
+    try {
+        return fn();
+    } finally {
+        if (hadLight !== isLight) el.classList.toggle('light-mode', hadLight);
     }
+}
+
+const SERIES_FALLBACK_DARK = ['#3b82f6', '#f87171', '#4ade80', '#eab308', '#a855f7', '#06b6d4', '#fb7185', '#fb923c', '#84cc16', '#5eead4'];
+const SERIES_FALLBACK_LIGHT = ['#4A78B0', '#B25A5A', '#5E8D6B', '#C09241', '#8D70A3', '#5C9494', '#B85C74', '#60699F', '#A9704C', '#7A8D55'];
+
+function readCssChartTokens() {
     return {
-        grid: '#334155',
-        nominal: '#4ade80',
-        limit: '#f87171',
-        plotBg: getThemeVar('--sl-850', '#1e293b'),
+        grid: getThemeVar('--chart-grid', '#334155'),
+        nominal: getThemeVar('--chart-nominal', '#4ade80'),
+        limit: getThemeVar('--chart-limit', '#f87171'),
+        plotBg: getThemeVar('--chart-plot-bg', getThemeVar('--sl-850', '#1e293b')),
     };
 }
 
-const CHART_SERIES_PALETTE_LIGHT = ['#4A78B0', '#B25A5A', '#5E8D6B', '#C09241', '#8D70A3', '#5C9494', '#B85C74', '#60699F', '#A9704C', '#7A8D55'];
-const CHART_SERIES_PALETTE_DARK = ['#3b82f6', '#f87171', '#4ade80', '#eab308', '#a855f7', '#06b6d4', '#fb7185', '#fb923c', '#84cc16', '#5eead4'];
+/** Chart reference lines / plot background — reads from css/design-tokens.css */
+function getChartRefColors(isLight) {
+    return withThemeMode(isLight, readCssChartTokens);
+}
+
+/** Ten series colors for Plotly — reads --series-1 … --series-10 from design tokens */
+function getChartSeriesPalette(isLight) {
+    const fallback = isLight ? SERIES_FALLBACK_LIGHT : SERIES_FALLBACK_DARK;
+    return withThemeMode(isLight, () => {
+        const palette = [];
+        for (let i = 1; i <= 10; i++) {
+            palette.push(getThemeVar(`--series-${i}`, fallback[i - 1]));
+        }
+        return palette;
+    });
+}
+
+/** @deprecated Use getChartSeriesPalette(isLight) — kept for import compatibility */
+const CHART_SERIES_PALETTE_LIGHT = SERIES_FALLBACK_LIGHT;
+/** @deprecated Use getChartSeriesPalette(isLight) */
+const CHART_SERIES_PALETTE_DARK = SERIES_FALLBACK_DARK;
 
 
 
@@ -2929,7 +3152,7 @@ function updateDashboard() {
     const stats = [];
     const plotTraces = [];
 
-    const colors = isLightMode ? CHART_SERIES_PALETTE_LIGHT : CHART_SERIES_PALETTE_DARK;
+    const colors = getChartSeriesPalette(isLightMode);
     
     let allFilteredValues = [];
 
@@ -3040,11 +3263,12 @@ function updateDashboard() {
     const fontColor = getThemeVar('--sl-100', isLightMode ? '#0f172a' : '#e2e8f0');
     const gridColor = chartRef.grid;
 
+    const axisLine = isLightMode ? {} : { showline: false };
     const layout = {
         margin: { t: 60, r: 50, l: 80, b: 50 }, 
         title: { text: `<b>${getFullDimensionName(rec)}</b>`, font: { size: 16, color: isLightMode ? '#0f172a' : '#e2e8f0' }, y: 0.95 },
-        xaxis: { title: 'Sample Sequence', gridcolor: gridColor, color: fontColor, tickmode: 'linear', dtick: 1 },
-        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, automargin: true, gridcolor: gridColor, color: fontColor, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)] },
+        xaxis: { title: 'Sample Sequence', gridcolor: gridColor, color: fontColor, tickmode: 'linear', dtick: 1, ...axisLine },
+        yaxis: { title: `Measured Value ${unit ? '('+unit+')' : ''}`, automargin: true, gridcolor: gridColor, color: fontColor, range: [Math.min(...allY) - (MathRange*0.1), Math.max(...allY) + (MathRange*0.1)], ...axisLine },
         plot_bgcolor: plotColor, paper_bgcolor: bgColor, 
         font: { family: 'Segoe UI, sans-serif', color: fontColor },
         showlegend: false, hoverlabel: { namelength: -1, font: { size: 12 } }, 
@@ -3060,7 +3284,7 @@ function updateDashboard() {
     setTimeout(() => {
         const chartDiv = document.getElementById('chart');
         layout.width = chartDiv.parentElement.clientWidth; 
-        Plotly.newPlot('chart', plotTraces, layout, {responsive: true, displayModeBar: false}).then(() => { Plotly.Plots.resize('chart'); if(isLightMode) applyThemeToCharts(); });
+        Plotly.newPlot('chart', plotTraces, layout, {responsive: true, displayModeBar: false}).then(() => { Plotly.Plots.resize('chart'); applyThemeToCharts(); });
     }, 15); 
 }
 function renderCustomLegend(traces, allSeriesList) {
@@ -3194,7 +3418,9 @@ function applyThemeToCharts() {
         'xaxis.gridcolor': gridColor,
         'yaxis.gridcolor': gridColor,
         'xaxis.tickfont.color': fontColor,
-        'yaxis.tickfont.color': fontColor
+        'yaxis.tickfont.color': fontColor,
+        'xaxis.showline': isLightMode,
+        'yaxis.showline': isLightMode,
     };
 
     document.querySelectorAll('.js-plotly-plot').forEach(chartEl => {
@@ -5046,6 +5272,7 @@ function renderStandardChartToImage(selectedDim) {
         let allY = [];
         
         const chartRef = getChartRefColors(true);
+        const seriesPalette = getChartSeriesPalette(true);
 
         seriesList.forEach((series, idx) => {
             const seriesData = dimData.filter(d => getSeriesLabel(d) === series).sort((a,b) => a.sample - b.sample);
@@ -5057,8 +5284,8 @@ function renderStandardChartToImage(selectedDim) {
                 y: values, 
                 mode: 'lines+markers', 
                 name: series, 
-                line: { color: CHART_SERIES_PALETTE_LIGHT[idx % CHART_SERIES_PALETTE_LIGHT.length], width: 2 }, 
-                marker: { color: CHART_SERIES_PALETTE_LIGHT[idx % CHART_SERIES_PALETTE_LIGHT.length], size: 6 } 
+                line: { color: seriesPalette[idx % seriesPalette.length], width: 2 }, 
+                marker: { color: seriesPalette[idx % seriesPalette.length], size: 6 } 
             });
         });
 
@@ -6560,6 +6787,77 @@ function updateSixPack() {
     });
 }
 
+const SPC_RISK_DEFINITIONS = {
+    "Process Variation": "PROCESS VARIATION (Cp < 1.0): The within-shot spread is too wide — the bell curve exceeds the tolerance even if perfectly centered. You cannot fix this by adjusting the mean or cutting steel. Priority actions: (1) Stabilize the Range/MR chart, (2) Inspect check ring and cushion, (3) Run a gate freeze study, (4) Verify clamp tonnage. Re-measure only after Cp improves.",
+    "Tooling Centering": "TOOLING CENTERING: The process is repeatable (good Cp) but the average is shifted toward one spec limit. This is the correct condition for a tooling or process mean adjustment. Use steel-safe rules: cut steel on cores to open holes, plate/weld cavities to grow external features. Confirm Range chart stability before any steel work.",
+    "Instability": "INSTABILITY (Special Cause): Individual shots or cavities are consuming more than 75% of the tolerance — often due to flyers (short shots, flash, contamination). Do not adjust the process mean. Instead: (1) Find the specific outlier shots on the Run Chart, (2) Physically inspect those parts, (3) Determine root cause, (4) Remove confirmed defects from the dataset, (5) Implement a countermeasure.",
+    "Marginal": "MARGINAL (Passing but Tight): The dimension is currently in spec but using a large share of the tolerance window. Any drift in mean or increase in variation will likely produce defects. Proactively monitor this dimension each run and prioritize it before it becomes a failure.",
+};
+
+/** @type {{ key: 'usage' | 'dimension', dir: 'asc' | 'desc' }} */
+let spcRiskSort = { key: "usage", dir: "desc" };
+let spcRiskRowsCache = [];
+
+function compareSpcRiskRows(a, b) {
+    const mult = spcRiskSort.dir === "asc" ? 1 : -1;
+    if (spcRiskSort.key === "dimension") {
+        return mult * String(a.dim).localeCompare(String(b.dim), undefined, { numeric: true });
+    }
+    return mult * (a.maxTolUsed - b.maxTolUsed);
+}
+
+function updateSpcRiskSortHeaderUI() {
+    const dimBtn = document.getElementById("spcRiskSortDimBtn");
+    const usageBtn = document.getElementById("spcRiskSortUsageBtn");
+    const dimIcon = document.getElementById("spcRiskSortDimIcon");
+    const usageIcon = document.getElementById("spcRiskSortUsageIcon");
+    if (!dimBtn || !usageBtn || !dimIcon || !usageIcon) return;
+    const arrow = spcRiskSort.dir === "asc" ? "▲" : "▼";
+    dimBtn.classList.toggle("spc-risk-sort-active", spcRiskSort.key === "dimension");
+    usageBtn.classList.toggle("spc-risk-sort-active", spcRiskSort.key === "usage");
+    dimIcon.textContent = spcRiskSort.key === "dimension" ? arrow : "";
+    usageIcon.textContent = spcRiskSort.key === "usage" ? arrow : "";
+    dimBtn.setAttribute("aria-sort", spcRiskSort.key === "dimension" ? spcRiskSort.dir + "ending" : "none");
+    usageBtn.setAttribute("aria-sort", spcRiskSort.key === "usage" ? spcRiskSort.dir + "ending" : "none");
+}
+
+function renderSpcRiskTable() {
+    const tbodyRisk = document.getElementById("spcRiskBody");
+    if (!tbodyRisk) return;
+    tbodyRisk.innerHTML = "";
+    const sorted = [...spcRiskRowsCache].sort(compareSpcRiskRows);
+    sorted.forEach((item) => {
+        const barColor = item.maxTolUsed > 90 ? "bg-red-500" : item.maxTolUsed > 70 ? "bg-yellow-500" : "bg-green-500";
+        const tooltipText = SPC_RISK_DEFINITIONS[item.driver] || "Risk analysis based on tolerance usage.";
+        tbodyRisk.innerHTML += `
+            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700">
+                <td class="px-3 py-2 font-bold text-slate-100">DIM ${item.dim}</td>
+                <td class="px-3 py-2 text-xs uppercase text-slate-400">${item.type}</td>
+                <td class="px-3 py-2 font-mono text-slate-300">${item.worseRun}</td>
+                <td class="px-3 py-2">
+                    <div class="w-full bg-slate-900 rounded-full h-2.5 mb-1">
+                        <div class="${barColor} h-2.5 rounded-full" style="width: ${Math.min(item.maxTolUsed, 100)}%"></div>
+                    </div>
+                    <span class="text-xs font-mono">${item.maxTolUsed.toFixed(1)}%</span>
+                </td>
+                <td class="px-3 py-2 text-sm font-bold text-slate-200 cursor-help underline decoration-dotted decoration-slate-500" title="${tooltipText}">${item.driver}</td>
+                <td class="px-3 py-2 text-xs text-slate-400 italic">${item.explanation}</td>
+            </tr>`;
+    });
+    updateSpcRiskSortHeaderUI();
+}
+
+function setSpcRiskSort(key) {
+    if (key !== "usage" && key !== "dimension") return;
+    if (spcRiskSort.key === key) {
+        spcRiskSort.dir = spcRiskSort.dir === "desc" ? "asc" : "desc";
+    } else {
+        spcRiskSort.key = key;
+        spcRiskSort.dir = key === "dimension" ? "asc" : "desc";
+    }
+    renderSpcRiskTable();
+}
+
 function updateSPC() {
     const uniqueDims = [...new Set(globalData.map(d => d.element))];
     if (uniqueDims.length === 0) return;
@@ -6568,13 +6866,6 @@ function updateSPC() {
     const variationSummary = { totalCp: 0, cpCount: 0, totalSignals: 0 };
     const dimensionRisks = [];
     let allRunNames = new Set();
-
-    const riskDefinitions = {
-        "Process Variation": "PROCESS VARIATION (Cp < 1.0): The within-shot spread is too wide — the bell curve exceeds the tolerance even if perfectly centered. You cannot fix this by adjusting the mean or cutting steel. Priority actions: (1) Stabilize the Range/MR chart, (2) Inspect check ring and cushion, (3) Run a gate freeze study, (4) Verify clamp tonnage. Re-measure only after Cp improves.",
-        "Tooling Centering": "TOOLING CENTERING: The process is repeatable (good Cp) but the average is shifted toward one spec limit. This is the correct condition for a tooling or process mean adjustment. Use steel-safe rules: cut steel on cores to open holes, plate/weld cavities to grow external features. Confirm Range chart stability before any steel work.",
-        "Instability": "INSTABILITY (Special Cause): Individual shots or cavities are consuming more than 75% of the tolerance — often due to flyers (short shots, flash, contamination). Do not adjust the process mean. Instead: (1) Find the specific outlier shots on the Run Chart, (2) Physically inspect those parts, (3) Determine root cause, (4) Remove confirmed defects from the dataset, (5) Implement a countermeasure.",
-        "Marginal": "MARGINAL (Passing but Tight): The dimension is currently in spec but using a large share of the tolerance window. Any drift in mean or increase in variation will likely produce defects. Proactively monitor this dimension each run and prioritize it before it becomes a failure."
-    };
 
     uniqueDims.forEach(dim => {
         let dimData = globalData.filter(d => d.element === dim);
@@ -6690,46 +6981,29 @@ function updateSPC() {
         let stab = "Stable", color = "text-green-400";
         if (avg > 75) { stab = "High Risk"; color = "text-red-400 font-bold"; }
         else if (avg > 50) { stab = "Drifting"; color = "text-yellow-400"; }
-        tbodyCav.innerHTML += `<tr class="bg-slate-800 border-b border-slate-700"><td class="px-4 py-3">${stat.run}</td><td class="px-4 py-3">${stat.cav}</td><td class="px-4 py-3">${avg.toFixed(1)}%</td><td class="px-4 py-3 ${color}">${stab}</td></tr>`;
+        tbodyCav.innerHTML += `<tr class="bg-slate-800 border-b border-slate-700"><td class="px-3 py-2">${stat.run}</td><td class="px-3 py-2">${stat.cav}</td><td class="px-3 py-2">${avg.toFixed(1)}%</td><td class="px-3 py-2 ${color}">${stab}</td></tr>`;
     });
 
-    const tbodyRisk = document.getElementById('spcRiskBody');
-    tbodyRisk.innerHTML = "";
-    dimensionRisks.sort((a,b) => b.maxTolUsed - a.maxTolUsed).forEach(item => {
-        let barColor = item.maxTolUsed > 90 ? "bg-red-500" : (item.maxTolUsed > 70 ? "bg-yellow-500" : "bg-green-500");
-        const tooltipText = riskDefinitions[item.driver] || "Risk analysis based on tolerance usage.";
-        
-        // CHANGED: 'text-white' updated to 'text-slate-100' for theme visibility
-        tbodyRisk.innerHTML += `
-            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700">
-                <td class="px-6 py-3 font-bold text-slate-100">DIM ${item.dim}</td>
-                <td class="px-6 py-3 text-xs uppercase text-slate-400">${item.type}</td>
-                <td class="px-6 py-3 font-mono text-slate-300">${item.worseRun}</td>
-                <td class="px-6 py-3">
-                    <div class="w-full bg-slate-900 rounded-full h-2.5 mb-1">
-                        <div class="${barColor} h-2.5 rounded-full" style="width: ${Math.min(item.maxTolUsed, 100)}%"></div>
-                    </div>
-                    <span class="text-xs font-mono">${item.maxTolUsed.toFixed(1)}%</span>
-                </td>
-                <td class="px-6 py-3 text-sm font-bold text-slate-200 cursor-help underline decoration-dotted decoration-slate-500" title="${tooltipText}">${item.driver}</td>
-                <td class="px-6 py-3 text-xs text-slate-400 italic">${item.explanation}</td>
-            </tr>`;
-    });
+    spcRiskRowsCache = dimensionRisks;
+    renderSpcRiskTable();
     
-    const physicsDiv = document.getElementById('spcPhysicsBody');
+    const physicsInner = document.getElementById('spcPhysicsInner');
+    const physicsAccent = document.getElementById('spcPhysicsAccent');
     const varDrivers = dimensionRisks.filter(d => d.driver.includes("Variation")).length;
     const centerDrivers = dimensionRisks.filter(d => d.driver.includes("Centering")).length;
     let interp = "";
     if (varDrivers > centerDrivers) {
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1"></i><div><h4 class="font-bold text-red-400">Pressure / Repeatability Problem</h4>
+        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-red-500";
+        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-red-400 uppercase mb-2">Pressure / Repeatability Problem</h4>
             <p class="text-xs text-slate-300 mt-1">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
             <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p></div></div>`;
     } else {
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1"></i><div><h4 class="font-bold text-orange-400">Tooling / Centering Problem</h4>
+        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-orange-500";
+        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2">Tooling / Centering Problem</h4>
             <p class="text-xs text-slate-300 mt-1">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
             <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p></div></div>`;
     }
-    physicsDiv.innerHTML = interp;
+    if (physicsInner) physicsInner.innerHTML = interp;
 }
 
 function refreshSixPackCavities() {
@@ -6885,7 +7159,7 @@ function addDimensionHeaderRow(dimLabel, category, groupId) {
     const tbody = document.getElementById('summaryTableBody');
     const headerTr = document.createElement('tr');
     
-    headerTr.className = "bg-slate-900/50 cursor-pointer hover:bg-slate-900/70 transition-colors border-b border-slate-700/30";
+    headerTr.className = "bg-slate-900/50 cursor-pointer hover:bg-slate-900/70 transition-colors";
     headerTr.onclick = () => toggleGroup(groupId);
 
     // Normalize to uppercase so "Critical" or "CRITICAL" both work
@@ -6925,7 +7199,7 @@ function addCavityIssueRow(dimKey, issueData, groupId) {
     const tr = document.createElement('tr');
     
     // Maintain zebra striping logic
-    tr.className = `bg-slate-800 hover:bg-slate-750 transition-colors border-b border-slate-700/30 even:bg-[rgba(0,0,0,0.1)] ${groupId} hidden`;
+    tr.className = `bg-slate-800 hover:bg-slate-750 transition-colors even:bg-[rgba(0,0,0,0.1)] ${groupId} hidden`;
     
     const catClass = issueData.issue.includes('FAI') ? 'text-purple-400' : 'text-red-400';
     const safeLabel = issueData.label.replace(/'/g, "\\'");
@@ -7030,6 +7304,7 @@ const windowExports = {
   removeOutliers,
   updateSummary,
   updateSPC,
+  setSpcRiskSort,
   toggleGroup,
   splitByCavityAndReAnalyze,
   applyRecommendedBoxCox,

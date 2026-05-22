@@ -1,0 +1,136 @@
+/**
+ * Metrology Analyzer / DOE SUITE — design tokens (single source of truth)
+ * Dark: :root (default). Light: body.light-mode overrides.
+ * Share this file + DESIGN-SYSTEM.md to replicate the palette in other apps.
+ */
+
+:root {
+    /* --- Semantic aliases (readable names; map to inverted slate scale) --- */
+    --bg-page: var(--sl-900);
+    --bg-elevated: var(--sl-850);
+    --bg-surface: var(--sl-800);
+    --bg-input: var(--sl-850);
+    --text-primary: var(--sl-200);
+    --text-secondary: var(--sl-300);
+    --text-muted: var(--sl-400);
+    --text-label: var(--sl-500);
+    --border-default: var(--sl-700);
+    --border-subtle: var(--sl-750);
+
+    /* DOE SUITE dark (theme-tokens.css html.dark) */
+    --sl-100: #e2e8f0;
+    --sl-200: #e2e8f0;
+    --sl-300: #cbd5e1;
+    --sl-400: #94a3b8;
+    --sl-500: #64748b;
+    --sl-600: #475569;
+    --sl-700: #1e293b;
+    --sl-750: #334155;
+    --sl-800: #0f172a;
+    --sl-850: #1e293b;
+    --sl-900: #020617;
+    --sl-950: #020617;
+
+    --accent-primary: #3b82f6;
+    --accent-success: #86efac;
+    --accent-danger: #fca5a5;
+    --accent-warning: #fcd34d;
+    --accent-metric-blue: #93c5fd;
+    --accent-metric-orange: #fb923c;
+    --accent-purple: #c084fc;
+    --focus-ring: var(--accent-primary);
+
+    --color-success: var(--accent-success);
+    --color-danger: var(--accent-danger);
+    --color-warning: var(--accent-warning);
+    --color-success-fg: var(--accent-success);
+    --color-danger-fg: var(--accent-danger);
+    --color-warning-fg: var(--accent-warning);
+
+    --chart-grid: #334155;
+    --chart-nominal: #4ade80;
+    --chart-limit: #f87171;
+    --chart-plot-bg: var(--sl-850);
+
+    --alert-bg: rgba(248, 113, 113, 0.1);
+    --alert-text: #fca5a5;
+    --process-insight-bg: rgba(127, 29, 29, 0.4);
+    --process-insight-border: rgba(248, 113, 113, 0.35);
+
+    /* Data series (Plotly) — dark mode */
+    --series-1: #3b82f6;
+    --series-2: #f87171;
+    --series-3: #4ade80;
+    --series-4: #eab308;
+    --series-5: #a855f7;
+    --series-6: #06b6d4;
+    --series-7: #fb7185;
+    --series-8: #fb923c;
+    --series-9: #84cc16;
+    --series-10: #5eead4;
+}
+
+body.light-mode {
+    --bg-page: var(--sl-900);
+    --bg-elevated: var(--sl-850);
+    --bg-surface: var(--sl-800);
+    --bg-input: var(--sl-850);
+    --text-primary: var(--sl-200);
+    --text-secondary: var(--sl-300);
+    --text-muted: var(--sl-400);
+    --text-label: var(--sl-500);
+    --border-default: var(--sl-700);
+    --border-subtle: var(--sl-750);
+
+    /* Light mode — soft contrast (no pure white; reduced glare) */
+    --sl-100: #1e293b;
+    --sl-200: #334155;
+    --sl-300: #475569;
+    --sl-400: #64748b;
+    --sl-500: #94a3b8;
+    --sl-600: #b8c5d6;
+    --sl-700: #c5d0e0;
+    --sl-750: #d8e0ec;
+    --sl-800: #f4f6fa;
+    --sl-850: #eef2f8;
+    --sl-900: #dce4f0;
+    --sl-950: #e8edf5;
+
+    --accent-primary: #3b82f6;
+    --accent-success: #16a34a;
+    --accent-danger: #c53030;
+    --accent-warning: #d97706;
+    --accent-metric-blue: #2563eb;
+    --accent-metric-orange: #ea580c;
+    --accent-purple: #7c3aed;
+    --focus-ring: var(--accent-primary);
+
+    --color-success: var(--accent-success);
+    --color-danger: var(--accent-danger);
+    --color-warning: var(--accent-warning);
+    --color-success-fg: var(--accent-success);
+    --color-danger-fg: var(--accent-danger);
+    --color-warning-fg: var(--accent-warning);
+
+    --chart-grid: #c8d4e4;
+    --chart-nominal: #15803d;
+    --chart-limit: #c53030;
+    --chart-plot-bg: #eef2f8;
+
+    --alert-bg: rgba(220, 38, 38, 0.06);
+    --alert-text: #b91c1c;
+    --process-insight-bg: rgba(220, 38, 38, 0.06);
+    --process-insight-border: rgba(220, 38, 38, 0.4);
+
+    /* Data series (Plotly) — light mode, muted enterprise */
+    --series-1: #4A78B0;
+    --series-2: #B25A5A;
+    --series-3: #5E8D6B;
+    --series-4: #C09241;
+    --series-5: #8D70A3;
+    --series-6: #5C9494;
+    --series-7: #B85C74;
+    --series-8: #60699F;
+    --series-9: #A9704C;
+    --series-10: #7A8D55;
+}

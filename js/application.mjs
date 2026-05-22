@@ -914,6 +914,77 @@ function updateSixPack() {
     });
 }
 
+const SPC_RISK_DEFINITIONS = {
+    "Process Variation": "PROCESS VARIATION (Cp < 1.0): The within-shot spread is too wide — the bell curve exceeds the tolerance even if perfectly centered. You cannot fix this by adjusting the mean or cutting steel. Priority actions: (1) Stabilize the Range/MR chart, (2) Inspect check ring and cushion, (3) Run a gate freeze study, (4) Verify clamp tonnage. Re-measure only after Cp improves.",
+    "Tooling Centering": "TOOLING CENTERING: The process is repeatable (good Cp) but the average is shifted toward one spec limit. This is the correct condition for a tooling or process mean adjustment. Use steel-safe rules: cut steel on cores to open holes, plate/weld cavities to grow external features. Confirm Range chart stability before any steel work.",
+    "Instability": "INSTABILITY (Special Cause): Individual shots or cavities are consuming more than 75% of the tolerance — often due to flyers (short shots, flash, contamination). Do not adjust the process mean. Instead: (1) Find the specific outlier shots on the Run Chart, (2) Physically inspect those parts, (3) Determine root cause, (4) Remove confirmed defects from the dataset, (5) Implement a countermeasure.",
+    "Marginal": "MARGINAL (Passing but Tight): The dimension is currently in spec but using a large share of the tolerance window. Any drift in mean or increase in variation will likely produce defects. Proactively monitor this dimension each run and prioritize it before it becomes a failure.",
+};
+
+/** @type {{ key: 'usage' | 'dimension', dir: 'asc' | 'desc' }} */
+let spcRiskSort = { key: "usage", dir: "desc" };
+let spcRiskRowsCache = [];
+
+function compareSpcRiskRows(a, b) {
+    const mult = spcRiskSort.dir === "asc" ? 1 : -1;
+    if (spcRiskSort.key === "dimension") {
+        return mult * String(a.dim).localeCompare(String(b.dim), undefined, { numeric: true });
+    }
+    return mult * (a.maxTolUsed - b.maxTolUsed);
+}
+
+function updateSpcRiskSortHeaderUI() {
+    const dimBtn = document.getElementById("spcRiskSortDimBtn");
+    const usageBtn = document.getElementById("spcRiskSortUsageBtn");
+    const dimIcon = document.getElementById("spcRiskSortDimIcon");
+    const usageIcon = document.getElementById("spcRiskSortUsageIcon");
+    if (!dimBtn || !usageBtn || !dimIcon || !usageIcon) return;
+    const arrow = spcRiskSort.dir === "asc" ? "▲" : "▼";
+    dimBtn.classList.toggle("spc-risk-sort-active", spcRiskSort.key === "dimension");
+    usageBtn.classList.toggle("spc-risk-sort-active", spcRiskSort.key === "usage");
+    dimIcon.textContent = spcRiskSort.key === "dimension" ? arrow : "";
+    usageIcon.textContent = spcRiskSort.key === "usage" ? arrow : "";
+    dimBtn.setAttribute("aria-sort", spcRiskSort.key === "dimension" ? spcRiskSort.dir + "ending" : "none");
+    usageBtn.setAttribute("aria-sort", spcRiskSort.key === "usage" ? spcRiskSort.dir + "ending" : "none");
+}
+
+function renderSpcRiskTable() {
+    const tbodyRisk = document.getElementById("spcRiskBody");
+    if (!tbodyRisk) return;
+    tbodyRisk.innerHTML = "";
+    const sorted = [...spcRiskRowsCache].sort(compareSpcRiskRows);
+    sorted.forEach((item) => {
+        const barColor = item.maxTolUsed > 90 ? "bg-red-500" : item.maxTolUsed > 70 ? "bg-yellow-500" : "bg-green-500";
+        const tooltipText = SPC_RISK_DEFINITIONS[item.driver] || "Risk analysis based on tolerance usage.";
+        tbodyRisk.innerHTML += `
+            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700">
+                <td class="px-3 py-2 font-bold text-slate-100">DIM ${item.dim}</td>
+                <td class="px-3 py-2 text-xs uppercase text-slate-400">${item.type}</td>
+                <td class="px-3 py-2 font-mono text-slate-300">${item.worseRun}</td>
+                <td class="px-3 py-2">
+                    <div class="w-full bg-slate-900 rounded-full h-2.5 mb-1">
+                        <div class="${barColor} h-2.5 rounded-full" style="width: ${Math.min(item.maxTolUsed, 100)}%"></div>
+                    </div>
+                    <span class="text-xs font-mono">${item.maxTolUsed.toFixed(1)}%</span>
+                </td>
+                <td class="px-3 py-2 text-sm font-bold text-slate-200 cursor-help underline decoration-dotted decoration-slate-500" title="${tooltipText}">${item.driver}</td>
+                <td class="px-3 py-2 text-xs text-slate-400 italic">${item.explanation}</td>
+            </tr>`;
+    });
+    updateSpcRiskSortHeaderUI();
+}
+
+export function setSpcRiskSort(key) {
+    if (key !== "usage" && key !== "dimension") return;
+    if (spcRiskSort.key === key) {
+        spcRiskSort.dir = spcRiskSort.dir === "desc" ? "asc" : "desc";
+    } else {
+        spcRiskSort.key = key;
+        spcRiskSort.dir = key === "dimension" ? "asc" : "desc";
+    }
+    renderSpcRiskTable();
+}
+
 function updateSPC() {
     const uniqueDims = [...new Set(globalData.map(d => d.element))];
     if (uniqueDims.length === 0) return;
@@ -922,13 +993,6 @@ function updateSPC() {
     const variationSummary = { totalCp: 0, cpCount: 0, totalSignals: 0 };
     const dimensionRisks = [];
     let allRunNames = new Set();
-
-    const riskDefinitions = {
-        "Process Variation": "PROCESS VARIATION (Cp < 1.0): The within-shot spread is too wide — the bell curve exceeds the tolerance even if perfectly centered. You cannot fix this by adjusting the mean or cutting steel. Priority actions: (1) Stabilize the Range/MR chart, (2) Inspect check ring and cushion, (3) Run a gate freeze study, (4) Verify clamp tonnage. Re-measure only after Cp improves.",
-        "Tooling Centering": "TOOLING CENTERING: The process is repeatable (good Cp) but the average is shifted toward one spec limit. This is the correct condition for a tooling or process mean adjustment. Use steel-safe rules: cut steel on cores to open holes, plate/weld cavities to grow external features. Confirm Range chart stability before any steel work.",
-        "Instability": "INSTABILITY (Special Cause): Individual shots or cavities are consuming more than 75% of the tolerance — often due to flyers (short shots, flash, contamination). Do not adjust the process mean. Instead: (1) Find the specific outlier shots on the Run Chart, (2) Physically inspect those parts, (3) Determine root cause, (4) Remove confirmed defects from the dataset, (5) Implement a countermeasure.",
-        "Marginal": "MARGINAL (Passing but Tight): The dimension is currently in spec but using a large share of the tolerance window. Any drift in mean or increase in variation will likely produce defects. Proactively monitor this dimension each run and prioritize it before it becomes a failure."
-    };
 
     uniqueDims.forEach(dim => {
         let dimData = globalData.filter(d => d.element === dim);
@@ -1044,46 +1108,29 @@ function updateSPC() {
         let stab = "Stable", color = "text-green-400";
         if (avg > 75) { stab = "High Risk"; color = "text-red-400 font-bold"; }
         else if (avg > 50) { stab = "Drifting"; color = "text-yellow-400"; }
-        tbodyCav.innerHTML += `<tr class="bg-slate-800 border-b border-slate-700"><td class="px-4 py-3">${stat.run}</td><td class="px-4 py-3">${stat.cav}</td><td class="px-4 py-3">${avg.toFixed(1)}%</td><td class="px-4 py-3 ${color}">${stab}</td></tr>`;
+        tbodyCav.innerHTML += `<tr class="bg-slate-800 border-b border-slate-700"><td class="px-3 py-2">${stat.run}</td><td class="px-3 py-2">${stat.cav}</td><td class="px-3 py-2">${avg.toFixed(1)}%</td><td class="px-3 py-2 ${color}">${stab}</td></tr>`;
     });
 
-    const tbodyRisk = document.getElementById('spcRiskBody');
-    tbodyRisk.innerHTML = "";
-    dimensionRisks.sort((a,b) => b.maxTolUsed - a.maxTolUsed).forEach(item => {
-        let barColor = item.maxTolUsed > 90 ? "bg-red-500" : (item.maxTolUsed > 70 ? "bg-yellow-500" : "bg-green-500");
-        const tooltipText = riskDefinitions[item.driver] || "Risk analysis based on tolerance usage.";
-        
-        // CHANGED: 'text-white' updated to 'text-slate-100' for theme visibility
-        tbodyRisk.innerHTML += `
-            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700">
-                <td class="px-6 py-3 font-bold text-slate-100">DIM ${item.dim}</td>
-                <td class="px-6 py-3 text-xs uppercase text-slate-400">${item.type}</td>
-                <td class="px-6 py-3 font-mono text-slate-300">${item.worseRun}</td>
-                <td class="px-6 py-3">
-                    <div class="w-full bg-slate-900 rounded-full h-2.5 mb-1">
-                        <div class="${barColor} h-2.5 rounded-full" style="width: ${Math.min(item.maxTolUsed, 100)}%"></div>
-                    </div>
-                    <span class="text-xs font-mono">${item.maxTolUsed.toFixed(1)}%</span>
-                </td>
-                <td class="px-6 py-3 text-sm font-bold text-slate-200 cursor-help underline decoration-dotted decoration-slate-500" title="${tooltipText}">${item.driver}</td>
-                <td class="px-6 py-3 text-xs text-slate-400 italic">${item.explanation}</td>
-            </tr>`;
-    });
+    spcRiskRowsCache = dimensionRisks;
+    renderSpcRiskTable();
     
-    const physicsDiv = document.getElementById('spcPhysicsBody');
+    const physicsInner = document.getElementById('spcPhysicsInner');
+    const physicsAccent = document.getElementById('spcPhysicsAccent');
     const varDrivers = dimensionRisks.filter(d => d.driver.includes("Variation")).length;
     const centerDrivers = dimensionRisks.filter(d => d.driver.includes("Centering")).length;
     let interp = "";
     if (varDrivers > centerDrivers) {
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1"></i><div><h4 class="font-bold text-red-400">Pressure / Repeatability Problem</h4>
+        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-red-500";
+        interp += `<div class="flex gap-3"><i class="fa-solid fa-compress text-red-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-red-400 uppercase mb-2">Pressure / Repeatability Problem</h4>
             <p class="text-xs text-slate-300 mt-1">Most flagged dimensions show wide spread (low Cp) — the machine cannot repeat the same fill and pack shot after shot. This is a variation problem, not a centering problem.</p>
             <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Inspect and replace worn check ring, (2) Log and stabilize cushion, (3) Run gate freeze study, (4) Verify clamp tonnage. Do not cut steel until Cp is acceptable.</p></div></div>`;
     } else {
-        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1"></i><div><h4 class="font-bold text-orange-400">Tooling / Centering Problem</h4>
+        if (physicsAccent) physicsAccent.className = "absolute top-0 left-0 w-1 h-full bg-orange-500";
+        interp += `<div class="flex gap-3"><i class="fa-solid fa-tools text-orange-400 mt-1 shrink-0"></i><div><h4 class="text-xs font-bold text-orange-400 uppercase mb-2">Tooling / Centering Problem</h4>
             <p class="text-xs text-slate-300 mt-1">Most flagged dimensions are repeatable (acceptable Cp) but off nominal — the mold steel or setup is at the wrong size. This is the correct condition for tooling adjustment.</p>
             <p class="text-xs text-slate-400 mt-2"><strong>Priority actions:</strong> (1) Confirm Range chart is stable, (2) Try hold pressure / cooling adjustment for small shifts, (3) Plan steel-safe tooling change for large shifts. Document mean, nominal, and direction before cutting.</p></div></div>`;
     }
-    physicsDiv.innerHTML = interp;
+    if (physicsInner) physicsInner.innerHTML = interp;
 }
 
 function refreshSixPackCavities() {
@@ -1241,7 +1288,7 @@ function addDimensionHeaderRow(dimLabel, category, groupId) {
     const tbody = document.getElementById('summaryTableBody');
     const headerTr = document.createElement('tr');
     
-    headerTr.className = "bg-slate-900/50 cursor-pointer hover:bg-slate-900/70 transition-colors border-b border-slate-700/30";
+    headerTr.className = "bg-slate-900/50 cursor-pointer hover:bg-slate-900/70 transition-colors";
     headerTr.onclick = () => toggleGroup(groupId);
 
     // Normalize to uppercase so "Critical" or "CRITICAL" both work
@@ -1281,7 +1328,7 @@ function addCavityIssueRow(dimKey, issueData, groupId) {
     const tr = document.createElement('tr');
     
     // Maintain zebra striping logic
-    tr.className = `bg-slate-800 hover:bg-slate-750 transition-colors border-b border-slate-700/30 even:bg-[rgba(0,0,0,0.1)] ${groupId} hidden`;
+    tr.className = `bg-slate-800 hover:bg-slate-750 transition-colors even:bg-[rgba(0,0,0,0.1)] ${groupId} hidden`;
     
     const catClass = issueData.issue.includes('FAI') ? 'text-purple-400' : 'text-red-400';
     const safeLabel = issueData.label.replace(/'/g, "\\'");
@@ -1387,6 +1434,7 @@ const windowExports = {
   removeOutliers,
   updateSummary,
   updateSPC,
+  setSpcRiskSort,
   toggleGroup,
   splitByCavityAndReAnalyze,
   applyRecommendedBoxCox,
